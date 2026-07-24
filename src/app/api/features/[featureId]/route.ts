@@ -60,7 +60,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams): Prom
       return respond(request, startedAt, status, body)
     }
 
-    const feature = await updateFeature(featureId, user.id, parsed.data)
+    const { expectedUpdatedAt, ...updateInput } = parsed.data
+    const feature = await updateFeature(featureId, user.id, updateInput, {
+      lockCheckUserId: user.id,
+      expectedUpdatedAt: expectedUpdatedAt ? new Date(expectedUpdatedAt) : undefined,
+    })
     return respond(request, startedAt, 200, { feature })
   } catch (error) {
     return handleRouteError(error)
@@ -75,7 +79,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams): Pro
     assertWriteRateLimit(user.id, "features:write")
     const { featureId } = await params
 
-    await deleteFeature(featureId, user.id)
+    await deleteFeature(featureId, user.id, { lockCheckUserId: user.id })
 
     logger.request({
       method: request.method,

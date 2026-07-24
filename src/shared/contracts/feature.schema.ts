@@ -27,12 +27,18 @@ export const createFeatureSchema = z.object({
 })
 export type CreateFeatureInput = z.infer<typeof createFeatureSchema>
 
-/** `PATCH /api/features/:featureId` request body — at least one facet required. */
+/**
+ * `PATCH /api/features/:featureId` request body — at least one facet
+ * required. `expectedUpdatedAt` (specs/006-collaboration, research.md
+ * Decision 5) is additive and optional — every existing caller that omits
+ * it sees zero behavior change.
+ */
 export const updateFeatureSchema = z
   .object({
     geometry: geometrySchema.optional(),
     attributes: attributes.optional(),
     style: style.optional(),
+    expectedUpdatedAt: z.iso.datetime().optional(),
   })
   .refine(
     (data) => data.geometry !== undefined || data.attributes !== undefined || data.style !== undefined,

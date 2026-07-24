@@ -125,6 +125,25 @@ async function assertGeometryIsValid(
   }
 }
 
+/**
+ * Resolves the `projectId` a feature belongs to (specs/006-collaboration —
+ * feature-scoped endpoints like comments/locks need this for
+ * `assertProjectRole`, which operates on a `projectId`, not a `featureId`).
+ * Throws `NotFoundError` if the feature doesn't exist — never discloses
+ * whether it exists to a caller with no access (the caller must separately
+ * pass an `assertProjectRole` check using the returned id).
+ */
+export async function getProjectIdForFeature(featureId: string): Promise<string> {
+  const feature = await prismaClient.feature.findUnique({
+    where: { id: featureId },
+    select: { layer: { select: { projectId: true } } },
+  })
+  if (!feature) {
+    throw new NotFoundError(`No feature found with id "${featureId}".`)
+  }
+  return feature.layer.projectId
+}
+
 /** Returns a feature (with its attributes and style) only if it belongs to a layer/project owned by `ownerId`. */
 export async function getFeatureById(
   featureId: string,

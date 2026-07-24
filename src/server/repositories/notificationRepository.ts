@@ -1,6 +1,6 @@
 import type { Notification, Prisma } from "@prisma/client"
 import { prismaClient } from "@/server/db/prismaClient"
-import { ForbiddenError, NotFoundError } from "@/shared/errors/apiError"
+import { NotFoundError } from "@/shared/errors/apiError"
 
 export type NotificationType =
   | "project_shared"
@@ -69,14 +69,20 @@ export async function listNotificationsForUser(
   return { notifications, nextCursor, unreadCount }
 }
 
-/** Marks one notification read — only its recipient may do so (repository-level check). */
+/**
+ * Marks one notification read — only its recipient may do so. A
+ * notification is a private, per-user resource (unlike a project-scoped
+ * resource where membership already implies visibility), so a mismatched
+ * recipient is reported identically to "doesn't exist" (`NotFoundError`,
+ * non-disclosing) rather than `ForbiddenError` — matching this codebase's
+ * established non-disclosure pattern (`NotFoundError`'s own doc comment).
+ */
 export async function markNotificationRead(notificationId: string, userId: string): Promise<Notification> {
-  const existing = await prismaClient.notification.findUnique({ where: { id: notificationId } })
+  const existing = await prismaClient.notification.findFirst({
+    where: { id: notificationId, recipientUserId: userId },
+  })
   if (!existing) {
     throw new NotFoundError(`No notification found with id "${notificationId}".`)
-  }
-  if (existing.recipientUserId !== userId) {
-    throw new ForbiddenError("You may only mark your own notifications as read.")
   }
   return prismaClient.notification.update({ where: { id: notificationId }, data: { read: true } })
 }
