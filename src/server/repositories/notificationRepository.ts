@@ -31,7 +31,7 @@ export async function createNotification(
     data: {
       recipientUserId: input.recipientUserId,
       type: input.type,
-      payload: input.payload,
+      payload: input.payload as Prisma.InputJsonValue,
     },
   })
 }

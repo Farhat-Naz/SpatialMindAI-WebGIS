@@ -41,7 +41,7 @@ export async function recordActivity(
       action: input.action,
       targetType: input.targetType,
       targetId: input.targetId,
-      metadata: input.metadata,
+      metadata: input.metadata as Prisma.InputJsonValue | undefined,
     },
   })
 }

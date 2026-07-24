@@ -29,16 +29,26 @@ export async function createProject(
 }
 
 /**
- * Returns the project only if it belongs to `ownerId`; null for both
- * "doesn't exist" and "exists but belongs to someone else," indistinguishably
- * (see NotFoundError's doc comment).
+ * Returns the project only if `ownerId` owns it OR has an active
+ * `ProjectMember` row on it (specs/006-collaboration, research.md Decision
+ * 10 — a necessary, narrowly-scoped broadening: without it, an invited
+ * Editor/Viewer could never access a shared project through this or any
+ * function that calls it). The parameter is still named `ownerId` — kept
+ * deliberately, not renamed to something like `actingUserId`, to avoid an
+ * unrelated, large-blast-radius rename across every call site for
+ * cosmetics alone (documented, intentional). `null` for both "doesn't
+ * exist" and "exists but the caller has no access," indistinguishably
+ * (see `NotFoundError`'s doc comment) — unchanged for a true non-member.
  */
 export async function getProjectById(
   projectId: string,
   ownerId: string,
 ): Promise<Project | null> {
   return prismaClient.project.findFirst({
-    where: { id: projectId, ownerId },
+    where: {
+      id: projectId,
+      OR: [{ ownerId }, { members: { some: { userId: ownerId } } }],
+    },
   })
 }
 

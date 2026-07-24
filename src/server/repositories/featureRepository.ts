@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto"
 import { Prisma, type FeatureAttribute, type FeatureStyle } from "@prisma/client"
 import { prismaClient } from "@/server/db/prismaClient"
-import { NotFoundError, ValidationError } from "@/shared/errors/apiError"
+import { getActiveLockForFeature } from "@/server/repositories/featureLockRepository"
+import { ConflictError, NotFoundError, ValidationError } from "@/shared/errors/apiError"
 import type { GeoJSONGeometry } from "@/shared/contracts/geometry.schema"
 
 export interface StyleInput {
@@ -33,21 +34,35 @@ interface RawFeatureRow {
   updatedAt: Date
 }
 
-/** Returns the layer only if it belongs to a project owned by `ownerId`. */
+/**
+ * Returns the layer only if `ownerId` owns its project OR has an active
+ * `ProjectMember` row on it (specs/006-collaboration, research.md
+ * Decision 10 — identical broadening applied in `layerRepository.ts`).
+ */
 async function getLayerScopedToOwner(layerId: string, ownerId: string) {
   return prismaClient.layer.findFirst({
-    where: { id: layerId, project: { ownerId } },
+    where: {
+      id: layerId,
+      project: { OR: [{ ownerId }, { members: { some: { userId: ownerId } } }] },
+    },
   })
 }
 
-/** Returns the bare feature row only if it belongs to a layer owned (via its project) by `ownerId`. */
+/**
+ * Returns the bare feature row only if `ownerId` owns its project (via its
+ * layer) OR has an active `ProjectMember` row on it (specs/006-
+ * collaboration, research.md Decision 10).
+ */
 async function getFeatureScopedToOwner(featureId: string, ownerId: string) {
   const rows = await prismaClient.$queryRaw<RawFeatureRow[]>`
     SELECT f.id, f."layerId", ST_AsGeoJSON(f.geometry) AS geometry, f."createdAt", f."updatedAt"
     FROM "Feature" f
     JOIN "Layer" l ON l.id = f."layerId"
     JOIN "Project" p ON p.id = l."projectId"
-    WHERE f.id = ${featureId} AND p."ownerId" = ${ownerId}
+    WHERE f.id = ${featureId} AND (
+      p."ownerId" = ${ownerId}
+      OR EXISTS (SELECT 1 FROM "ProjectMember" pm WHERE pm."projectId" = p.id AND pm."userId" = ${ownerId})
+    )
   `
   return rows[0] ?? null
 }
@@ -175,15 +190,38 @@ export async function createFeature(
 /**
  * Updates a feature's geometry, attributes, and/or style independently —
  * an omitted facet is left completely unchanged (FR-017/FR-021/FR-024).
+ *
+ * specs/006-collaboration additions (research.md Decisions 4–5), both
+ * additive guard clauses ahead of this function's original, unchanged
+ * logic: (1) rejected with `ConflictError` if a *different*, unexpired
+ * `FeatureLock` exists (US3); (2) if the caller passes `expectedUpdatedAt`,
+ * rejected with `ConflictError` when it no longer matches the feature's
+ * current `updatedAt` — the same mechanism serves US3's connected-editing
+ * case and US8's offline-reconnect case (optimistic concurrency, no new
+ * version-number column).
  */
 export async function updateFeature(
   featureId: string,
   ownerId: string,
   input: { geometry?: GeoJSONGeometry; attributes?: AttributeInput[]; style?: StyleInput },
+  options?: { lockCheckUserId?: string; expectedUpdatedAt?: Date },
 ): Promise<FeatureRecord> {
   const existing = await getFeatureScopedToOwner(featureId, ownerId)
   if (!existing) {
     throw new NotFoundError(`No feature found with id "${featureId}".`)
+  }
+
+  if (options?.lockCheckUserId) {
+    const activeLock = await getActiveLockForFeature(featureId)
+    if (activeLock && activeLock.lockedByUserId !== options.lockCheckUserId) {
+      throw new ConflictError("This feature is currently locked by another member.")
+    }
+  }
+
+  if (options?.expectedUpdatedAt && existing.updatedAt.getTime() !== options.expectedUpdatedAt.getTime()) {
+    throw new ConflictError(
+      "This feature was changed by someone else since you last loaded it — please refresh and try again.",
+    )
   }
 
   return prismaClient.$transaction(async (tx) => {
@@ -231,11 +269,29 @@ export async function updateFeature(
   })
 }
 
-export async function deleteFeature(featureId: string, ownerId: string): Promise<void> {
+/**
+ * Deletes a feature. `lockCheckUserId` (specs/006-collaboration, research.md
+ * Decision 4) is optional and additive — omitted, this behaves exactly as
+ * it did before this feature; passed, a lock held by a different,
+ * unexpired user rejects the delete with `ConflictError`.
+ */
+export async function deleteFeature(
+  featureId: string,
+  ownerId: string,
+  options?: { lockCheckUserId?: string },
+): Promise<void> {
   const existing = await getFeatureScopedToOwner(featureId, ownerId)
   if (!existing) {
     throw new NotFoundError(`No feature found with id "${featureId}".`)
   }
+
+  if (options?.lockCheckUserId) {
+    const activeLock = await getActiveLockForFeature(featureId)
+    if (activeLock && activeLock.lockedByUserId !== options.lockCheckUserId) {
+      throw new ConflictError("This feature is currently locked by another member.")
+    }
+  }
+
   await prismaClient.feature.delete({ where: { id: featureId } })
 }
 

@@ -3,10 +3,18 @@ import { prismaClient } from "@/server/db/prismaClient"
 import { getProjectById } from "@/server/repositories/projectRepository"
 import { DuplicateNameError, NotFoundError, ValidationError } from "@/shared/errors/apiError"
 
-/** Returns a layer only if it belongs to a project owned by `ownerId`. */
+/**
+ * Returns a layer only if `ownerId` owns its project OR has an active
+ * `ProjectMember` row on it (specs/006-collaboration, research.md
+ * Decision 10 — identical broadening to `projectRepository.getProjectById`,
+ * applied through the layer's parent project).
+ */
 async function getLayerScopedToOwner(layerId: string, ownerId: string): Promise<Layer | null> {
   return prismaClient.layer.findFirst({
-    where: { id: layerId, project: { ownerId } },
+    where: {
+      id: layerId,
+      project: { OR: [{ ownerId }, { members: { some: { userId: ownerId } } }] },
+    },
   })
 }
 
