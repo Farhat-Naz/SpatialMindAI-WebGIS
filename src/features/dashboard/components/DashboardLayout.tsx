@@ -8,11 +8,14 @@ import { StatusBar } from "./StatusBar"
 import { useSidebar } from "../hooks/useSidebar"
 import { useBreakpoint } from "../hooks/useBreakpoint"
 import { MapContainer } from "@/features/map"
+import { RightSidebar } from "@/features/database/components/RightSidebar"
+import { useKeyboardShortcuts } from "@/features/database/hooks/useKeyboardShortcuts"
 
 export function DashboardLayout() {
   const { sidebarState, toggle } = useSidebar()
   const isMobile = useBreakpoint(767)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  useKeyboardShortcuts()
 
   return (
     <>
@@ -24,7 +27,7 @@ export function DashboardLayout() {
           onMenuToggle={() => setMobileNavOpen(true)}
           isMobile={isMobile}
         />
-        <div className="grid min-h-0 grid-cols-[auto_minmax(0,1fr)] overflow-hidden">
+        <div className="grid min-h-0 grid-cols-[auto_minmax(0,1fr)_auto] overflow-hidden">
           <div className="col-start-1 hidden md:flex">
             <Sidebar state={sidebarState} onToggle={toggle} />
           </div>
@@ -42,6 +45,9 @@ export function DashboardLayout() {
             className="col-start-2 h-full min-h-0 w-full min-w-0"
           >
             <MapContainer className="h-full w-full" />
+          </div>
+          <div className="col-start-3 hidden md:flex">
+            <RightSidebar />
           </div>
         </div>
         <StatusBar />

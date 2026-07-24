@@ -126,3 +126,44 @@ Nominatim (`nominatim.openstreetmap.org` by default) **server-side only**, so:
   aggregate rate against Nominatim will be higher than the configured
   per-instance limit. Set `SEARCH_USER_AGENT` to your own deployment's
   contact info before going to production, per Nominatim's usage policy.
+
+## Phase 3: Database Foundation
+
+This phase introduces the project's first database — PostgreSQL with the
+PostGIS extension, accessed via Prisma (`src/server/`) — and its first
+Route Handlers under `/api/projects`, `/api/layers`, `/api/features`
+(`specs/003-database-foundation/`).
+
+- **Environment variables**: `DATABASE_URL` and `DEV_USER_ID` are both
+  **required** in every environment (see `docs/environment-variables.md`).
+  Neither is optional the way the Phase 2 search variables are.
+- **Database migrations**: `prisma migrate deploy` (never `prisma migrate
+  dev`, which is interactive and dev-only) MUST run as a build/deploy step
+  — before the new application version receives traffic, not triggered by
+  application code at request time. On Vercel, wire this into the project's
+  build command (e.g., `prisma migrate deploy && next build`) or a
+  pre-deploy hook.
+- **PostGIS availability**: the target PostgreSQL instance must support the
+  `postgis` extension (`CREATE EXTENSION IF NOT EXISTS postgis;`, applied
+  automatically by the first migration). A managed Postgres offering that
+  does not support installing PostGIS cannot host this application.
+- **Node.js runtime required**: every Route Handler introduced by this
+  phase depends on Prisma's query engine, which is not Edge-runtime
+  compatible without an additional proxy layer (e.g., Prisma Accelerate),
+  not used here. None of these Route Handlers may declare
+  `export const runtime = 'edge'`. On Vercel, Route Handlers default to the
+  Node.js runtime unless they opt into `edge`, so no extra configuration is
+  needed beyond not adding that opt-in.
+- **No CSP changes needed**: all database access is server-side only (via
+  Prisma/PostGIS); the browser only ever calls same-origin
+  `/api/projects*`, `/api/layers*`, `/api/features*`, already covered by the
+  existing `connect-src 'self'` above.
+- **Rate limiting is enforced per server instance**, in-memory (see
+  `src/server/security/rateLimiter.ts`) — the same single-instance caveat as
+  Phase 2's search limiter applies: each deployed instance enforces its own
+  budget independently.
+- **Known gap — no real authentication**: `DEV_USER_ID` (see
+  `docs/environment-variables.md`) is an interim placeholder, not a login
+  system. **Do not deploy this phase to a public, multi-user environment**
+  until a real authentication module replaces
+  `src/server/auth/getCurrentUser.ts`.

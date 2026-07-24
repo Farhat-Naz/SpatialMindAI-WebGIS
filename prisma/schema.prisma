@@ -1,0 +1,533 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+//
+// PostGIS integration: `postgresqlExtensions` is enabled and the `postgis`
+// extension is declared on the datasource per
+// specs/003-database-foundation/research.md Decision 1. Geometry columns use
+// Prisma's `Unsupported("geometry(...)")` type and are read/written via raw
+// SQL — see src/server/repositories/featureRepository.ts (added in Phase 5).
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis]
+}
+
+/// Owns projects. Account/login is out of scope this phase — see
+/// src/server/auth/getCurrentUser.ts and research.md Decision 6.
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // specs/006-collaboration — additive back-relations only.
+  memberships         ProjectMember[]
+  sentInvitations     Invitation[]    @relation("InvitationSender")
+  receivedInvitations Invitation[]    @relation("InvitationRecipient")
+  comments            Comment[]
+  activities          Activity[]
+  versions            Version[]
+  notifications       Notification[]
+  featureLocks        FeatureLock[]
+  presenceSessions    Presence[]
+}
+
+/// Root data-hierarchy container (User 1──* Project 1──* Layer 1──* Feature).
+/// Name is unique per owner (FR-002); deleting a project cascades to every
+/// layer/feature/attribute/style nested beneath it (Research Decision 7).
+model Project {
+  id           String        @id @default(cuid())
+  name         String
+  description  String?
+  ownerId      String
+  owner        User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  layers       Layer[]
+  analysisRuns AnalysisRun[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // specs/006-collaboration — additive back-relations only.
+  members     ProjectMember[]
+  invitations Invitation[]
+  activities  Activity[]
+  versions    Version[]
+  presence    Presence[]
+
+  @@unique([ownerId, name])
+  @@index([ownerId])
+}
+
+/// Named grouping of spatial data within one Project. `order` determines
+/// draw/list order among sibling layers (FR-011); a layer may contain
+/// features of more than one geometry type (FR-012, confirmed clarification).
+model Layer {
+  id                   String        @id @default(cuid())
+  name                 String
+  order                Int
+  projectId            String
+  project              Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  features             Feature[]
+  resultOfAnalysisRuns AnalysisRun[]
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  @@unique([projectId, name])
+  @@index([projectId, order])
+}
+
+/// A single spatial record belonging to one Layer. `geometry` is a native
+/// PostGIS column (Research Decision 1) — Prisma's generated client cannot
+/// read/write it directly; all access goes through raw SQL in
+/// featureRepository.ts. SRID is fixed at 4326 platform-wide (FR-016).
+model Feature {
+  id         String                                  @id @default(cuid())
+  layerId    String
+  layer      Layer                                   @relation(fields: [layerId], references: [id], onDelete: Cascade)
+  geometry   Unsupported("geometry(Geometry, 4326)")
+  attributes FeatureAttribute[]
+  style      FeatureStyle?
+  createdAt  DateTime                                @default(now())
+  updatedAt  DateTime                                @updatedAt
+
+  // specs/006-collaboration — additive back-relations only.
+  comments Comment[]
+  lock     FeatureLock?
+
+  @@index([layerId])
+}
+
+/// A single free-form name/value pair belonging to one Feature (Research
+/// Decision 12 — normalized child table, not a per-layer fixed schema).
+/// Two features in the same layer are not required to share attribute names.
+model FeatureAttribute {
+  id        String  @id @default(cuid())
+  featureId String
+  feature   Feature @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  key       String
+  value     String
+
+  @@unique([featureId, key])
+  @@index([featureId])
+}
+
+/// Visual styling for one Feature (one-to-one). A Feature with no
+/// FeatureStyle row uses the documented platform-wide default (FR-023).
+model FeatureStyle {
+  id          String  @id @default(cuid())
+  featureId   String  @unique
+  feature     Feature @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  color       String
+  strokeWidth Float?
+  fillOpacity Float?
+}
+
+/// A single geoprocessing operation run within one Project (spec
+/// 005-spatial-analysis-geoprocessing). Covers all three spec-level
+/// concepts — a single Analysis Run, a Batch Run (a group of rows sharing
+/// `batchId`), and an Analysis History entry (this row, viewed through the
+/// project-scoped listing query) — per data-model.md Decision 2, so no
+/// separate BatchRun/HistoryEntry table exists. `resultLayerId` is set only
+/// when the operation produced new geometry; `resultData` holds tabular,
+/// non-geometry results (Distance Matrix, CRS Transformation preview).
+model AnalysisRun {
+  id            String   @id @default(cuid())
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  operationType String
+  status        String
+  parameters    Json
+  inputLayerIds Json
+  resultLayerId String?
+  resultLayer   Layer?   @relation(fields: [resultLayerId], references: [id], onDelete: SetNull)
+  resultData    Json?
+  errorMessage  String?
+  batchId       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([projectId, createdAt])
+  @@index([batchId])
+}
+
+// ---------------------------------------------------------------------------
+// Real-Time Collaboration (specs/006-collaboration)
+//
+// Multi-user access to a Project. `ProjectMember` broadens access beyond
+// `Project.ownerId` (research.md Decision 10 — the existing ownership-scoped
+// repository functions are updated to also recognize an active membership
+// row, additively, no signature change). See data-model.md for the full
+// cascade-vs-restrict rationale repeated per model below.
+// ---------------------------------------------------------------------------
+
+/// Grants a User access to a Project beyond its owner (FR-004). Exactly one
+/// member per project has role "Owner", kept in sync with `Project.ownerId`.
+/// Cascades on User delete (Edge Cases: deleted users hold no membership).
+model ProjectMember {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+}
+
+/// A pending/resolved invitation to join a Project (FR-010–FR-012).
+/// `invitedByUserId` uses Restrict (attribution survives); `invitedUserId`
+/// cascades (a deleted user should hold no pending invitation).
+model Invitation {
+  id              String   @id @default(cuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  invitedByUserId String
+  invitedBy       User     @relation("InvitationSender", fields: [invitedByUserId], references: [id], onDelete: Restrict)
+  invitedUserId   String
+  invitedUser     User     @relation("InvitationRecipient", fields: [invitedUserId], references: [id], onDelete: Cascade)
+  role            String
+  status          String   @default("pending")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([invitedUserId, status])
+}
+
+/// A threaded comment on one Feature (US6). `authorId` uses Restrict —
+/// attribution is a historical record (FR-048-equivalent for comments).
+model Comment {
+  id               String    @id @default(cuid())
+  featureId        String
+  feature          Feature   @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  authorId         String
+  author           User      @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  parentCommentId  String?
+  parentComment    Comment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies          Comment[] @relation("CommentReplies")
+  body             String
+  resolved         Boolean   @default(false)
+  mentionedUserIds Json      @default("[]")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([featureId])
+  @@index([authorId])
+  @@index([parentCommentId])
+}
+
+/// Append-only audit record for a Project (FR-023, FR-047). Never updated or
+/// deleted by any code path — `userId` uses Restrict so attribution survives.
+model Activity {
+  id         String   @id @default(cuid())
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  action     String
+  targetType String
+  targetId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([projectId, createdAt])
+  @@index([userId])
+}
+
+/// An immutable, full-snapshot save point for a Project (FR-026–FR-029).
+/// Never deleted by any code path. `createdByUserId` uses Restrict.
+model Version {
+  id                   String   @id @default(cuid())
+  projectId            String
+  project              Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdByUserId      String
+  createdBy            User     @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+  note                 String?
+  snapshot             Json
+  isPreRestoreSnapshot Boolean  @default(false)
+  createdAt            DateTime @default(now())
+
+  @@index([projectId, createdAt])
+}
+
+/// An in-app notification for one recipient (FR-036–FR-038). Cascades on
+/// User delete (a removed user holds no pending notifications).
+model Notification {
+  id              String   @id @default(cuid())
+  recipientUserId String
+  recipient       User     @relation(fields: [recipientUserId], references: [id], onDelete: Cascade)
+  type            String
+  payload         Json
+  read            Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  @@index([recipientUserId, read])
+  @@index([recipientUserId, createdAt])
+}
+
+/// At most one active lock per Feature (US3, research.md Decision 4).
+/// `updateFeature`/`deleteFeature` gain a guard clause checking this table.
+/// `expiresAt` is a rolling timeout, checked at read time — a lock past this
+/// timestamp is treated as already released. Cascades on User delete.
+model FeatureLock {
+  id             String   @id @default(cuid())
+  featureId      String   @unique
+  feature        Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  lockedByUserId String
+  lockedBy       User     @relation(fields: [lockedByUserId], references: [id], onDelete: Cascade)
+  acquiredAt     DateTime @default(now())
+  expiresAt      DateTime
+}
+
+/// A member's ephemeral live presence within a Project (US9, research.md
+/// Decision 3) — cursor, viewport, currently-edited feature. A row older
+/// than the 30s timeout (spec Assumptions) is treated as offline at read
+/// time; no dedicated cleanup job. Cascades on User delete.
+model Presence {
+  id               String   @id @default(cuid())
+  projectId        String
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cursorLng        Float?
+  cursorLat        Float?
+  viewportBounds   Json?
+  currentFeatureId String?
+  lastSeenAt       DateTime @default(now())
+
+  @@unique([projectId, userId])
+  @@index([projectId, lastSeenAt])
+}
+
+// ---------------------------------------------------------------------------
+// Enterprise Deployment & Production Operations (specs/010-deployment-enterprise)
+//
+// Platform-wide, non-project-scoped operational tables — infrastructure
+// deployment/release tracking, health/metrics, centralized logs,
+// infrastructure-level backups, maintenance windows, and notifications. See
+// data-model.md / research.md Decision 0 for how these relate to (and stay
+// non-duplicative of) 009-administration-security's application-level
+// `Backup`/`SecurityAuditLog` concepts.
+// ---------------------------------------------------------------------------
+
+enum Environment {
+  DEVELOPMENT
+  TESTING
+  STAGING
+  PRODUCTION
+}
+
+enum DeploymentStatus {
+  PENDING
+  IN_PROGRESS
+  SUCCEEDED
+  FAILED
+  ROLLED_BACK
+}
+
+enum HealthComponent {
+  APPLICATION
+  DATABASE
+  API
+}
+
+enum HealthStatus {
+  HEALTHY
+  DEGRADED
+  UNHEALTHY
+}
+
+enum LogCategory {
+  APPLICATION
+  DATABASE
+  SECURITY
+  AUDIT
+}
+
+enum LogLevel {
+  DEBUG
+  INFO
+  WARN
+  ERROR
+}
+
+enum BackupStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+enum MaintenanceStatus {
+  SCHEDULED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+/// The immutable, versioned artifact a `DeploymentHistory` row deploys.
+model ReleaseVersion {
+  id          String              @id @default(cuid())
+  version     String              @unique
+  commitSha   String
+  description String?
+  status      DeploymentStatus    @default(PENDING)
+  createdBy   String?
+  deployments DeploymentHistory[]
+  createdAt   DateTime            @default(now())
+
+  @@index([createdAt])
+}
+
+/// One act of delivering a `ReleaseVersion` into an `Environment`.
+model DeploymentHistory {
+  id               String              @id @default(cuid())
+  releaseVersionId String
+  releaseVersion   ReleaseVersion      @relation(fields: [releaseVersionId], references: [id], onDelete: Cascade)
+  environment      Environment
+  status           DeploymentStatus    @default(PENDING)
+  initiatedBy      String?
+  rolledBackFromId String?
+  rolledBackFrom   DeploymentHistory?  @relation("Rollback", fields: [rolledBackFromId], references: [id], onDelete: SetNull)
+  rollbackTargets  DeploymentHistory[] @relation("Rollback")
+  events           DeploymentEvent[]
+  startedAt        DateTime            @default(now())
+  completedAt      DateTime?
+  notes            String?
+
+  @@index([environment, startedAt])
+  @@index([releaseVersionId])
+}
+
+/// A single timeline entry within one deployment's pipeline lifecycle.
+model DeploymentEvent {
+  id                  String            @id @default(cuid())
+  deploymentHistoryId String
+  deploymentHistory   DeploymentHistory @relation(fields: [deploymentHistoryId], references: [id], onDelete: Cascade)
+  type                String
+  message             String?
+  occurredAt          DateTime          @default(now())
+
+  @@index([deploymentHistoryId, occurredAt])
+}
+
+/// A point-in-time status for one monitored component (application/database/API).
+model HealthCheck {
+  id        String          @id @default(cuid())
+  component HealthComponent
+  status    HealthStatus
+  latencyMs Int?
+  detail    Json?
+  checkedAt DateTime        @default(now())
+
+  @@index([component, checkedAt])
+}
+
+/// A single recorded metric sample (resource usage / performance).
+model SystemMetric {
+  id         String   @id @default(cuid())
+  metricName String
+  value      Float
+  unit       String
+  tags       Json?
+  recordedAt DateTime @default(now())
+
+  @@index([metricName, recordedAt])
+}
+
+/// The centralized, searchable log store spanning application/database/security/audit categories.
+model LogEntry {
+  id         String      @id @default(cuid())
+  category   LogCategory
+  level      LogLevel
+  message    String
+  requestId  String?
+  source     String?
+  context    Json?
+  occurredAt DateTime    @default(now())
+
+  @@index([category, occurredAt])
+  @@index([level, occurredAt])
+  @@index([requestId])
+}
+
+/// A configured, scheduled infrastructure-level backup policy — distinct from
+/// 009-administration-security's per-project application-level `Backup`.
+model BackupJob {
+  id            String          @id @default(cuid())
+  name          String          @unique
+  environment   Environment
+  scheduleCron  String
+  retentionDays Int
+  enabled       Boolean         @default(true)
+  lastRunAt     DateTime?
+  nextRunAt     DateTime?
+  history       BackupHistory[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([environment, enabled])
+}
+
+/// One executed (or attempted) infrastructure-level backup run.
+model BackupHistory {
+  id              String       @id @default(cuid())
+  backupJobId     String
+  backupJob       BackupJob    @relation(fields: [backupJobId], references: [id], onDelete: Cascade)
+  status          BackupStatus @default(PENDING)
+  sizeBytes       BigInt?
+  storageLocation String?
+  checksum        String?
+  errorMessage    String?
+  startedAt       DateTime     @default(now())
+  completedAt     DateTime?
+  expiresAt       DateTime
+
+  @@index([backupJobId, startedAt])
+  @@index([expiresAt])
+}
+
+/// A period during which the system is in a controlled operational state.
+model MaintenanceWindow {
+  id            String            @id @default(cuid())
+  status        MaintenanceStatus @default(SCHEDULED)
+  reason        String
+  notifyMessage String?
+  initiatedBy   String
+  startedAt     DateTime          @default(now())
+  endedAt       DateTime?
+
+  @@index([status])
+}
+
+/// An operator-facing alert or notification (health/backup/deployment/maintenance).
+model SystemNotification {
+  id             String               @id @default(cuid())
+  type           String
+  severity       NotificationSeverity
+  title          String
+  message        String
+  acknowledgedBy String?
+  createdAt      DateTime             @default(now())
+  resolvedAt     DateTime?
+
+  @@index([severity, createdAt])
+  @@index([resolvedAt])
+}

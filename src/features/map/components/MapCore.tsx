@@ -17,6 +17,7 @@ import { useSearchStore } from "@/features/search/store/searchStore"
 import { useMapSearchIntegration } from "@/features/search/hooks/useMapSearchIntegration"
 import { SearchMarker } from "@/features/search/components/SearchMarker"
 import { ReverseGeocodePopup } from "@/features/search/components/ReverseGeocodePopup"
+import { MapEditingLayer } from "@/features/database/components/MapEditingLayer"
 
 function MapEventHandler() {
   const setMapStatus = useMapStore((s) => s.setMapStatus)
@@ -127,6 +128,7 @@ export function MapCore() {
           onClose={() => setReverseGeocodePoint(null)}
         />
       )}
+      <MapEditingLayer />
     </LeafletMapContainer>
   )
 }

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { render, screen } from "@testing-library/react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { DashboardLayout } from "../components/DashboardLayout"
 import { useDashboardStore } from "../store/dashboardStore"
 import { useMapStore } from "@/features/map/store/mapStore"
@@ -24,6 +25,10 @@ vi.mock("react-leaflet", () => ({
     invalidateSize: () => {},
   }),
   useMapEvents: () => null,
+}))
+
+vi.mock("@/features/database/services/projectService", () => ({
+  projectService: { list: vi.fn().mockResolvedValue({ projects: [] }) },
 }))
 
 function stubDesktopMatchMedia() {
@@ -57,7 +62,14 @@ describe("DashboardLayout", () => {
   })
 
   it("renders the navbar, sidebar, mocked map container, and status bar", () => {
-    render(<DashboardLayout />)
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    })
+    render(
+      <QueryClientProvider client={queryClient}>
+        <DashboardLayout />
+      </QueryClientProvider>,
+    )
 
     const banner = screen.getByRole("banner")
     expect(banner).toBeTruthy()

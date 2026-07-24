@@ -1,0 +1,13 @@
+services:
+  postgres-test:
+    image: postgis/postgis:16-3.4
+    container_name: spatialmind-test-db
+    restart: "no"
+    ports:
+      - "55432:5432"
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: spatialmind_test
+    tmpfs:
+      - /var/lib/postgresql/data

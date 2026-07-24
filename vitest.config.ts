@@ -15,5 +15,18 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
+    globalSetup: ["./vitest.global-setup.ts"],
+    // API/integration test files share one fixed TEST_OWNER_ID (testHelpers.ts)
+    // and one process-wide, in-memory rate-limit Map (rateLimiter.ts). Each
+    // file's beforeEach/beforeAll resets that limiter for a clean start, which
+    // only actually yields a clean start if files run one at a time — under
+    // Vitest's default file-level parallelism, two files racing against the
+    // same DATABASE_URL and TEST_OWNER_ID cause real, reproducible
+    // cross-file failures (discovered running specs/006-collaboration and
+    // specs/010-deployment-enterprise's test suites against a real database
+    // for the first time). Disabling file parallelism is a test-execution-
+    // strategy fix only — no application/rate-limiter code changes — and
+    // trades some suite wall-clock time for a suite that is reliably green.
+    fileParallelism: false,
   },
 })

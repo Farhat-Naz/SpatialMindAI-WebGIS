@@ -1,0 +1,123 @@
+import { Prisma, type Layer } from "@prisma/client"
+import { prismaClient } from "@/server/db/prismaClient"
+import { getProjectById } from "@/server/repositories/projectRepository"
+import { DuplicateNameError, NotFoundError, ValidationError } from "@/shared/errors/apiError"
+
+/** Returns a layer only if it belongs to a project owned by `ownerId`. */
+async function getLayerScopedToOwner(layerId: string, ownerId: string): Promise<Layer | null> {
+  return prismaClient.layer.findFirst({
+    where: { id: layerId, project: { ownerId } },
+  })
+}
+
+/** Lists a project's layers ordered by `order` ascending. */
+export async function listLayersForProject(
+  projectId: string,
+  ownerId: string,
+): Promise<Layer[]> {
+  const project = await getProjectById(projectId, ownerId)
+  if (!project) {
+    throw new NotFoundError(`No project found with id "${projectId}".`)
+  }
+  return prismaClient.layer.findMany({
+    where: { projectId },
+    orderBy: { order: "asc" },
+  })
+}
+
+/** Creates a layer, assigning the next `order` value within its project. */
+export async function createLayer(
+  projectId: string,
+  ownerId: string,
+  name: string,
+): Promise<Layer> {
+  const project = await getProjectById(projectId, ownerId)
+  if (!project) {
+    throw new NotFoundError(`No project found with id "${projectId}".`)
+  }
+
+  const maxOrder = await prismaClient.layer.aggregate({
+    where: { projectId },
+    _max: { order: true },
+  })
+  const nextOrder = (maxOrder._max.order ?? -1) + 1
+
+  try {
+    return await prismaClient.layer.create({
+      data: { projectId, name, order: nextOrder },
+    })
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      throw new DuplicateNameError(`A layer named "${name}" already exists in this project.`)
+    }
+    throw error
+  }
+}
+
+/** Renames a layer without affecting its features. */
+export async function renameLayer(
+  layerId: string,
+  ownerId: string,
+  name: string,
+): Promise<Layer> {
+  const existing = await getLayerScopedToOwner(layerId, ownerId)
+  if (!existing) {
+    throw new NotFoundError(`No layer found with id "${layerId}".`)
+  }
+
+  try {
+    return await prismaClient.layer.update({ where: { id: layerId }, data: { name } })
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      throw new DuplicateNameError(`A layer named "${name}" already exists in this project.`)
+    }
+    throw error
+  }
+}
+
+/**
+ * Rewrites every layer's `order` in one transaction. `orderedLayerIds` MUST
+ * be exactly the project's current layer id set (Research Decision 8) — a
+ * partial or mismatched list is rejected before anything is written.
+ */
+export async function reorderLayers(
+  projectId: string,
+  ownerId: string,
+  orderedLayerIds: string[],
+): Promise<Layer[]> {
+  const project = await getProjectById(projectId, ownerId)
+  if (!project) {
+    throw new NotFoundError(`No project found with id "${projectId}".`)
+  }
+
+  const currentLayers = await prismaClient.layer.findMany({ where: { projectId } })
+  const currentIds = new Set(currentLayers.map((layer) => layer.id))
+  const requestedIds = new Set(orderedLayerIds)
+
+  const isExactMatch =
+    currentIds.size === requestedIds.size &&
+    [...currentIds].every((id) => requestedIds.has(id))
+
+  if (!isExactMatch) {
+    throw new ValidationError(
+      "orderedLayerIds must be exactly the set of the project's current layer ids.",
+    )
+  }
+
+  await prismaClient.$transaction(
+    orderedLayerIds.map((id, index) =>
+      prismaClient.layer.update({ where: { id }, data: { order: index } }),
+    ),
+  )
+
+  return prismaClient.layer.findMany({ where: { projectId }, orderBy: { order: "asc" } })
+}
+
+/** Deletes a layer; cascades to every feature/attribute/style beneath it. */
+export async function deleteLayer(layerId: string, ownerId: string): Promise<void> {
+  const existing = await getLayerScopedToOwner(layerId, ownerId)
+  if (!existing) {
+    throw new NotFoundError(`No layer found with id "${layerId}".`)
+  }
+  await prismaClient.layer.delete({ where: { id: layerId } })
+}
