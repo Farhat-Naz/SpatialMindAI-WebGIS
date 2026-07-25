@@ -7,7 +7,7 @@ import {
   listAnalysisRunsForProject,
   type ListAnalysisRunsParams,
 } from "@/server/repositories/analysisRepository"
-import { analysisRequestSchema } from "@/shared/contracts/analysis.schema"
+import { analysisRequestSchema, type AnalysisRequestInput } from "@/shared/contracts/analysis.schema"
 import { toErrorResponse } from "@/shared/errors/apiError"
 import { logger } from "@/shared/lib/logger"
 
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
       return respond(request, startedAt, status, body)
     }
 
-    const run = await createAnalysisRun(projectId, user.id, parsed.data)
+    const run = await createAnalysisRun(projectId, user.id, parsed.data as unknown as AnalysisRequestInput)
     return respond(request, startedAt, 201, { run })
   } catch (error) {
     return handleRouteError(error)

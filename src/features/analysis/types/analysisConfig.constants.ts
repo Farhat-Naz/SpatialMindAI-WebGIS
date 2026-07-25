@@ -39,6 +39,15 @@ export const CHUNK_PAGE_SIZE: Record<AnalysisOperationCategory, number> = {
  */
 export const MAX_CONCURRENT_JOBS_PER_USER = 5
 
+/**
+ * Above this many features (the largest of an operation's input layers),
+ * `createAnalysisRun` dispatches to the background `queued`/`running` path
+ * instead of resolving synchronously within the request (research.md
+ * Decision 5, FR-024) — small inputs keep 005's original fast, inline
+ * behavior unchanged.
+ */
+export const BACKGROUND_EXECUTION_THRESHOLD = 500
+
 /** Default `refetchInterval` (ms) for polling a non-terminal `AnalysisRun` (research.md Decision 5/6). */
 export const DEFAULT_POLL_INTERVAL_MS = 2000
 

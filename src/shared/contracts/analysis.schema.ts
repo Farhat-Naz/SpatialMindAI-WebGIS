@@ -17,7 +17,7 @@ const noParameters = z.undefined().optional()
 const operationDefinitions = {
   buffer: {
     inputLayerIds: z.tuple([layerId]),
-    parameters: z.object({ distance: z.number().positive(), unit: distanceUnit }),
+    parameters: z.object({ distance: z.number().positive(), unit: distanceUnit, dissolve: z.boolean().optional() }),
   },
   intersect: { inputLayerIds: z.tuple([layerId, layerId]), parameters: noParameters },
   union: { inputLayerIds: z.tuple([layerId, layerId]), parameters: noParameters },
@@ -76,7 +76,10 @@ const operationDefinitions = {
   symmetricalDifference: { inputLayerIds: z.tuple([layerId, layerId]), parameters: noParameters },
 
   // US5 — Geometry Processing; split/merge/dissolve already exist from 005.
-  simplify: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
+  simplify: {
+    inputLayerIds: z.tuple([layerId]),
+    parameters: z.object({ tolerance: z.number().positive() }),
+  },
   smoothGeometry: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
   multipartToSinglepart: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
   singlepartToMultipart: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
@@ -84,8 +87,18 @@ const operationDefinitions = {
 
   // US2 — Spatial Query; spatialJoin/pointInPolygon/nearAnalysis already
   // cover intersects/within/contains/nearest.
-  selectByLocation: { inputLayerIds: z.tuple([layerId, layerId]), parameters: noParameters },
-  selectByAttribute: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
+  selectByLocation: {
+    inputLayerIds: z.tuple([layerId, layerId]),
+    parameters: z.object({ relationship: relationship.exclude(["nearest"]) }),
+  },
+  selectByAttribute: {
+    inputLayerIds: z.tuple([layerId]),
+    parameters: z.object({
+      key: z.string().trim().min(1),
+      operator: z.enum(["eq", "neq", "contains", "gt", "lt", "gte", "lte"]),
+      value: z.string(),
+    }),
+  },
   touches: { inputLayerIds: z.tuple([layerId, layerId]), parameters: noParameters },
   crosses: { inputLayerIds: z.tuple([layerId, layerId]), parameters: noParameters },
   overlaps: { inputLayerIds: z.tuple([layerId, layerId]), parameters: noParameters },
@@ -120,7 +133,27 @@ export const analysisRequestSchema = z.discriminatedUnion("operationType", [
   requestVariants[0],
   ...requestVariants.slice(1),
 ])
-export type AnalysisRequestInput = z.infer<typeof analysisRequestSchema>
+/**
+ * Deliberately **not** `z.infer<typeof analysisRequestSchema>`: `requestVariants`
+ * is built via `Object.entries(...).map(...)`, which widens every element to
+ * one homogeneous Zod object type (TypeScript cannot correlate each array
+ * entry's `operationType` literal with its own specific `parameters`/
+ * `inputLayerIds` types through a `.map()`). Inferring straight from that
+ * schema would give every variant's `parameters` the *union* of all 30+
+ * operations' parameter shapes, defeating `switch (input.operationType)`
+ * narrowing anywhere this type is consumed. This mapped type instead derives
+ * the same 1:1 (`operationType` → its own `parameters`/`inputLayerIds`) shape
+ * directly from `operationDefinitions` (a real `as const` object, whose
+ * per-key types TypeScript *does* preserve), producing a true discriminated
+ * union — runtime validation is unchanged; only the static type differs.
+ */
+export type AnalysisRequestInput = {
+  [K in OperationType]: {
+    operationType: K
+    inputLayerIds: z.infer<OperationDefinitions[K]["inputLayerIds"]>
+    parameters: z.infer<OperationDefinitions[K]["parameters"]>
+  }
+}[OperationType]
 
 /**
  * `POST /api/projects/:projectId/analysis/batch` request body — one
@@ -139,7 +172,14 @@ export const analysisBatchRequestSchema = z.discriminatedUnion("operationType", 
   batchVariants[0],
   ...batchVariants.slice(1),
 ])
-export type AnalysisBatchRequestInput = z.infer<typeof analysisBatchRequestSchema>
+/** See `AnalysisRequestInput`'s doc comment — same `.map()`-widening reason for deriving this from `operationDefinitions` directly rather than `z.infer`. */
+export type AnalysisBatchRequestInput = {
+  [K in OperationType]: {
+    operationType: K
+    parameters: z.infer<OperationDefinitions[K]["parameters"]>
+    items: { inputLayerIds: z.infer<OperationDefinitions[K]["inputLayerIds"]> }[]
+  }
+}[OperationType]
 
 /** `GET /api/projects/:projectId/analysis` query params — cursor pagination plus an optional Batch Run scope. */
 export const listAnalysisRunsQuerySchema = z.object({
