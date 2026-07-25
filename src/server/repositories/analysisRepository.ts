@@ -177,6 +177,11 @@ export async function createAnalysisRun(
         data: {
           id: randomUUID(),
           projectId,
+          // specs/007-spatial-analysis: `userId` (the resolved caller) is
+          // `ownerId` for now — this function's full rework (background
+          // execution, membership-based `userId` distinct from project
+          // ownership) lands in Phase 3.
+          userId: ownerId,
           operationType: input.operationType,
           status: "succeeded",
           parameters: parameters as Prisma.InputJsonValue,
@@ -194,6 +199,7 @@ export async function createAnalysisRun(
         data: {
           id: randomUUID(),
           projectId,
+          userId: ownerId,
           operationType: input.operationType,
           status: "failed",
           parameters: parameters as Prisma.InputJsonValue,

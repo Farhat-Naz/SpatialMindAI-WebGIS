@@ -38,6 +38,12 @@ model User {
   notifications       Notification[]
   featureLocks        FeatureLock[]
   presenceSessions    Presence[]
+
+  // specs/007-spatial-analysis — additive back-relations only.
+  analysisRuns       AnalysisRun[]
+  analysisPresets    AnalysisPreset[]
+  measurementHistory MeasurementHistory[]
+  exportJobs         ExportJob[]
 }
 
 /// Root data-hierarchy container (User 1──* Project 1──* Layer 1──* Feature).
@@ -61,6 +67,11 @@ model Project {
   versions    Version[]
   presence    Presence[]
 
+  // specs/007-spatial-analysis — additive back-relations only.
+  analysisPresets    AnalysisPreset[]
+  measurementHistory MeasurementHistory[]
+  exportJobs         ExportJob[]
+
   @@unique([ownerId, name])
   @@index([ownerId])
 }
@@ -78,6 +89,9 @@ model Layer {
   resultOfAnalysisRuns AnalysisRun[]
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
+
+  // specs/007-spatial-analysis — additive back-relation only.
+  sourceOfExportJobs ExportJob[] @relation("ExportJobSourceLayer")
 
   @@unique([projectId, name])
   @@index([projectId, order])
@@ -130,31 +144,129 @@ model FeatureStyle {
 }
 
 /// A single geoprocessing operation run within one Project (spec
-/// 005-spatial-analysis-geoprocessing). Covers all three spec-level
-/// concepts — a single Analysis Run, a Batch Run (a group of rows sharing
-/// `batchId`), and an Analysis History entry (this row, viewed through the
-/// project-scoped listing query) — per data-model.md Decision 2, so no
-/// separate BatchRun/HistoryEntry table exists. `resultLayerId` is set only
-/// when the operation produced new geometry; `resultData` holds tabular,
-/// non-geometry results (Distance Matrix, CRS Transformation preview).
+/// 005-spatial-analysis-geoprocessing, widened by 007-spatial-analysis).
+/// Covers every spec-level concept from both features — a single Analysis
+/// Run, a Batch Run (a group of rows sharing `batchId`), an Analysis
+/// History entry (this row, viewed through the project-scoped listing
+/// query), a background job (`status`/`progress`/`cancelRequestedAt`/
+/// `backendPid`), "AnalysisStatistics" (US6 — a statistics `operationType`
+/// whose result lives in `resultData`, not a new table), and
+/// "GeometryOperation" (US5 — likewise just an `operationType` value) — per
+/// research.md Decision 1, so no separate BatchRun/HistoryEntry/
+/// AnalysisJob/AnalysisStatistics/GeometryOperation table exists.
+/// `resultLayerId` is set only when the operation produced new geometry;
+/// `resultData` holds tabular, non-geometry results (Distance Matrix, CRS
+/// Transformation preview, statistics summaries).
 model AnalysisRun {
-  id            String   @id @default(cuid())
-  projectId     String
-  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  operationType String
-  status        String
-  parameters    Json
-  inputLayerIds Json
-  resultLayerId String?
-  resultLayer   Layer?   @relation(fields: [resultLayerId], references: [id], onDelete: SetNull)
-  resultData    Json?
-  errorMessage  String?
-  batchId       String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                String          @id @default(cuid())
+  projectId         String
+  project           Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId            String
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  operationType     String
+  status            String
+  progress          Int?
+  parameters        Json
+  inputLayerIds     Json
+  resultLayerId     String?
+  resultLayer       Layer?          @relation(fields: [resultLayerId], references: [id], onDelete: SetNull)
+  resultData        Json?
+  errorMessage      String?
+  batchId           String?
+  presetId          String?
+  preset            AnalysisPreset? @relation(fields: [presetId], references: [id], onDelete: SetNull)
+  startedAt         DateTime?
+  completedAt       DateTime?
+  executionTimeMs   Int?
+  cancelRequestedAt DateTime?
+  backendPid        Int?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  // specs/007-spatial-analysis
+  exportJobs ExportJob[]
 
   @@index([projectId, createdAt])
   @@index([batchId])
+  /// "show running/queued jobs for this project" (Progress Dialog, History
+  /// Panel status filter) without scanning completed history — also the
+  /// query "Analysis History" itself runs through (research.md Decision 1).
+  @@index([projectId, status])
+  /// "my analyses" queries and the per-user concurrent-job cap check
+  /// (research.md Decision 12).
+  @@index([userId])
+  /// "runs launched from this preset."
+  @@index([presetId])
+}
+
+/// A named, reusable `(operationType, parameters)` pair scoped to a user and
+/// project (US8/FR-021, specs/007-spatial-analysis) — created once, read
+/// many times, never itself executed. Deleting a preset never deletes the
+/// runs launched from it (`AnalysisRun.presetId` is set-null).
+model AnalysisPreset {
+  id            String   @id @default(cuid())
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  operationType String
+  parameters    Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  analysisRuns AnalysisRun[]
+
+  @@unique([projectId, name])
+  @@index([projectId, operationType])
+}
+
+/// An explicitly saved measurement reading (US3/FR-008, specs/007-spatial-
+/// analysis; research.md Decision 8 — the persisted `value` is always
+/// server-recomputed via PostGIS at save time, never the client's live
+/// estimate taken on faith). `geometry` uses the identical PostGIS column
+/// pattern as `Feature.geometry` (Constitution Principle III) so a saved
+/// measurement can be re-displayed on the map.
+model MeasurementHistory {
+  id              String                                  @id @default(cuid())
+  projectId       String
+  project         Project                                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User                                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  measurementType String
+  geometry        Unsupported("geometry(Geometry, 4326)")
+  value           Float?
+  unit            String?
+  label           String?
+  createdAt       DateTime                                @default(now())
+
+  @@index([projectId, createdAt])
+}
+
+/// A lightweight, client-reported log entry for a completed export (US9,
+/// specs/007-spatial-analysis; research.md Decision 10, revised) — the
+/// client does all export work itself (paginated fetch + in-browser
+/// serialization); this row exists purely for after-the-fact history/audit
+/// visibility, matching `AnalysisRun`'s history philosophy. `status` is
+/// always written already-terminal — there is no `queued`/`running` phase
+/// to poll, because no server execution phase exists for exports.
+model ExportJob {
+  id                  String       @id @default(cuid())
+  projectId           String
+  project             Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId              String
+  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceAnalysisRunId String?
+  sourceAnalysisRun   AnalysisRun? @relation(fields: [sourceAnalysisRunId], references: [id], onDelete: SetNull)
+  sourceLayerId       String?
+  sourceLayer         Layer?       @relation("ExportJobSourceLayer", fields: [sourceLayerId], references: [id], onDelete: SetNull)
+  format              String
+  status              String
+  featureCount        Int?
+  errorMessage        String?
+  createdAt           DateTime     @default(now())
+
+  @@index([projectId, createdAt])
 }
 
 // ---------------------------------------------------------------------------
