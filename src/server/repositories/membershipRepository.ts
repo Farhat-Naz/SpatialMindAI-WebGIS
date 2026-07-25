@@ -1,5 +1,6 @@
 import type { Prisma, ProjectMember } from "@prisma/client"
 import { prismaClient } from "@/server/db/prismaClient"
+import { projectChannel, publish } from "@/server/realtime/channel"
 import { NotFoundError, ValidationError } from "@/shared/errors/apiError"
 import type { ProjectRole } from "@/server/auth/assertProjectRole"
 
@@ -38,10 +39,12 @@ export async function changeMemberRole(
         where: { lockedByUserId: userId, feature: { layer: { projectId } } },
       })
     }
-    return tx.projectMember.update({
+    const member = await tx.projectMember.update({
       where: { projectId_userId: { projectId, userId } },
       data: { role },
     })
+    await publish(projectChannel(projectId), { type: "member", action: "role_changed", userId }, tx)
+    return member
   })
 }
 
@@ -66,6 +69,7 @@ export async function removeMember(projectId: string, userId: string): Promise<v
     })
     await tx.presence.deleteMany({ where: { projectId, userId } })
     await tx.projectMember.delete({ where: { projectId_userId: { projectId, userId } } })
+    await publish(projectChannel(projectId), { type: "member", action: "removed", userId }, tx)
   })
 }
 
@@ -96,6 +100,7 @@ export async function transferOwnership(
       where: { projectId_userId: { projectId, userId: currentOwnerId } },
       data: { role: "Editor" },
     })
+    await publish(projectChannel(projectId), { type: "member", action: "ownership_transferred" }, tx)
   })
 }
 

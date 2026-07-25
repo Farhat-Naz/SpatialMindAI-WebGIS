@@ -1,5 +1,6 @@
 import type { Notification, Prisma } from "@prisma/client"
 import { prismaClient } from "@/server/db/prismaClient"
+import { publish, userChannel } from "@/server/realtime/channel"
 import { NotFoundError } from "@/shared/errors/apiError"
 
 export type NotificationType =
@@ -21,19 +22,27 @@ export interface CreateNotificationInput {
  * Creates one `Notification` row (research.md Decision 9). Takes an
  * **existing** transaction client, mirroring `recordActivity`'s convention
  * (research.md Decision 8) — the notification-triggering event and the
- * notification itself commit atomically.
+ * notification itself commit atomically. Publishes to the recipient's
+ * **personal** channel, not any project channel (research.md Decision 9) —
+ * only the intended recipient's SSE stream receives the event.
  */
 export async function createNotification(
   tx: Prisma.TransactionClient,
   input: CreateNotificationInput,
 ): Promise<Notification> {
-  return tx.notification.create({
+  const notification = await tx.notification.create({
     data: {
       recipientUserId: input.recipientUserId,
       type: input.type,
       payload: input.payload as Prisma.InputJsonValue,
     },
   })
+  await publish(
+    userChannel(input.recipientUserId),
+    { type: "notification", notificationId: notification.id, notificationType: input.type },
+    tx,
+  )
+  return notification
 }
 
 export interface ListNotificationsParams {

@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { featureService, queryKeys as databaseQueryKeys } from "@/features/database"
+import { featureService } from "@/features/database/services/featureService"
+import { queryKeys as databaseQueryKeys } from "@/features/database/services/queryKeys"
 import type { CreateFeatureInput, UpdateFeatureInput } from "@/shared/contracts/feature.schema"
 import * as offlineQueue from "../services/offlineQueue"
 import type { OfflineQueueEntry } from "../services/offlineQueue"

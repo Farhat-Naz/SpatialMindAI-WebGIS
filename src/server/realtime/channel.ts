@@ -1,5 +1,7 @@
 import { Client } from "pg"
+import type { Prisma } from "@prisma/client"
 import { prismaClient } from "@/server/db/prismaClient"
+import { logger } from "@/shared/lib/logger"
 
 export type RealtimeEventCallback = (payload: unknown) => void
 
@@ -19,6 +21,16 @@ function assertValidChannelName(channel: string): void {
   }
 }
 
+/** The channel every member of a project's SSE stream listens on (feature/layer/comment/lock/presence/member events). */
+export function projectChannel(projectId: string): string {
+  return `collab:project:${projectId}`
+}
+
+/** A user's personal channel (research.md Decision 9) — notifications are published here, never to a project channel. */
+export function userChannel(userId: string): string {
+  return `collab:user:${userId}`
+}
+
 /**
  * The one dedicated `pg` `LISTEN` connection this process holds
  * (research.md Decision 2) — Prisma Client has no `LISTEN`/`NOTIFY` API.
@@ -29,6 +41,10 @@ function assertValidChannelName(channel: string): void {
 let listenClient: Client | null = null
 let connecting: Promise<Client> | null = null
 const subscribers = new Map<string, Set<RealtimeEventCallback>>()
+
+const MAX_RECONNECT_ATTEMPTS = 8
+const BASE_BACKOFF_MS = 500
+const MAX_BACKOFF_MS = 30_000
 
 function dispatchNotification(channel: string, rawPayload: string | undefined): void {
   const callbacks = subscribers.get(channel)
@@ -48,6 +64,71 @@ function dispatchNotification(channel: string, rawPayload: string | undefined): 
   }
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/**
+ * Re-issues `LISTEN` for every channel that still has active subscribers —
+ * a fresh connection has no memory of a previous connection's `LISTEN`
+ * statements, so this must run immediately after every (re)connect.
+ */
+async function reattachListeners(client: Client): Promise<void> {
+  for (const channel of subscribers.keys()) {
+    await client.query(`LISTEN "${channel}"`)
+  }
+}
+
+/**
+ * Reconnects the dedicated `LISTEN` connection with exponential backoff
+ * (plan.md Risks — a dropped `LISTEN` connection is independent of, and
+ * must not be confused with, any client's own `EventSource` reconnect).
+ * Gives up after `MAX_RECONNECT_ATTEMPTS`, logging each failure; a future
+ * `subscribe()`/`publish()` call will naturally retry via `getListenClient`.
+ */
+async function reconnectWithBackoff(): Promise<void> {
+  for (let attempt = 1; attempt <= MAX_RECONNECT_ATTEMPTS; attempt++) {
+    const backoffMs = Math.min(BASE_BACKOFF_MS * 2 ** (attempt - 1), MAX_BACKOFF_MS)
+    await sleep(backoffMs)
+    try {
+      const client = new Client({ connectionString: process.env.DATABASE_URL })
+      await client.connect()
+      attachClientHandlers(client)
+      await reattachListeners(client)
+      listenClient = client
+      logger.info("realtime channel: LISTEN connection re-established", { attempt })
+      return
+    } catch (error) {
+      logger.warn("realtime channel: reconnect attempt failed", {
+        attempt,
+        message: error instanceof Error ? error.message : String(error),
+      })
+    }
+  }
+  logger.error("realtime channel: exhausted reconnect attempts, giving up", {
+    attempts: MAX_RECONNECT_ATTEMPTS,
+  })
+}
+
+function attachClientHandlers(client: Client): void {
+  client.on("notification", (message) => {
+    dispatchNotification(message.channel, message.payload)
+  })
+  client.on("error", (error) => {
+    logger.warn("realtime channel: LISTEN connection error", { message: error.message })
+    if (listenClient === client) {
+      listenClient = null
+      void reconnectWithBackoff()
+    }
+  })
+  client.on("end", () => {
+    if (listenClient === client) {
+      listenClient = null
+      void reconnectWithBackoff()
+    }
+  })
+}
+
 async function getListenClient(): Promise<Client> {
   if (listenClient) {
     return listenClient
@@ -58,12 +139,7 @@ async function getListenClient(): Promise<Client> {
   connecting = (async () => {
     const client = new Client({ connectionString: process.env.DATABASE_URL })
     await client.connect()
-    client.on("notification", (message) => {
-      dispatchNotification(message.channel, message.payload)
-    })
-    // Reconnect-with-backoff on an unexpected drop is completed in Phase 8
-    // (T106) once a realistic event flow exists to test it against — this
-    // skeleton establishes the connection and publish/subscribe surface only.
+    attachClientHandlers(client)
     listenClient = client
     connecting = null
     return client
@@ -72,15 +148,26 @@ async function getListenClient(): Promise<Client> {
 }
 
 /**
- * Publishes `event` on `channel` via `pg_notify`, inside whichever
- * transaction/connection Prisma's own pool is currently using (research.md
- * Decision 2) — every Route Handler that changes shared state calls this
- * after (or as part of) its write.
+ * Publishes `event` on `channel` via `pg_notify`. Accepts an optional open
+ * `Prisma.TransactionClient` (default: the module-level `prismaClient`) —
+ * callers writing inside a `$transaction` MUST pass their `tx` here:
+ * Postgres defers a `NOTIFY` issued inside a transaction until that
+ * transaction commits (and drops it entirely on rollback), which is
+ * exactly the "inside the same transaction as the write" guarantee
+ * research.md Decision 2 requires. Calling this with the wrong client
+ * (the module-level pool instead of `tx`) would fire the notification on a
+ * separate connection immediately — before the write is even visible to
+ * other connections — the same class of bug documented on
+ * `featureRepository.assembleFeature`.
  */
-export async function publish(channel: string, event: unknown): Promise<void> {
+export async function publish(
+  channel: string,
+  event: unknown,
+  client: Prisma.TransactionClient | typeof prismaClient = prismaClient,
+): Promise<void> {
   assertValidChannelName(channel)
   const payload = JSON.stringify(event)
-  await prismaClient.$executeRaw`SELECT pg_notify(${channel}, ${payload})`
+  await client.$executeRaw`SELECT pg_notify(${channel}, ${payload})`
 }
 
 /**
@@ -109,7 +196,21 @@ export async function subscribe(
     callbacks!.delete(onEvent)
     if (callbacks!.size === 0) {
       subscribers.delete(channel)
-      await client.query(`UNLISTEN "${channel}"`)
+      if (listenClient) {
+        await listenClient.query(`UNLISTEN "${channel}"`).catch(() => {
+          // The connection may already be down mid-reconnect — nothing to
+          // unlisten from in that case, and reattachListeners won't re-add
+          // a channel with zero subscribers on the next reconnect anyway.
+        })
+      }
     }
   }
+}
+
+/** Test-only helper: resets the module's connection state between test files. */
+export function resetChannelForTests(): void {
+  listenClient?.removeAllListeners()
+  listenClient = null
+  connecting = null
+  subscribers.clear()
 }

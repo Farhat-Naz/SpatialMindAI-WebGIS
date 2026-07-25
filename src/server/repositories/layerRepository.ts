@@ -1,6 +1,7 @@
 import { Prisma, type Layer } from "@prisma/client"
 import { prismaClient } from "@/server/db/prismaClient"
 import { getProjectById } from "@/server/repositories/projectRepository"
+import { projectChannel, publish } from "@/server/realtime/channel"
 import { DuplicateNameError, NotFoundError, ValidationError } from "@/shared/errors/apiError"
 
 /**
@@ -33,7 +34,11 @@ export async function listLayersForProject(
   })
 }
 
-/** Creates a layer, assigning the next `order` value within its project. */
+/**
+ * Creates a layer, assigning the next `order` value within its project.
+ * specs/006-collaboration: publishes a `layer` realtime event inside the
+ * same transaction as the insert (research.md Decision 2).
+ */
 export async function createLayer(
   projectId: string,
   ownerId: string,
@@ -51,8 +56,12 @@ export async function createLayer(
   const nextOrder = (maxOrder._max.order ?? -1) + 1
 
   try {
-    return await prismaClient.layer.create({
-      data: { projectId, name, order: nextOrder },
+    return await prismaClient.$transaction(async (tx) => {
+      const layer = await tx.layer.create({
+        data: { projectId, name, order: nextOrder },
+      })
+      await publish(projectChannel(projectId), { type: "layer", action: "create", layerId: layer.id }, tx)
+      return layer
     })
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
@@ -62,7 +71,7 @@ export async function createLayer(
   }
 }
 
-/** Renames a layer without affecting its features. */
+/** Renames a layer without affecting its features. Publishes a `layer` realtime event on success. */
 export async function renameLayer(
   layerId: string,
   ownerId: string,
@@ -74,7 +83,15 @@ export async function renameLayer(
   }
 
   try {
-    return await prismaClient.layer.update({ where: { id: layerId }, data: { name } })
+    return await prismaClient.$transaction(async (tx) => {
+      const layer = await tx.layer.update({ where: { id: layerId }, data: { name } })
+      await publish(
+        projectChannel(existing.projectId),
+        { type: "layer", action: "rename", layerId },
+        tx,
+      )
+      return layer
+    })
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       throw new DuplicateNameError(`A layer named "${name}" already exists in this project.`)
@@ -87,6 +104,7 @@ export async function renameLayer(
  * Rewrites every layer's `order` in one transaction. `orderedLayerIds` MUST
  * be exactly the project's current layer id set (Research Decision 8) — a
  * partial or mismatched list is rejected before anything is written.
+ * Publishes one `layer` realtime event for the reorder on success.
  */
 export async function reorderLayers(
   projectId: string,
@@ -112,20 +130,29 @@ export async function reorderLayers(
     )
   }
 
-  await prismaClient.$transaction(
-    orderedLayerIds.map((id, index) =>
-      prismaClient.layer.update({ where: { id }, data: { order: index } }),
-    ),
-  )
+  await prismaClient.$transaction(async (tx) => {
+    for (const [index, id] of orderedLayerIds.entries()) {
+      await tx.layer.update({ where: { id }, data: { order: index } })
+    }
+    await publish(projectChannel(projectId), { type: "layer", action: "reorder" }, tx)
+  })
 
   return prismaClient.layer.findMany({ where: { projectId }, orderBy: { order: "asc" } })
 }
 
-/** Deletes a layer; cascades to every feature/attribute/style beneath it. */
+/** Deletes a layer; cascades to every feature/attribute/style beneath it. Publishes a `layer` realtime event. */
 export async function deleteLayer(layerId: string, ownerId: string): Promise<void> {
   const existing = await getLayerScopedToOwner(layerId, ownerId)
   if (!existing) {
     throw new NotFoundError(`No layer found with id "${layerId}".`)
   }
-  await prismaClient.layer.delete({ where: { id: layerId } })
+
+  await prismaClient.$transaction(async (tx) => {
+    await tx.layer.delete({ where: { id: layerId } })
+    await publish(
+      projectChannel(existing.projectId),
+      { type: "layer", action: "delete", layerId },
+      tx,
+    )
+  })
 }

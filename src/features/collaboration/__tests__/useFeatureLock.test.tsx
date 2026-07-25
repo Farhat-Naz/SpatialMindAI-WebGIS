@@ -11,7 +11,7 @@ vi.mock("../services/lockService", () => ({
   lockService: { acquireLock: vi.fn(), releaseLock: vi.fn() },
 }))
 
-vi.mock("@/features/database", () => ({
+vi.mock("@/features/database/store/editingStore", () => ({
   useEditingStore: (selector: (state: { setLastError: typeof setLastError }) => unknown) =>
     selector({ setLastError }),
 }))

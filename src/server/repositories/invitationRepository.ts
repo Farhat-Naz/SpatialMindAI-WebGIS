@@ -2,6 +2,7 @@ import type { Invitation } from "@prisma/client"
 import { prismaClient } from "@/server/db/prismaClient"
 import { recordActivity } from "@/server/repositories/activityRepository"
 import { createNotification } from "@/server/repositories/notificationRepository"
+import { projectChannel, publish } from "@/server/realtime/channel"
 import { ForbiddenError, NotFoundError } from "@/shared/errors/apiError"
 
 /**
@@ -85,6 +86,8 @@ export async function acceptInvitation(invitationId: string, userId: string): Pr
       type: "invitation_accepted",
       payload: { projectId: invitation.projectId, invitationId, acceptedByUserId: userId },
     })
+
+    await publish(projectChannel(invitation.projectId), { type: "member", action: "joined", userId }, tx)
 
     return updated
   })

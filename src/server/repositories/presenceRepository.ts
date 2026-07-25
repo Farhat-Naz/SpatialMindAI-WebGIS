@@ -1,5 +1,6 @@
 import type { Presence } from "@prisma/client"
 import { prismaClient } from "@/server/db/prismaClient"
+import { projectChannel, publish } from "@/server/realtime/channel"
 
 /** A presence row older than this is treated as offline at read time (spec Assumptions). */
 const PRESENCE_TIMEOUT_MS = 30 * 1000
@@ -16,30 +17,48 @@ export interface UpsertPresenceInput {
  * on every call. No dedicated cleanup job exists (research.md Decision 3)
  * — `listActivePresenceForProject` opportunistically deletes stale rows
  * for the project it's reading, keeping the table bounded without a
- * scheduled worker this codebase has no infrastructure for.
+ * scheduled worker this codebase has no infrastructure for. Publishes a
+ * `presence` realtime event on every heartbeat/cursor/extent change (US9
+ * scenario 2–3).
  */
 export async function upsertPresence(
   projectId: string,
   userId: string,
   input: UpsertPresenceInput,
 ): Promise<Presence> {
-  return prismaClient.presence.upsert({
-    where: { projectId_userId: { projectId, userId } },
-    update: {
-      cursorLng: input.cursorLng,
-      cursorLat: input.cursorLat,
-      viewportBounds: input.viewportBounds,
-      currentFeatureId: input.currentFeatureId,
-      lastSeenAt: new Date(),
-    },
-    create: {
-      projectId,
-      userId,
-      cursorLng: input.cursorLng,
-      cursorLat: input.cursorLat,
-      viewportBounds: input.viewportBounds,
-      currentFeatureId: input.currentFeatureId,
-    },
+  return prismaClient.$transaction(async (tx) => {
+    const presence = await tx.presence.upsert({
+      where: { projectId_userId: { projectId, userId } },
+      update: {
+        cursorLng: input.cursorLng,
+        cursorLat: input.cursorLat,
+        viewportBounds: input.viewportBounds,
+        currentFeatureId: input.currentFeatureId,
+        lastSeenAt: new Date(),
+      },
+      create: {
+        projectId,
+        userId,
+        cursorLng: input.cursorLng,
+        cursorLat: input.cursorLat,
+        viewportBounds: input.viewportBounds,
+        currentFeatureId: input.currentFeatureId,
+      },
+    })
+    await publish(
+      projectChannel(projectId),
+      {
+        type: "presence",
+        userId,
+        cursorLng: presence.cursorLng,
+        cursorLat: presence.cursorLat,
+        viewportBounds: presence.viewportBounds,
+        currentFeatureId: presence.currentFeatureId,
+        lastSeenAt: presence.lastSeenAt.toISOString(),
+      },
+      tx,
+    )
+    return presence
   })
 }
 

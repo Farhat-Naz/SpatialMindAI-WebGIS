@@ -15,7 +15,7 @@ vi.mock("../services/versionService", () => ({
   },
 }))
 
-vi.mock("@/features/database", () => ({
+vi.mock("@/features/database/services/queryKeys", () => ({
   queryKeys: {
     layers: (projectId: string) => ["projects", projectId, "layers"],
   },

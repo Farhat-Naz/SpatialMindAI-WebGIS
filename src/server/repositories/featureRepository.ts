@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto"
 import { Prisma, type FeatureAttribute, type FeatureStyle } from "@prisma/client"
 import { prismaClient } from "@/server/db/prismaClient"
 import { getActiveLockForFeature } from "@/server/repositories/featureLockRepository"
+import { projectChannel, publish } from "@/server/realtime/channel"
 import { ConflictError, NotFoundError, ValidationError } from "@/shared/errors/apiError"
 import type { GeoJSONGeometry } from "@/shared/contracts/geometry.schema"
 
@@ -202,7 +203,9 @@ export async function createFeature(
       FROM "Feature"
       WHERE id = ${featureId}
     `
-    return assembleFeature(rows[0], tx)
+    const feature = await assembleFeature(rows[0], tx)
+    await publish(projectChannel(layer.projectId), { type: "feature", action: "create", featureId, layerId }, tx)
+    return feature
   })
 }
 
@@ -242,6 +245,8 @@ export async function updateFeature(
       "This feature was changed by someone else since you last loaded it — please refresh and try again.",
     )
   }
+
+  const projectId = await getProjectIdForFeature(featureId)
 
   return prismaClient.$transaction(async (tx) => {
     if (input.geometry) {
@@ -284,7 +289,9 @@ export async function updateFeature(
       FROM "Feature"
       WHERE id = ${featureId}
     `
-    return assembleFeature(rows[0], tx)
+    const feature = await assembleFeature(rows[0], tx)
+    await publish(projectChannel(projectId), { type: "feature", action: "update", featureId, layerId: feature.layerId }, tx)
+    return feature
   })
 }
 
@@ -311,7 +318,16 @@ export async function deleteFeature(
     }
   }
 
-  await prismaClient.feature.delete({ where: { id: featureId } })
+  const projectId = await getProjectIdForFeature(featureId)
+
+  await prismaClient.$transaction(async (tx) => {
+    await tx.feature.delete({ where: { id: featureId } })
+    await publish(
+      projectChannel(projectId),
+      { type: "feature", action: "delete", featureId, layerId: existing.layerId },
+      tx,
+    )
+  })
 }
 
 export interface ImportFeatureInput {

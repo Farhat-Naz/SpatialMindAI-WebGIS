@@ -1,7 +1,7 @@
 "use client"
 
 import { useMutation } from "@tanstack/react-query"
-import { useEditingStore } from "@/features/database"
+import { useEditingStore } from "@/features/database/store/editingStore"
 import { lockService } from "../services/lockService"
 
 /**

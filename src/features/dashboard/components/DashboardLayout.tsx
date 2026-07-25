@@ -10,12 +10,21 @@ import { useBreakpoint } from "../hooks/useBreakpoint"
 import { MapContainer } from "@/features/map"
 import { RightSidebar } from "@/features/database/components/RightSidebar"
 import { useKeyboardShortcuts } from "@/features/database/hooks/useKeyboardShortcuts"
+import { useDatabaseStore } from "@/features/database/store/databaseStore"
+import { useRealtimeInvalidation } from "@/features/collaboration/hooks/useRealtimeInvalidation"
 
 export function DashboardLayout() {
   const { sidebarState, toggle } = useSidebar()
   const isMobile = useBreakpoint(767)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   useKeyboardShortcuts()
+
+  // specs/006-collaboration (T114): opens the project's SSE connection once
+  // a project is active, closes it when the selection changes/unmounts —
+  // same integration-point discipline as useKeyboardShortcuts above. A
+  // `null` selectedProjectId is a safe no-op (see the hook's own doc).
+  const selectedProjectId = useDatabaseStore((state) => state.selectedProjectId)
+  useRealtimeInvalidation(selectedProjectId)
 
   return (
     <>

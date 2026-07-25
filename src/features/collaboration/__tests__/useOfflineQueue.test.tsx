@@ -4,8 +4,11 @@ import type { ReactNode } from "react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { useOfflineQueue } from "../hooks/useOfflineQueue"
 
-vi.mock("@/features/database", () => ({
+vi.mock("@/features/database/services/featureService", () => ({
   featureService: { create: vi.fn(), update: vi.fn(), remove: vi.fn() },
+}))
+
+vi.mock("@/features/database/services/queryKeys", () => ({
   queryKeys: { featuresList: (layerId: string) => ["layers", layerId, "features"] },
 }))
 
@@ -97,7 +100,7 @@ describe("useOfflineQueue", () => {
       payload: { geometry: { type: "Point", coordinates: [0, 0] } },
     })
 
-    const { featureService } = await import("@/features/database")
+    const { featureService } = await import("@/features/database/services/featureService")
     vi.mocked(featureService.create).mockResolvedValue({
       feature: { id: "f1", layerId: "layer-1", geometry: { type: "Point", coordinates: [0, 0] }, attributes: [], style: null, createdAt: "t", updatedAt: "t" },
     })

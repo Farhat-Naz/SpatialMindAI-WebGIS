@@ -1,7 +1,7 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { queryKeys as databaseQueryKeys } from "@/features/database"
+import { queryKeys as databaseQueryKeys } from "@/features/database/services/queryKeys"
 import { versionService } from "../services/versionService"
 import { queryKeys } from "../services/queryKeys"
 import type { SaveVersionInput } from "@/shared/contracts/version.schema"

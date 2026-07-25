@@ -1,6 +1,8 @@
 import type { Comment, Prisma } from "@prisma/client"
 import { prismaClient } from "@/server/db/prismaClient"
+import { getProjectIdForFeature } from "@/server/repositories/featureRepository"
 import { createNotification } from "@/server/repositories/notificationRepository"
+import { projectChannel, publish } from "@/server/realtime/channel"
 import { ForbiddenError, NotFoundError } from "@/shared/errors/apiError"
 
 /**
@@ -47,7 +49,8 @@ export async function listCommentsForFeature(featureId: string): Promise<Comment
 /**
  * Creates a comment (US6), parsing `@mentions` at save time (research.md
  * Decision 11) and writing one `Notification` per mentioned member, all
- * inside one transaction.
+ * inside one transaction. Publishes a `comment` realtime event (US6
+ * scenario 1 — every member sees a new comment live).
  */
 export async function createComment(
   featureId: string,
@@ -61,6 +64,8 @@ export async function createComment(
       throw new NotFoundError(`No comment found with id "${parentCommentId}" on this feature.`)
     }
   }
+
+  const projectId = await getProjectIdForFeature(featureId)
 
   return prismaClient.$transaction(async (tx) => {
     const mentionedUserIds = await resolveMentions(tx, featureId, body)
@@ -78,11 +83,13 @@ export async function createComment(
       })
     }
 
+    await publish(projectChannel(projectId), { type: "comment", action: "create", featureId, commentId: comment.id }, tx)
+
     return comment
   })
 }
 
-/** Updates a comment's body and/or resolved state. Only the author may edit the body (FR-035). */
+/** Updates a comment's body and/or resolved state. Only the author may edit the body (FR-035). Publishes on success. */
 export async function updateComment(
   commentId: string,
   userId: string,
@@ -96,22 +103,40 @@ export async function updateComment(
     throw new ForbiddenError("Only the comment's author may edit it.")
   }
 
-  return prismaClient.comment.update({
-    where: { id: commentId },
-    data,
+  const projectId = await getProjectIdForFeature(existing.featureId)
+
+  return prismaClient.$transaction(async (tx) => {
+    const comment = await tx.comment.update({ where: { id: commentId }, data })
+    await publish(
+      projectChannel(projectId),
+      { type: "comment", action: "update", featureId: existing.featureId, commentId },
+      tx,
+    )
+    return comment
   })
 }
 
-/** Toggles `resolved` — never deletes or hides the comment or its replies (FR-033). */
+/** Toggles `resolved` — never deletes or hides the comment or its replies (FR-033). Publishes on success. */
 export async function resolveComment(commentId: string, resolved: boolean): Promise<Comment> {
   const existing = await prismaClient.comment.findUnique({ where: { id: commentId } })
   if (!existing) {
     throw new NotFoundError(`No comment found with id "${commentId}".`)
   }
-  return prismaClient.comment.update({ where: { id: commentId }, data: { resolved } })
+
+  const projectId = await getProjectIdForFeature(existing.featureId)
+
+  return prismaClient.$transaction(async (tx) => {
+    const comment = await tx.comment.update({ where: { id: commentId }, data: { resolved } })
+    await publish(
+      projectChannel(projectId),
+      { type: "comment", action: "resolve", featureId: existing.featureId, commentId },
+      tx,
+    )
+    return comment
+  })
 }
 
-/** Deletes a comment (author-only, FR-035) — cascades to its replies. */
+/** Deletes a comment (author-only, FR-035) — cascades to its replies. Publishes on success. */
 export async function deleteComment(commentId: string, userId: string): Promise<void> {
   const existing = await prismaClient.comment.findUnique({ where: { id: commentId } })
   if (!existing) {
@@ -120,5 +145,15 @@ export async function deleteComment(commentId: string, userId: string): Promise<
   if (existing.authorId !== userId) {
     throw new ForbiddenError("Only the comment's author may delete it.")
   }
-  await prismaClient.comment.delete({ where: { id: commentId } })
+
+  const projectId = await getProjectIdForFeature(existing.featureId)
+
+  await prismaClient.$transaction(async (tx) => {
+    await tx.comment.delete({ where: { id: commentId } })
+    await publish(
+      projectChannel(projectId),
+      { type: "comment", action: "delete", featureId: existing.featureId, commentId },
+      tx,
+    )
+  })
 }
