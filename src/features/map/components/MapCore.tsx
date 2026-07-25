@@ -11,6 +11,7 @@ import {
 } from "react-leaflet"
 import { useMapStore } from "@/features/map/store/mapStore"
 import { useDashboardStore } from "@/features/dashboard/store/dashboardStore"
+import { useDatabaseStore } from "@/features/database"
 import { useCoordinates } from "@/features/map/hooks/useCoordinates"
 import { BASEMAPS } from "@/features/map/constants/basemaps"
 import { useSearchStore } from "@/features/search/store/searchStore"
@@ -18,6 +19,7 @@ import { useMapSearchIntegration } from "@/features/search/hooks/useMapSearchInt
 import { SearchMarker } from "@/features/search/components/SearchMarker"
 import { ReverseGeocodePopup } from "@/features/search/components/ReverseGeocodePopup"
 import { MapEditingLayer } from "@/features/database/components/MapEditingLayer"
+import { MeasureToolbar } from "@/features/analysis/components/MeasureToolbar"
 
 function MapEventHandler() {
   const setMapStatus = useMapStore((s) => s.setMapStatus)
@@ -95,6 +97,7 @@ export function MapCore() {
   const setError = useMapStore((s) => s.setError)
   const reverseGeocodePoint = useSearchStore((s) => s.reverseGeocodePoint)
   const setReverseGeocodePoint = useSearchStore((s) => s.setReverseGeocodePoint)
+  const selectedProjectId = useDatabaseStore((s) => s.selectedProjectId)
 
   const activeBasemap =
     BASEMAPS.find((b) => b.id === activeBasemapId) ?? BASEMAPS[0]
@@ -129,6 +132,11 @@ export function MapCore() {
         />
       )}
       <MapEditingLayer />
+      {selectedProjectId && (
+        <div className="pointer-events-none absolute left-1/2 top-4 z-1000 -translate-x-1/2">
+          <MeasureToolbar projectId={selectedProjectId} />
+        </div>
+      )}
     </LeafletMapContainer>
   )
 }
