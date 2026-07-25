@@ -189,9 +189,18 @@ async function nextLayerOrder(projectId: string): Promise<number> {
   return (max._max.order ?? -1) + 1
 }
 
+/**
+ * Creates a result layer with a guaranteed-unique name within the project.
+ * `name` alone is not enough — `Layer` enforces `@@unique([projectId, name])`,
+ * and two Buffer (or any other operation) runs against the same input would
+ * otherwise generate the identical descriptive name and the second run
+ * would fail outright on a layer-creation conflict, a real, common
+ * workflow (re-running an operation with different parameters).
+ */
 async function createResultLayer(projectId: string, name: string): Promise<string> {
   const order = await nextLayerOrder(projectId)
-  const layer = await prismaClient.layer.create({ data: { projectId, name, order } })
+  const uniqueSuffix = randomUUID().slice(0, 8)
+  const layer = await prismaClient.layer.create({ data: { projectId, name: `${name} (${uniqueSuffix})`, order } })
   return layer.id
 }
 

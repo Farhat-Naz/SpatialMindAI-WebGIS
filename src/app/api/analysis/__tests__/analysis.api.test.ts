@@ -149,3 +149,101 @@ describe.skipIf(!dbAvailable)("Analysis API", () => {
     expect(second.status).toBe(400)
   })
 })
+
+/**
+ * T134 — Buffer through the background-execution path (research.md
+ * Decision 5): an input past `BACKGROUND_EXECUTION_THRESHOLD` (500
+ * features) is chunked over multiple pages (T011's chunk size for the
+ * "buffer" category is also 500), so this layer's size guarantees at least
+ * two chunk iterations for both the non-dissolve and dissolve paths —
+ * exercising T039's chunk-safe dissolve behavior (SC-002) rather than just
+ * the fast, single-chunk path already covered above.
+ */
+describe.skipIf(!dbAvailable)("Analysis API — Buffer background path (large input)", () => {
+  let projectId: string
+  let largeLayerId: string
+  const FEATURE_COUNT = 750
+
+  beforeAll(async () => {
+    process.env.DEV_USER_ID = TEST_OWNER_ID
+    await ensureTestOwner()
+    const project = await prismaClient.project.create({
+      data: { ownerId: TEST_OWNER_ID, name: `Buffer Background Path Test ${Date.now()}` },
+    })
+    projectId = project.id
+    const layer = await prismaClient.layer.create({ data: { projectId, name: "Large", order: 0 } })
+    largeLayerId = layer.id
+    await prismaClient.$executeRaw`
+      INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
+      SELECT gen_random_uuid(), ${largeLayerId},
+        ST_SetSRID(ST_MakePoint((n % 100)::float8 * 0.001, (n / 100)::float8 * 0.001), 4326),
+        NOW(), NOW()
+      FROM generate_series(1, ${FEATURE_COUNT}) AS n
+    `
+  }, 30000)
+
+  afterAll(async () => {
+    await prismaClient.project.deleteMany({ where: { ownerId: TEST_OWNER_ID } })
+  })
+
+  it(
+    "non-dissolve: eventually produces one buffer feature per input feature via the chunked path",
+    async () => {
+      const response = await POST(
+        jsonRequest(`http://localhost/api/projects/${projectId}/analysis`, "POST", {
+          operationType: "buffer",
+          inputLayerIds: [largeLayerId],
+          parameters: { distance: 10, unit: "meters" },
+        }) as never,
+        { params: Promise.resolve({ projectId }) },
+      )
+      expect(response.status).toBe(202)
+      const { run } = await response.json()
+      expect(["queued", "running", "succeeded"]).toContain(run.status)
+
+      const finalRun = await pollUntilTerminal(run.id)
+      expect(finalRun.status).toBe("succeeded")
+      const count = await prismaClient.feature.count({ where: { layerId: finalRun.resultLayerId } })
+      expect(count).toBe(FEATURE_COUNT)
+    },
+    30000,
+  )
+
+  it(
+    "dissolve: still produces exactly one merged feature across multiple chunks (chunk-safety, plan.md Risks)",
+    async () => {
+      const response = await POST(
+        jsonRequest(`http://localhost/api/projects/${projectId}/analysis`, "POST", {
+          operationType: "buffer",
+          inputLayerIds: [largeLayerId],
+          parameters: { distance: 10, unit: "meters", dissolve: true },
+        }) as never,
+        { params: Promise.resolve({ projectId }) },
+      )
+      const { run } = await response.json()
+
+      const finalRun = await pollUntilTerminal(run.id)
+      expect(finalRun.status).toBe("succeeded")
+      const count = await prismaClient.feature.count({ where: { layerId: finalRun.resultLayerId } })
+      expect(count).toBe(1)
+    },
+    30000,
+  )
+
+  async function pollUntilTerminal(runId: string): Promise<{ status: string; resultLayerId: string }> {
+    const deadline = Date.now() + 20000
+    for (;;) {
+      const response = await GET_RUN(jsonRequest(`http://localhost/api/analysis/${runId}`, "GET") as never, {
+        params: Promise.resolve({ runId }),
+      })
+      const { run } = await response.json()
+      if (["succeeded", "failed", "cancelled"].includes(run.status)) {
+        return run
+      }
+      if (Date.now() > deadline) {
+        throw new Error(`Run ${runId} did not reach a terminal status in time (last status: ${run.status}).`)
+      }
+      await new Promise((resolve) => setTimeout(resolve, 200))
+    }
+  }
+})

@@ -27,6 +27,10 @@ export function useRunAnalysis(projectId: string) {
     mutationFn: (input: AnalysisRequestInput) => analysisService.runAnalysis(projectId, input),
     retry: false,
     onSuccess: ({ run }) => {
+      // Seeds useAnalysisRun's own query key with the response we already
+      // have — avoids an extra round trip (and a loading-state flash in the
+      // Progress Dialog) before the first poll would otherwise land.
+      queryClient.setQueryData(queryKeys.analysisRun(run.id), { run })
       void queryClient.invalidateQueries({ queryKey: queryKeys.analysisRunsList(projectId) })
       if (run.resultLayerId) {
         void queryClient.invalidateQueries({ queryKey: databaseQueryKeys.layers(projectId) })

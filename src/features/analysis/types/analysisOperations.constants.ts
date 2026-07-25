@@ -32,7 +32,7 @@ export interface AnalysisOperationCatalogEntry {
  */
 export const ANALYSIS_OPERATION_CATALOG: readonly AnalysisOperationCatalogEntry[] = [
   // --- Buffer Analysis (US1, FR-001–003) ---
-  { key: "buffer", operationType: "buffer", category: "buffer", label: "Buffer", implemented: false },
+  { key: "buffer", operationType: "buffer", category: "buffer", label: "Buffer", implemented: true },
 
   // --- Spatial Query & Selection (US2, FR-004–006) ---
   { key: "spatialJoin", operationType: "spatialJoin", category: "query", label: "Spatial Join", implemented: false },
