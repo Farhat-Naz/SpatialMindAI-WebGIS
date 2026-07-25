@@ -64,6 +64,39 @@ const operationDefinitions = {
     inputLayerIds: z.tuple([layerId]),
     parameters: z.object({ targetCrs: z.string().trim().min(1) }),
   },
+
+  // --- specs/007-spatial-analysis additions (data-model.md "New operationType
+  // values") — enum scaffolding only (T009); each operation's own phase
+  // (8-13) replaces `noParameters` with its real parameter shape. ---
+
+  // US4 — Overlay Analysis (research.md Decision 7); intersect/union/
+  // difference/clip already exist from 005 and are reused unchanged.
+  erase: { inputLayerIds: z.tuple([layerId, layerId]), parameters: noParameters },
+  identity: { inputLayerIds: z.tuple([layerId, layerId]), parameters: noParameters },
+  symmetricalDifference: { inputLayerIds: z.tuple([layerId, layerId]), parameters: noParameters },
+
+  // US5 — Geometry Processing; split/merge/dissolve already exist from 005.
+  simplify: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
+  smoothGeometry: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
+  multipartToSinglepart: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
+  singlepartToMultipart: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
+  repairGeometry: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
+
+  // US2 — Spatial Query; spatialJoin/pointInPolygon/nearAnalysis already
+  // cover intersects/within/contains/nearest.
+  selectByLocation: { inputLayerIds: z.tuple([layerId, layerId]), parameters: noParameters },
+  selectByAttribute: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
+  touches: { inputLayerIds: z.tuple([layerId, layerId]), parameters: noParameters },
+  crosses: { inputLayerIds: z.tuple([layerId, layerId]), parameters: noParameters },
+  overlaps: { inputLayerIds: z.tuple([layerId, layerId]), parameters: noParameters },
+
+  // US6 — Spatial Statistics; areaCalculation/lengthCalculation/centroid/
+  // convexHull/boundingBox/densityAnalysis already exist from 005.
+  featureCount: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
+  totalLength: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
+  averageLength: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
+  averageArea: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
+  extent: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
 } as const
 
 type OperationDefinitions = typeof operationDefinitions
