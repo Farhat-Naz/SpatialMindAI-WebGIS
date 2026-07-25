@@ -2,12 +2,8 @@ import { NextResponse, type NextRequest } from "next/server"
 import { getCurrentUser } from "@/server/auth/getCurrentUser"
 import { assertWriteRateLimit } from "@/server/http/assertWriteRateLimit"
 import { handleRouteError } from "@/server/http/handleRouteError"
-import {
-  createAnalysisRun,
-  listAnalysisRunsForProject,
-  type ListAnalysisRunsParams,
-} from "@/server/repositories/analysisRepository"
-import { analysisRequestSchema, type AnalysisRequestInput } from "@/shared/contracts/analysis.schema"
+import { listMeasurementsForProject, saveMeasurement } from "@/server/repositories/measurementRepository"
+import { saveMeasurementRequestSchema } from "@/shared/contracts/measurementRequest.schema"
 import { toErrorResponse } from "@/shared/errors/apiError"
 import { logger } from "@/shared/lib/logger"
 
@@ -25,7 +21,7 @@ function respond(request: NextRequest, startedAt: number, status: number, body: 
   return NextResponse.json(body, { status })
 }
 
-/** `GET /api/projects/:projectId/analysis` — cursor-paginated Analysis History, newest first. */
+/** `GET /api/projects/:projectId/measurements` — cursor-paginated measurement history, newest first. */
 export async function GET(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
   const startedAt = Date.now()
   try {
@@ -36,24 +32,25 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
     const cursor = url.searchParams.get("cursor") ?? undefined
     const limitParam = url.searchParams.get("limit")
     const limit = limitParam ? Number(limitParam) : undefined
-    const batchId = url.searchParams.get("batchId") ?? undefined
-    const statusParam = url.searchParams.get("status") ?? undefined
-    const status = statusParam ? statusParam.split(",").map((s) => s.trim()).filter(Boolean) : undefined
 
     if (limitParam && (Number.isNaN(limit) || (limit ?? 0) <= 0)) {
-      const { status: errStatus, body } = toErrorResponse("INVALID_INPUT", "limit must be a positive number.")
-      return respond(request, startedAt, errStatus, body)
+      const { status, body } = toErrorResponse("INVALID_INPUT", "limit must be a positive number.")
+      return respond(request, startedAt, status, body)
     }
 
-    const listParams: ListAnalysisRunsParams = { cursor, limit, batchId, status }
-    const { runs, nextCursor } = await listAnalysisRunsForProject(projectId, user.id, listParams)
-    return respond(request, startedAt, 200, { runs, nextCursor })
+    const { measurements, nextCursor } = await listMeasurementsForProject(projectId, user.id, { cursor, limit })
+    return respond(request, startedAt, 200, { measurements, nextCursor })
   } catch (error) {
     return handleRouteError(error)
   }
 }
 
-/** `POST /api/projects/:projectId/analysis` — submit a single Analysis Run. */
+/**
+ * `POST /api/projects/:projectId/measurements` — saves a measurement
+ * reading (US3/FR-008). `value`/`unit` in the response are always the
+ * server-recomputed PostGIS result (research.md Decision 8), never the
+ * request body's raw value.
+ */
 export async function POST(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
   const startedAt = Date.now()
   try {
@@ -61,7 +58,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     assertWriteRateLimit(user.id, "analysis:write")
     const { projectId } = await params
 
-    const parsed = analysisRequestSchema.safeParse(await request.json())
+    const parsed = saveMeasurementRequestSchema.safeParse(await request.json())
     if (!parsed.success) {
       const { status, body } = toErrorResponse(
         "INVALID_INPUT",
@@ -70,12 +67,12 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
       return respond(request, startedAt, status, body)
     }
 
-    const run = await createAnalysisRun(projectId, user.id, parsed.data as unknown as AnalysisRequestInput)
-    // 202: the row always exists by response time, but `status` may still
-    // be "queued"/"running" for a background-execution operation
-    // (research.md Decision 5) — the client always checks `run.status`,
-    // never assumes a fixed timing.
-    return respond(request, startedAt, 202, { run })
+    const measurement = await saveMeasurement(projectId, user.id, {
+      measurementType: parsed.data.measurementType,
+      geometry: parsed.data.geometry,
+      label: parsed.data.label,
+    })
+    return respond(request, startedAt, 201, { measurement })
   } catch (error) {
     return handleRouteError(error)
   }

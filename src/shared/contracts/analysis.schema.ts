@@ -114,6 +114,8 @@ const operationDefinitions = {
 
 type OperationDefinitions = typeof operationDefinitions
 export type OperationType = keyof OperationDefinitions
+/** Runtime list of every valid `operationType` — reused by `presetRequest.schema.ts` so a preset can never be saved against an unknown operation. */
+export const OPERATION_TYPES = Object.keys(operationDefinitions) as [OperationType, ...OperationType[]]
 
 /**
  * The single request-body contract for `POST /api/projects/:projectId/analysis`
