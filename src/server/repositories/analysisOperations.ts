@@ -372,6 +372,21 @@ const SPATIAL_PREDICATE_FUNCTION: Record<SpatialRelationship, string> = {
  * lookup, never interpolated from user input directly (Constitution
  * Principle VI).
  */
+/**
+ * One chunk of a spatial-predicate selection (FR-004) — copies each
+ * matching source feature's geometry *and* attributes into the result
+ * layer via a CTE that computes the old-id→new-id mapping once and reuses
+ * it for both inserts (a selection's output represents the same
+ * real-world feature, unlike Buffer/Overlay's genuinely-derived geometry,
+ * so its attributes must survive — a plain geometry-only copy would leave
+ * every matched feature attribute-less, defeating the point of "select by
+ * location/attribute"). Backs `spatialJoin`/`pointInPolygon`/
+ * `selectByLocation` (all reuse this with the appropriate relationship) as
+ * well as the dedicated `touches`/`crosses`/`overlaps` operationTypes.
+ * `relationship` is always drawn from this file's own fixed
+ * `SPATIAL_PREDICATE_FUNCTION` lookup, never interpolated from user input
+ * directly (Constitution Principle VI).
+ */
 export function buildSpatialPredicateChunkSql(
   newLayerId: string,
   chunkFeatureIds: string[],
@@ -380,15 +395,22 @@ export function buildSpatialPredicateChunkSql(
 ): Prisma.Sql {
   const predicateFn = Prisma.raw(SPATIAL_PREDICATE_FUNCTION[relationship])
   return Prisma.sql`
-    INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
-    SELECT gen_random_uuid()::text, ${newLayerId}, a.geometry, NOW(), NOW()
-    FROM "Feature" a
-    WHERE a.id IN (${Prisma.join(chunkFeatureIds)})
-      AND EXISTS (
-        SELECT 1 FROM "Feature" b
-        WHERE b."layerId" = ${referenceLayerId}
-          AND ${predicateFn}(a.geometry, b.geometry)
-      )
+    WITH matched AS (
+      SELECT a.id AS old_id, a.geometry AS old_geometry, gen_random_uuid()::text AS new_id
+      FROM "Feature" a
+      WHERE a.id IN (${Prisma.join(chunkFeatureIds)})
+        AND EXISTS (
+          SELECT 1 FROM "Feature" b
+          WHERE b."layerId" = ${referenceLayerId}
+            AND ${predicateFn}(a.geometry, b.geometry)
+        )
+    ), ins_feature AS (
+      INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
+      SELECT new_id, ${newLayerId}, old_geometry, NOW(), NOW() FROM matched
+    )
+    INSERT INTO "FeatureAttribute" (id, "featureId", key, value)
+    SELECT gen_random_uuid()::text, matched.new_id, fa.key, fa.value
+    FROM matched JOIN "FeatureAttribute" fa ON fa."featureId" = matched.old_id
   `
 }
 
@@ -419,7 +441,13 @@ function buildAttributeComparisonSql(operator: AttributeFilterOperator, value: s
   }
 }
 
-/** One chunk of Select by Attribute (FR-006) — `filter` is always passed as parameterized values, never string-concatenated into SQL text (Constitution Principle VI). */
+/**
+ * One chunk of Select by Attribute (FR-006) — copies each matching
+ * feature's geometry *and* attributes into the result layer (same
+ * old-id→new-id CTE pattern and rationale as `buildSpatialPredicateChunkSql`).
+ * `filter` is always passed as parameterized values, never
+ * string-concatenated into SQL text (Constitution Principle VI).
+ */
 export function buildSelectByAttributeChunkSql(
   newLayerId: string,
   chunkFeatureIds: string[],
@@ -427,12 +455,19 @@ export function buildSelectByAttributeChunkSql(
 ): Prisma.Sql {
   const comparison = buildAttributeComparisonSql(filter.operator, filter.value)
   return Prisma.sql`
-    INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
-    SELECT gen_random_uuid()::text, ${newLayerId}, a.geometry, NOW(), NOW()
-    FROM "Feature" a
-    JOIN "FeatureAttribute" fa ON fa."featureId" = a.id AND fa.key = ${filter.key}
-    WHERE a.id IN (${Prisma.join(chunkFeatureIds)})
-      AND ${comparison}
+    WITH matched AS (
+      SELECT a.id AS old_id, a.geometry AS old_geometry, gen_random_uuid()::text AS new_id
+      FROM "Feature" a
+      JOIN "FeatureAttribute" fa ON fa."featureId" = a.id AND fa.key = ${filter.key}
+      WHERE a.id IN (${Prisma.join(chunkFeatureIds)})
+        AND ${comparison}
+    ), ins_feature AS (
+      INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
+      SELECT new_id, ${newLayerId}, old_geometry, NOW(), NOW() FROM matched
+    )
+    INSERT INTO "FeatureAttribute" (id, "featureId", key, value)
+    SELECT gen_random_uuid()::text, matched.new_id, fa.key, fa.value
+    FROM matched JOIN "FeatureAttribute" fa ON fa."featureId" = matched.old_id
   `
 }
 

@@ -247,3 +247,182 @@ describe.skipIf(!dbAvailable)("Analysis API — Buffer background path (large in
     }
   }
 })
+
+/**
+ * T151 — every spatial predicate (US2) against seeded fixtures with known
+ * expected results: `sourceLayer` has a point inside `referenceLayer`'s
+ * polygon, a point outside it, a point exactly on its boundary (touches),
+ * and a line crossing its boundary — enough to exercise every predicate's
+ * distinct semantics (intersects/within/contains/touches/crosses/overlaps).
+ */
+describe.skipIf(!dbAvailable)("Analysis API — Spatial Query predicates (US2)", () => {
+  let projectId: string
+  let sourceLayerId: string
+  let referenceLayerId: string
+
+  beforeAll(async () => {
+    process.env.DEV_USER_ID = TEST_OWNER_ID
+    await ensureTestOwner()
+    const project = await prismaClient.project.create({
+      data: { ownerId: TEST_OWNER_ID, name: `Spatial Query API Test ${Date.now()}` },
+    })
+    projectId = project.id
+
+    const source = await prismaClient.layer.create({ data: { projectId, name: "Source", order: 0 } })
+    const reference = await prismaClient.layer.create({ data: { projectId, name: "Reference", order: 1 } })
+    sourceLayerId = source.id
+    referenceLayerId = reference.id
+
+    // A 0..10, 0..10 square polygon in the reference layer.
+    await prismaClient.$executeRaw`
+      INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
+      VALUES (gen_random_uuid(), ${referenceLayerId}, ST_GeomFromGeoJSON('{"type":"Polygon","coordinates":[[[0,0],[0,10],[10,10],[10,0],[0,0]]]}'), NOW(), NOW())
+    `
+
+    // Each source fixture is tagged with a "label" attribute so a query
+    // result can be identified by label (robust to the result's copies
+    // getting fresh ids) — and doubles as proof that attributes survive
+    // the copy (the whole point of "select by location/attribute").
+    async function insertLabeledFeature(label: string, geometry: unknown): Promise<void> {
+      const rows = await prismaClient.$queryRaw<{ id: string }[]>`
+        INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
+        VALUES (gen_random_uuid(), ${sourceLayerId}, ST_GeomFromGeoJSON(${JSON.stringify(geometry)}), NOW(), NOW())
+        RETURNING id
+      `
+      await prismaClient.featureAttribute.create({ data: { featureId: rows[0].id, key: "label", value: label } })
+    }
+
+    await insertLabeledFeature("inside", { type: "Point", coordinates: [5, 5] })
+    await insertLabeledFeature("outside", { type: "Point", coordinates: [50, 50] })
+    await insertLabeledFeature("boundary", { type: "Point", coordinates: [0, 5] })
+    await insertLabeledFeature("crossing", { type: "LineString", coordinates: [[-5, 5], [5, 5]] })
+  })
+
+  afterAll(async () => {
+    await prismaClient.project.deleteMany({ where: { ownerId: TEST_OWNER_ID } })
+  })
+
+  /** Runs a query and returns the sorted set of "label" attribute values found among the result layer's features — proves both correct selection and attribute preservation. */
+  async function runQuery(operationType: string, parameters?: unknown): Promise<string[]> {
+    const response = await POST(
+      jsonRequest(`http://localhost/api/projects/${projectId}/analysis`, "POST", {
+        operationType,
+        inputLayerIds: [sourceLayerId, referenceLayerId],
+        parameters,
+      }) as never,
+      { params: Promise.resolve({ projectId }) },
+    )
+    const { run } = await response.json()
+    expect(run.status).toBe("succeeded")
+    const attributes = await prismaClient.featureAttribute.findMany({
+      where: { key: "label", feature: { layerId: run.resultLayerId } },
+    })
+    return attributes.map((a) => a.value).sort()
+  }
+
+  it("intersects: matches the inside point, boundary point, and crossing line, not the outside point", async () => {
+    const labels = await runQuery("spatialJoin", { relationship: "intersects" })
+    expect(labels).toEqual(["boundary", "crossing", "inside"])
+  })
+
+  it("within: matches only the strictly-inside point", async () => {
+    const labels = await runQuery("spatialJoin", { relationship: "within" })
+    expect(labels).toEqual(["inside"])
+  })
+
+  it("contains: the polygon reference contains the inside point (source/reference reversed for this predicate's semantics)", async () => {
+    // ST_Contains(a, b): source geometry containing reference geometry —
+    // reversing layers here so the polygon (now source) contains the point.
+    const response = await POST(
+      jsonRequest(`http://localhost/api/projects/${projectId}/analysis`, "POST", {
+        operationType: "spatialJoin",
+        inputLayerIds: [referenceLayerId, sourceLayerId],
+        parameters: { relationship: "contains" },
+      }) as never,
+      { params: Promise.resolve({ projectId }) },
+    )
+    const { run } = await response.json()
+    expect(run.status).toBe("succeeded")
+    const count = await prismaClient.feature.count({ where: { layerId: run.resultLayerId } })
+    expect(count).toBe(1)
+  })
+
+  it("touches: matches only the boundary point", async () => {
+    const labels = await runQuery("touches")
+    expect(labels).toEqual(["boundary"])
+  })
+
+  it("crosses: matches only the line crossing the boundary", async () => {
+    const labels = await runQuery("crosses")
+    expect(labels).toEqual(["crossing"])
+  })
+
+  it("overlaps: no source geometry partially overlaps the polygon in this fixture (points/lines can't 'overlap' a polygon by definition)", async () => {
+    const labels = await runQuery("overlaps")
+    expect(labels).toEqual([])
+  })
+
+  it("nearest: ranks every source feature by distance to the nearest reference feature", async () => {
+    const response = await POST(
+      jsonRequest(`http://localhost/api/projects/${projectId}/analysis`, "POST", {
+        operationType: "nearAnalysis",
+        inputLayerIds: [sourceLayerId, referenceLayerId],
+      }) as never,
+      { params: Promise.resolve({ projectId }) },
+    )
+    const { run } = await response.json()
+    expect(run.status).toBe("succeeded")
+    expect(Array.isArray(run.resultData)).toBe(true)
+    expect(run.resultData.length).toBeGreaterThan(0)
+    for (const entry of run.resultData) {
+      expect(typeof entry.distanceMeters).toBe("number")
+    }
+  })
+
+  it("distance: nearAnalysis with maxDistance excludes far-away features", async () => {
+    const outsideAttribute = await prismaClient.featureAttribute.findFirstOrThrow({
+      where: { key: "label", value: "outside", feature: { layerId: sourceLayerId } },
+    })
+
+    const response = await POST(
+      jsonRequest(`http://localhost/api/projects/${projectId}/analysis`, "POST", {
+        operationType: "nearAnalysis",
+        inputLayerIds: [sourceLayerId, referenceLayerId],
+        parameters: { maxDistance: 100, unit: "meters" },
+      }) as never,
+      { params: Promise.resolve({ projectId }) },
+    )
+    const { run } = await response.json()
+    expect(run.status).toBe("succeeded")
+    const sourceIds = run.resultData.map((entry: { sourceFeatureId: string }) => entry.sourceFeatureId)
+    expect(sourceIds).not.toContain(outsideAttribute.featureId)
+  })
+
+  it("selectByAttribute: filters by a parameterized equality comparison", async () => {
+    const featureId = await prismaClient
+      .$queryRaw<
+        { id: string }[]
+      >`INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt") VALUES (gen_random_uuid(), ${sourceLayerId}, ST_GeomFromGeoJSON('{"type":"Point","coordinates":[1,1]}'), NOW(), NOW()) RETURNING id`
+      .then((rows) => rows[0].id)
+    await prismaClient.featureAttribute.create({ data: { featureId, key: "kind", value: "target" } })
+
+    const response = await POST(
+      jsonRequest(`http://localhost/api/projects/${projectId}/analysis`, "POST", {
+        operationType: "selectByAttribute",
+        inputLayerIds: [sourceLayerId],
+        parameters: { key: "kind", operator: "eq", value: "target" },
+      }) as never,
+      { params: Promise.resolve({ projectId }) },
+    )
+    const { run } = await response.json()
+    expect(run.status).toBe("succeeded")
+    const resultFeatures = await prismaClient.feature.findMany({ where: { layerId: run.resultLayerId } })
+    expect(resultFeatures).toHaveLength(1)
+
+    // Proves the copy preserves attributes, not just geometry.
+    const copiedAttribute = await prismaClient.featureAttribute.findFirst({
+      where: { featureId: resultFeatures[0].id, key: "kind" },
+    })
+    expect(copiedAttribute?.value).toBe("target")
+  })
+})
