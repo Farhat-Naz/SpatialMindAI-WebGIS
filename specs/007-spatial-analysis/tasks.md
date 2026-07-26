@@ -2152,7 +2152,7 @@ description: "Task list for feature implementation"
 
 **Independent Test**: Run any analysis that produces a result layer, export in each format, confirm a correctly formatted downloadable file — independent of which analysis produced the result.
 
-- [ ] T226 [US9] `exportService.ts` — GeoJSON re-export wiring
+- [X] T226 [US9] `exportService.ts` — GeoJSON re-export wiring
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/analysis/services/exportService.ts` (modify, from T081)
@@ -2161,7 +2161,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T236
   - **Dependencies**: T081
 
-- [ ] T227 [P] [US9] GeoJSON export for analysis results
+- [X] T227 [P] [US9] GeoJSON export for analysis results
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/analysis/services/exportService.ts` (modify, same file as T226)
@@ -2170,7 +2170,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T237
   - **Dependencies**: T226
 
-- [ ] T228 [P] [US9] CSV export
+- [X] T228 [P] [US9] CSV export
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/analysis/services/exportService.ts` (modify, same file as T226)
@@ -2179,7 +2179,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T236/T237
   - **Dependencies**: T226
 
-- [ ] T229 [P] [US9] KML export
+- [X] T229 [P] [US9] KML export
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/analysis/services/exportService.ts` (modify, same file as T226)
@@ -2188,7 +2188,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T236/T237
   - **Dependencies**: T226
 
-- [ ] T230 [P] [US9] Shapefile export
+- [X] T230 [P] [US9] Shapefile export
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/analysis/services/exportService.ts` (modify, same file as T226)
@@ -2197,7 +2197,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T236/T237
   - **Dependencies**: T082, T226
 
-- [ ] T231 [US9] Download Manager — streamed assembly
+- [X] T231 [US9] Download Manager — streamed assembly
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/analysis/services/exportService.ts` (modify, same file as T226)
@@ -2206,7 +2206,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T291
   - **Dependencies**: T227–T230
 
-- [ ] T232 [US9] Download Manager — oversized-export warning
+- [X] T232 [US9] Download Manager — oversized-export warning
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/analysis/components/ResultPanel.tsx` (modify, from T129)
@@ -2215,7 +2215,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T237
   - **Dependencies**: T129, T231
 
-- [ ] T233 [US9] Export History logging
+- [X] T233 [US9] Export History logging
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/analysis/services/exportService.ts` (modify, same file as T226)
@@ -2224,7 +2224,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T237
   - **Dependencies**: T081, T227–T230
 
-- [ ] T234 [US9] Export History UI
+- [X] T234 [US9] Export History UI
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/analysis/components/ResultPanel.tsx` (modify, same file as T232)
@@ -2233,7 +2233,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T237
   - **Dependencies**: T100, T233
 
-- [ ] T235 [P] [US9] Component tests — export progress UI
+- [X] T235 [P] [US9] Component tests — export progress UI
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/analysis/components/__tests__/ResultPanel.export.test.tsx` (new)
@@ -2242,7 +2242,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- ResultPanel.export`
   - **Dependencies**: T232, T234
 
-- [ ] T236 [P] [US9] Service tests — per-format assembly
+- [X] T236 [P] [US9] Service tests — per-format assembly
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/analysis/services/__tests__/exportService.test.ts` (modify, extends T088)
@@ -2251,7 +2251,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- exportService`
   - **Dependencies**: T227–T230
 
-- [ ] T237 [P] [US9] Integration test — full Export flow
+- [X] T237 [P] [US9] Integration test — full Export flow
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/analysis/__tests__/export.integration.test.tsx` (new)
@@ -2260,7 +2260,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- export.integration`
   - **Dependencies**: T231, T232, T233, T234
 
-- [ ] T238 [US9] Checkpoint (Phase 15)
+- [X] T238 [US9] Checkpoint (Phase 15)
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: None (verification-only task)

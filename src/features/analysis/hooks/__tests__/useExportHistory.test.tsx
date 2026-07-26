@@ -51,7 +51,7 @@ describe("useExportHistory hooks", () => {
   })
 
   it("useExportResult: logs success and invalidates export history", async () => {
-    vi.spyOn(exportServiceModule, "exportAnalysisResult").mockResolvedValue(new Blob())
+    vi.spyOn(exportServiceModule, "exportAnalysisResult").mockResolvedValue({ blob: new Blob(), featureCount: 12 })
     mockedService.logExport.mockResolvedValue({ exportJob: sampleExport })
     const { Wrapper, queryClient } = createWrapper()
     const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries")
@@ -60,7 +60,14 @@ describe("useExportHistory hooks", () => {
     result.current.mutate({ run: { resultLayerId: "l1", resultData: null }, format: "geojson" })
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
-    expect(mockedService.logExport).toHaveBeenCalledWith("p1", { sourceAnalysisRunId: undefined, format: "geojson", status: "succeeded" })
+    // featureCount is logged so the history list can show an export's size
+    // without re-reading the layer (T234).
+    expect(mockedService.logExport).toHaveBeenCalledWith("p1", {
+      sourceAnalysisRunId: undefined,
+      format: "geojson",
+      status: "succeeded",
+      featureCount: 12,
+    })
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["projects", "p1", "exportHistory"] })
   })
 

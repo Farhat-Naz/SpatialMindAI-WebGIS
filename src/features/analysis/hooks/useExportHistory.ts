@@ -35,8 +35,10 @@ export function useExportResult(projectId: string, sourceAnalysisRunId?: string)
   return useMutation({
     mutationFn: async ({ run, format, onProgress }: ExportResultInput) => {
       try {
-        const blob = await exportAnalysisResult(run, format, onProgress)
-        await analysisService.logExport(projectId, { sourceAnalysisRunId, format, status: "succeeded" })
+        const { blob, featureCount } = await exportAnalysisResult(run, format, onProgress)
+        // featureCount is recorded so the history list can show how big an
+        // export was without re-reading the layer (T234).
+        await analysisService.logExport(projectId, { sourceAnalysisRunId, format, status: "succeeded", featureCount })
         return blob
       } catch (error) {
         await analysisService.logExport(projectId, {
