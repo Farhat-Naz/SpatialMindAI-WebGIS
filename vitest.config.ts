@@ -28,5 +28,18 @@ export default defineConfig({
     // strategy fix only — no application/rate-limiter code changes — and
     // trades some suite wall-clock time for a suite that is reliably green.
     fileParallelism: false,
+    poolOptions: {
+      forks: {
+        // `fileParallelism: false` already serializes files, but Vitest
+        // still spawns a fresh fork per file — ~126 process spawns per
+        // run, and on Windows one of them intermittently fails with
+        // "Failed to start forks worker", aborting an otherwise green
+        // suite (seen on two different, unrelated files). Reusing one
+        // fork removes the spawn churn; `isolate` stays on its default,
+        // so each file still gets a fresh module registry and the
+        // per-file rate-limiter reset above keeps working.
+        singleFork: true,
+      },
+    },
   },
 })
