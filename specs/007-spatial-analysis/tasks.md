@@ -309,7 +309,7 @@ description: "Task list for feature implementation"
   - **Files**: `prisma/__tests__/schema.migration.test.ts` (new, or the project's existing DB-test location/convention)
   - **Goal**: Automated smoke test asserting the migration applies cleanly, the `CHECK` constraint (T026) rejects an out-of-range `progress`, and the `userId` backfill (T028) leaves zero null rows.
   - **Acceptance Criteria**: Test passes against the real ephemeral PostGIS test database, skip-if-unavailable per existing convention.
-  - **Verification**: `npm run test:db` (if present) or `npm run test -- schema.migration`
+  - **Verification**: `npm run test -- schema.migration` (needs `npm run test:db:up`)
   - **Dependencies**: T024, T026, T027, T028
 
 - [X] T032 Checkpoint (Phase 2)
@@ -318,7 +318,7 @@ description: "Task list for feature implementation"
   - **Files**: None (verification-only task)
   - **Goal**: Confirm the schema/migration/seed layer is complete and green before Phase 3 (Repository Layer) begins.
   - **Acceptance Criteria**: All of T016–T031 complete; `prisma validate` and `prisma migrate status` both clean.
-  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build && npm run test:db`
+  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build` (with `npm run test:db:up` running)
   - **Dependencies**: T016–T031
 
 ---
@@ -468,7 +468,7 @@ description: "Task list for feature implementation"
   - **Files**: `src/server/repositories/__tests__/analysisRepository.test.ts` (modify/extend existing 005 test file)
   - **Goal**: Test T033–T044's full lifecycle (queued→running→succeeded/failed/cancelled), `discardResult`, `cancelRun`'s idempotent-on-terminal behavior, and the new membership-scoped visibility rules from T038, against the real PostGIS test database.
   - **Acceptance Criteria**: Every function in contracts/repository-api.md's `analysisRepository.ts` section has at least one passing success test and one failure/edge-case test.
-  - **Verification**: `npm run test:db -- analysisRepository` (or `npm run test -- analysisRepository`, skip-if-unavailable)
+  - **Verification**: `npm run test -- analysisRepository` (needs `npm run test:db:up`)
   - **Dependencies**: T033–T044
 
 - [X] T049 [P] Repository tests — preset/measurement/export
@@ -477,7 +477,7 @@ description: "Task list for feature implementation"
   - **Files**: `src/server/repositories/__tests__/analysisPresetRepository.test.ts` (new), `src/server/repositories/__tests__/measurementRepository.test.ts` (new), `src/server/repositories/__tests__/exportLogRepository.test.ts` (new)
   - **Goal**: Test every function in T045–T047 — success, not-found, forbidden, and (measurement) the server-recompute-not-client-value guarantee.
   - **Acceptance Criteria**: Matches contracts/repository-api.md's documented behavior for each function.
-  - **Verification**: `npm run test:db -- analysisPresetRepository measurementRepository exportLogRepository`
+  - **Verification**: `npm run test -- analysisPresetRepository measurementRepository exportLogRepository`
   - **Dependencies**: T045, T046, T047
 
 - [X] T050 Checkpoint (Phase 3)
@@ -486,7 +486,7 @@ description: "Task list for feature implementation"
   - **Files**: None (verification-only task)
   - **Goal**: Confirm the repository layer is complete and green before Phase 4 (Route Handlers) begins.
   - **Acceptance Criteria**: All of T033–T049 complete.
-  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build && npm run test:db`
+  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build` (with `npm run test:db:up` running)
   - **Dependencies**: T033–T049
 
 ---
@@ -708,7 +708,7 @@ description: "Task list for feature implementation"
   - **Files**: `src/app/api/analysis/__tests__/analysis.api.test.ts` (modify/extend), `src/app/api/projects/__tests__/analysisPresets.api.test.ts` (new), `src/app/api/projects/__tests__/measurements.api.test.ts` (new), `src/app/api/projects/__tests__/exports.api.test.ts` (new)
   - **Goal**: Test every endpoint in contracts/api-contracts.md — success, validation failure, `403`, `404`, `429`, and (for the analysis endpoint) the `202`-then-poll-to-terminal flow.
   - **Acceptance Criteria**: Every row of every error table in contracts/api-contracts.md has a corresponding test case.
-  - **Verification**: `npm run test:db -- api.test` (skip-if-unavailable) or `npm run test`
+  - **Verification**: `npm run test -- api.test` (skip-if-unavailable) or `npm run test`
   - **Dependencies**: T051–T073
 
 - [X] T075 Checkpoint (Phase 4)
@@ -717,7 +717,7 @@ description: "Task list for feature implementation"
   - **Files**: None (verification-only task)
   - **Goal**: Confirm the full HTTP surface is complete and green before Phase 5 (Client Services) begins.
   - **Acceptance Criteria**: All of T051–T074 complete.
-  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build && npm run test:db`
+  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build` (with `npm run test:db:up` running)
   - **Dependencies**: T051–T074
 
 ---
@@ -1274,7 +1274,7 @@ description: "Task list for feature implementation"
   - **Files**: `src/app/api/analysis/__tests__/analysis.api.test.ts` (modify, extends T074)
   - **Goal**: Test Buffer against both a small (fast-path) and chunked-threshold (background-path) input, asserting T039's chunk-safe dissolve behavior.
   - **Acceptance Criteria**: SC-002 satisfied for Buffer specifically.
-  - **Verification**: `npm run test:db -- analysis.api`
+  - **Verification**: `npm run test -- analysis.api`
   - **Dependencies**: T039, T122, T123, T124, T125, T126
 
 - [X] T135 [US1] Accessibility check — Buffer
@@ -1292,7 +1292,7 @@ description: "Task list for feature implementation"
   - **Files**: None (verification-only task)
   - **Goal**: Confirm US1 is fully functional and independently testable — this is the suggested MVP stopping point.
   - **Acceptance Criteria**: quickstart.md §1 passes end-to-end manually; all of T121–T135 complete.
-  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build && npm run test:db`
+  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build` (with `npm run test:db:up` running)
   - **Dependencies**: T121–T135
 
 ---
@@ -1435,7 +1435,7 @@ description: "Task list for feature implementation"
   - **Files**: `src/app/api/analysis/__tests__/analysis.api.test.ts` (modify, extends T074)
   - **Goal**: Test Touches/Crosses/Overlaps/Intersects/Within/Contains/Nearest/Distance against seeded fixtures with known expected results.
   - **Acceptance Criteria**: FR-004/FR-005 fully covered.
-  - **Verification**: `npm run test:db -- analysis.api`
+  - **Verification**: `npm run test -- analysis.api`
   - **Dependencies**: T138–T145
 
 - [X] T152 [US2] Checkpoint (Phase 9)
@@ -1444,7 +1444,7 @@ description: "Task list for feature implementation"
   - **Files**: None (verification-only task)
   - **Goal**: Confirm US1 AND US2 both work independently.
   - **Acceptance Criteria**: quickstart.md §2 passes; all of T137–T151 complete.
-  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build && npm run test:db`
+  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build` (with `npm run test:db:up` running)
   - **Dependencies**: T137–T151
 
 ---
@@ -1578,7 +1578,7 @@ description: "Task list for feature implementation"
   - **Files**: None (verification-only task)
   - **Goal**: Confirm US1, US2, AND US3 all work independently.
   - **Acceptance Criteria**: quickstart.md §3 passes; all of T153–T165 complete.
-  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build && npm run test:db`
+  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build` (with `npm run test:db:up` running)
   - **Dependencies**: T153–T165
 
 ---
@@ -1712,7 +1712,7 @@ description: "Task list for feature implementation"
   - **Files**: `src/app/api/analysis/__tests__/analysis.api.test.ts` (modify, extends T074)
   - **Goal**: Test against seeded overlapping polygon fixtures with known expected results, plus T177's CRS-mismatch reprojection.
   - **Acceptance Criteria**: FR-010/FR-033 fully covered for the 3 new operations.
-  - **Verification**: `npm run test:db -- analysis.api`
+  - **Verification**: `npm run test -- analysis.api`
   - **Dependencies**: T172, T173, T174, T177
 
 - [X] T181 [US4] Accessibility check — Overlay
@@ -1730,7 +1730,7 @@ description: "Task list for feature implementation"
   - **Files**: None (verification-only task)
   - **Goal**: Confirm US1–US4 all work independently.
   - **Acceptance Criteria**: quickstart.md §4 passes; all of T167–T181 complete.
-  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build && npm run test:db`
+  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build` (with `npm run test:db:up` running)
   - **Dependencies**: T167–T181
 
 ---
@@ -1873,7 +1873,7 @@ description: "Task list for feature implementation"
   - **Files**: `src/app/api/analysis/__tests__/analysis.api.test.ts` (modify, extends T074)
   - **Goal**: Test against seeded fixtures including one deliberately invalid geometry; asserts T044's chunk-safe Dissolve invariant.
   - **Acceptance Criteria**: All of spec.md's US5 Acceptance Scenarios (1–8) pass.
-  - **Verification**: `npm run test:db -- analysis.api`
+  - **Verification**: `npm run test -- analysis.api`
   - **Dependencies**: T044, T184–T190, T194
 
 - [X] T198 [P] [US5] API test — no-op and validation-rejection edge cases
@@ -1882,7 +1882,7 @@ description: "Task list for feature implementation"
   - **Files**: `src/app/api/analysis/__tests__/analysis.api.test.ts` (modify, extends T074)
   - **Goal**: Test T192's no-op behavior and T193's rejection messages.
   - **Acceptance Criteria**: spec.md's Edge Cases for Simplify/Smooth/Repair no-op and Split/Merge rejection both covered.
-  - **Verification**: `npm run test:db -- analysis.api`
+  - **Verification**: `npm run test -- analysis.api`
   - **Dependencies**: T192, T193
 
 - [X] T199 [US5] Accessibility check — Geometry Processing
@@ -1900,7 +1900,7 @@ description: "Task list for feature implementation"
   - **Files**: None (verification-only task)
   - **Goal**: Confirm US1–US5 all work independently.
   - **Acceptance Criteria**: quickstart.md §5 passes; all of T183–T199 complete.
-  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build && npm run test:db`
+  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build` (with `npm run test:db:up` running)
   - **Dependencies**: T183–T199
 
 ---
@@ -2025,7 +2025,7 @@ description: "Task list for feature implementation"
   - **Files**: `src/features/analysis/__tests__/statistics.integration.test.tsx` (new), `src/app/api/analysis/__tests__/analysis.api.test.ts` (modify, extends T074)
   - **Goal**: Matches quickstart.md §6, covering polygon/line/point layer variants.
   - **Acceptance Criteria**: All of spec.md's US6 Acceptance Scenarios (1–5) pass.
-  - **Verification**: `npm run test -- statistics.integration && npm run test:db -- analysis.api`
+  - **Verification**: `npm run test -- statistics.integration && npm run test -- analysis.api`
   - **Dependencies**: T202–T209, T211
 
 - [X] T214 [US6] Checkpoint (Phase 13)
@@ -2034,7 +2034,7 @@ description: "Task list for feature implementation"
   - **Files**: None (verification-only task)
   - **Goal**: Confirm US1–US6 all work independently.
   - **Acceptance Criteria**: quickstart.md §6 passes; all of T201–T213 complete.
-  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build && npm run test:db`
+  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build` (with `npm run test:db:up` running)
   - **Dependencies**: T201–T213
 
 ---
@@ -2051,7 +2051,7 @@ description: "Task list for feature implementation"
   - **Files**: `src/server/repositories/__tests__/analysisRepository.test.ts` (verification, from T048)
   - **Goal**: Confirm `AnalysisRun`'s extended lifecycle fields (`executionTimeMs`, `startedAt`, `completedAt`, `userId`) are fully populated for every operation category built in Phases 8–13 (FR-019).
   - **Acceptance Criteria**: No run from any prior phase has a null `executionTimeMs` after reaching a terminal status.
-  - **Verification**: `npm run test:db -- analysisRepository`
+  - **Verification**: `npm run test -- analysisRepository`
   - **Dependencies**: T048, T136, T152, T166, T182, T200, T214
 
 - [X] T216 [US8] `HistoryPanel.tsx`
@@ -2141,7 +2141,7 @@ description: "Task list for feature implementation"
   - **Files**: None (verification-only task)
   - **Goal**: Confirm US1–US6 and US8 all work independently.
   - **Acceptance Criteria**: quickstart.md §8 passes; all of T215–T224 complete.
-  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build && npm run test:db`
+  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build` (with `npm run test:db:up` running)
   - **Dependencies**: T215–T224
 
 ---
@@ -2454,7 +2454,7 @@ description: "Task list for feature implementation"
   - **Files**: None (verification-only task)
   - **Goal**: Confirm every user story (US1–US10) now works both independently and as one integrated workspace.
   - **Acceptance Criteria**: quickstart.md §7 and §10 pass; all of T239–T257 complete.
-  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build && npm run test:db`
+  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build` (with `npm run test:db:up` running)
   - **Dependencies**: T239–T257
 
 ---
@@ -2550,7 +2550,7 @@ description: "Task list for feature implementation"
   - **Files**: `src/server/repositories/__tests__/analysisRepository.performance.test.ts` (new)
   - **Goal**: Buffer/Union/Simplify against a 100,000-feature seeded layer, asserting progress observed ≥2 times before a terminal status (SC-002).
   - **Acceptance Criteria**: Test passes within a documented time budget; skip-if-unavailable against the real test database.
-  - **Verification**: `npm run test:db -- analysisRepository.performance`
+  - **Verification**: `npm run test -- analysisRepository.performance`
   - **Dependencies**: T034, T259, T263
 
 - [ ] T269 [P] Performance tests — 100-concurrent-job harness
@@ -2559,7 +2559,7 @@ description: "Task list for feature implementation"
   - **Files**: `src/server/repositories/__tests__/analysisRepository.concurrency.test.ts` (new)
   - **Goal**: Launch 100 concurrent `createAnalysisRun` calls across multiple simulated users/projects, asserting no cross-job data corruption and the per-user concurrent-job cap (research.md Decision 12) is respected (SC-003).
   - **Acceptance Criteria**: Every job reaches a correct terminal state; no job's result is corrupted by another's execution.
-  - **Verification**: `npm run test:db -- analysisRepository.concurrency`
+  - **Verification**: `npm run test -- analysisRepository.concurrency`
   - **Dependencies**: T033, T034
 
 - [ ] T270 Checkpoint (Phase 17)
@@ -2568,7 +2568,7 @@ description: "Task list for feature implementation"
   - **Files**: None (verification-only task)
   - **Goal**: Confirm performance targets are met before Phase 18 (Accessibility) begins.
   - **Acceptance Criteria**: All of T259–T269 complete; SC-002/SC-003 demonstrated passing.
-  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build && npm run test:db`
+  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build` (with `npm run test:db:up` running)
   - **Dependencies**: T259–T269
 
 ---
@@ -2670,7 +2670,7 @@ description: "Task list for feature implementation"
   - **Files**: `src/server/repositories/__tests__/*.test.ts` (modify as needed)
   - **Goal**: Add any coverage gaps found in T279.
   - **Acceptance Criteria**: T279's checklist reaches 100%.
-  - **Verification**: `npm run test:db`
+  - **Verification**: `npm run test` (needs `npm run test:db:up`)
   - **Dependencies**: T279
 
 - [ ] T281 API test coverage audit
@@ -2688,7 +2688,7 @@ description: "Task list for feature implementation"
   - **Files**: `src/app/api/**/__tests__/*.test.ts` (modify as needed)
   - **Goal**: Add any coverage gaps found in T281.
   - **Acceptance Criteria**: T281's checklist reaches 100%.
-  - **Verification**: `npm run test:db`
+  - **Verification**: `npm run test` (needs `npm run test:db:up`)
   - **Dependencies**: T281
 
 - [ ] T283 Hook test coverage audit
@@ -2796,7 +2796,7 @@ description: "Task list for feature implementation"
   - **Files**: `src/server/repositories/__tests__/analysisRepository.performance.test.ts` (modify, extends T268)
   - **Goal**: 100,000-feature Select by Location end-to-end via the background path.
   - **Acceptance Criteria**: SC-002 satisfied for Spatial Query specifically.
-  - **Verification**: `npm run test:db -- analysisRepository.performance`
+  - **Verification**: `npm run test -- analysisRepository.performance`
   - **Dependencies**: T041, T268
 
 - [ ] T295 [P] Large dataset test — Geometry Processing
@@ -2805,7 +2805,7 @@ description: "Task list for feature implementation"
   - **Files**: `src/server/repositories/__tests__/analysisRepository.performance.test.ts` (modify, same file as T294)
   - **Goal**: 100,000-feature Simplify end-to-end via the background path.
   - **Acceptance Criteria**: SC-002 satisfied for Geometry Processing specifically.
-  - **Verification**: `npm run test:db -- analysisRepository.performance`
+  - **Verification**: `npm run test -- analysisRepository.performance`
   - **Dependencies**: T043, T268
 
 - [ ] T296 Failure/recovery automated tests
@@ -2822,8 +2822,8 @@ description: "Task list for feature implementation"
   - **User Story**: None
   - **Files**: N/A (verification-only)
   - **Goal**: Run the entire test suite (all tiers) and confirm green, with zero skipped tests other than documented skip-if-unavailable DB tests.
-  - **Acceptance Criteria**: `npm run test` and `npm run test:db` both fully green.
-  - **Verification**: `npm run test && npm run test:db`
+  - **Acceptance Criteria**: `npm run test` fully green with `npm run test:db:up` running.
+  - **Verification**: `npm run test` (with `npm run test:db:up` running)
   - **Dependencies**: T280, T282, T284, T286, T287, T288, T289, T291, T293, T294, T295, T296
 
 - [ ] T298 Checkpoint (Phase 19)
@@ -2832,7 +2832,7 @@ description: "Task list for feature implementation"
   - **Files**: None (verification-only task)
   - **Goal**: Confirm the entire feature is fully tested before Phase 20 (Documentation & Final Quality Gate) begins.
   - **Acceptance Criteria**: All of T279–T297 complete.
-  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build && npm run test:db`
+  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build` (with `npm run test:db:up` running)
   - **Dependencies**: T279–T297
 
 ---
@@ -2946,7 +2946,7 @@ description: "Task list for feature implementation"
   - **Files**: N/A (verification-only, cross-referencing plan.md's Constitution Check table)
   - **Goal**: Re-verify plan.md's Constitution Check table against the actual implementation; confirm every FR-001–FR-039 and SC-001–SC-008 from spec.md has at least one traceable passing task/test from this file. This is also this feature's final phase checkpoint — the whole-suite verification below must be green before the feature is considered complete.
   - **Acceptance Criteria**: Zero principle violation found that isn't already documented in plan.md's Complexity Tracking; zero FR/SC without a traceable task; the full command suite below passes clean.
-  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build && npm run test:db` (manual cross-reference audit against plan.md's Constitution Check table documented in the PR description)
+  - **Verification**: `npx tsc --noEmit && npm run lint && npm run test && npm run build` (with `npm run test:db:up` running) (manual cross-reference audit against plan.md's Constitution Check table documented in the PR description)
   - **Dependencies**: T306, T307, T308, T309
 
 ---
