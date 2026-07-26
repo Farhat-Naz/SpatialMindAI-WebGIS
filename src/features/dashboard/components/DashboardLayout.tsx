@@ -9,6 +9,7 @@ import { useSidebar } from "../hooks/useSidebar"
 import { useBreakpoint } from "../hooks/useBreakpoint"
 import { MapContainer } from "@/features/map"
 import { RightSidebar } from "@/features/database/components/RightSidebar"
+import { AnalysisPanelMount } from "@/features/analysis/components/AnalysisPanel"
 import { useKeyboardShortcuts } from "@/features/database/hooks/useKeyboardShortcuts"
 import { useDatabaseStore } from "@/features/database/store/databaseStore"
 import { useRealtimeInvalidation } from "@/features/collaboration/hooks/useRealtimeInvalidation"
@@ -56,6 +57,11 @@ export function DashboardLayout() {
             <MapContainer className="h-full w-full" />
           </div>
           <div className="col-start-3 hidden md:flex">
+            {/* 007-spatial-analysis (T239): the Analysis panel docks
+                alongside RightSidebar in the same grid slot, so opening it
+                narrows the map rather than covering it — FR-023 requires
+                the map stay fully usable with the panel open. */}
+            <AnalysisPanelMount />
             <RightSidebar />
           </div>
         </div>

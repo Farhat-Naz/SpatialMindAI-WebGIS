@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/shared/components/ui/button"
-import { useFeatures } from "@/features/database"
+import { useFeatures } from "@/features/database/hooks/useFeatures"
 import { useAnalysisStore } from "../store/analysisStore"
 import { useAnalysisRun, useDiscardAnalysisResult } from "../hooks/useAnalysis"
 import { ANALYSIS_OPERATION_CATALOG } from "../types/analysisOperations.constants"

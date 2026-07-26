@@ -74,11 +74,26 @@ export function AnalysisToolbox({ projectId }: AnalysisToolboxProps = {}) {
   const setSelectedOperationType = useAnalysisStore((state) => state.setSelectedOperationType)
   const stagedInputLayerIds = useAnalysisStore((state) => state.stagedInputLayerIds)
   const setLastError = useAnalysisStore((state) => state.setLastError)
+  const toggleHeatmap = useAnalysisStore((state) => state.toggleHeatmap)
+  const heatmapLayerId = useAnalysisStore((state) => state.heatmapLayerId)
   const runAnalysis = useRunAnalysis(projectId ?? "")
 
   const grouped = useMemo(() => groupByCategory(ANALYSIS_OPERATION_CATALOG), [])
 
   function handleSelect(entry: AnalysisOperationCatalogEntry) {
+    // Heatmap (US7/FR-018) is the one entry with no `operationType` that is
+    // still actionable: it renders client-side from the staged layer and
+    // creates no AnalysisRun (research.md Decision 9).
+    if (entry.key === "heatmap") {
+      const [layerId] = stagedInputLayerIds
+      if (!layerId) {
+        setLastError("Select a layer before rendering a Heatmap.")
+        return
+      }
+      toggleHeatmap(layerId)
+      return
+    }
+
     if (!entry.operationType) return
     setSelectedOperationType(entry.operationType)
 
@@ -108,30 +123,38 @@ export function AnalysisToolbox({ projectId }: AnalysisToolboxProps = {}) {
               {CATEGORY_LABELS[category]}
             </h3>
             <ul className="flex flex-col gap-1">
-              {entries.map((entry) => (
+              {entries.map((entry) => {
+                const isHeatmap = entry.key === "heatmap"
+                const isActionable = Boolean(entry.operationType) || isHeatmap
+                const isPressed = isHeatmap
+                  ? heatmapLayerId !== null
+                  : Boolean(entry.operationType) && selectedOperationType === entry.operationType
+                return (
                 <li key={entry.key}>
                   <button
                     type="button"
-                    disabled={!entry.operationType}
-                    aria-pressed={Boolean(entry.operationType) && selectedOperationType === entry.operationType}
+                    disabled={!isActionable}
+                    aria-pressed={isPressed}
                     onClick={() => handleSelect(entry)}
                     className={cn(
                       "w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent",
-                      entry.operationType &&
-                        selectedOperationType === entry.operationType &&
-                        "bg-accent font-medium",
+                      isPressed && "bg-accent font-medium",
                     )}
                   >
                     {entry.label}
                     {!entry.implemented && (
                       <span className="ml-1.5 text-xs text-muted-foreground">(coming soon)</span>
                     )}
-                    {entry.implemented && !entry.operationType && (
+                    {entry.implemented && !entry.operationType && entry.category === "measurement" && (
                       <span className="ml-1.5 text-xs text-muted-foreground">(Measure toolbar)</span>
+                    )}
+                    {isHeatmap && isPressed && (
+                      <span className="ml-1.5 text-xs text-muted-foreground">(showing)</span>
                     )}
                   </button>
                 </li>
-              ))}
+                )
+              })}
             </ul>
           </div>
         )

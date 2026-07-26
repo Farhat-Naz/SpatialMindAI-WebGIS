@@ -1,7 +1,7 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { queryKeys as databaseQueryKeys } from "@/features/database"
+import { queryKeys as databaseQueryKeys } from "@/features/database/services/queryKeys"
 import { DEFAULT_POLL_INTERVAL_MS } from "@/features/analysis/types/analysisConfig.constants"
 import { analysisService, type ListRunsParams } from "../services/analysisService"
 import { queryKeys } from "../services/queryKeys"

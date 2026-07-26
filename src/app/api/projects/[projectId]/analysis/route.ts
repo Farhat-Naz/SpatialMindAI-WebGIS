@@ -15,6 +15,14 @@ interface RouteParams {
   params: Promise<{ projectId: string }>
 }
 
+/** Raster operations named in spec.md US7 that have no server implementation yet (FR-017 — visibly present, explicitly unavailable). Heatmap is absent because it is client-only and never reaches this endpoint. */
+const UNIMPLEMENTED_RASTER_OPERATIONS: ReadonlySet<string> = new Set([
+  "elevationDem",
+  "slope",
+  "aspect",
+  "hillshade",
+])
+
 function respond(request: NextRequest, startedAt: number, status: number, body: unknown): NextResponse {
   logger.request({
     method: request.method,
@@ -61,7 +69,23 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     assertWriteRateLimit(user.id, "analysis:write")
     const { projectId } = await params
 
-    const parsed = analysisRequestSchema.safeParse(await request.json())
+    const rawBody = await request.json()
+
+    // US7/T244 — the raster operations exist in the Toolbox but have no
+    // request contract yet, so the schema below would reject them with a
+    // generic "invalid operationType". Naming them explicitly means a
+    // caller hitting the API directly learns the operation is planned but
+    // unimplemented, rather than that it is unrecognized.
+    const requestedOperation = (rawBody as { operationType?: unknown } | null)?.operationType
+    if (typeof requestedOperation === "string" && UNIMPLEMENTED_RASTER_OPERATIONS.has(requestedOperation)) {
+      const { status, body } = toErrorResponse(
+        "INVALID_INPUT",
+        `"${requestedOperation}" is not yet implemented. Heatmap is the only raster-category operation currently available, and it renders client-side.`,
+      )
+      return respond(request, startedAt, status, body)
+    }
+
+    const parsed = analysisRequestSchema.safeParse(rawBody)
     if (!parsed.success) {
       const { status, body } = toErrorResponse(
         "INVALID_INPUT",

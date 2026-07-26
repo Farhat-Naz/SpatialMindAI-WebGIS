@@ -36,6 +36,10 @@ function resetStore() {
     activeRunId: null,
     spatialQueryPredicate: null,
     measurementDraft: null,
+    // The active tool now lives in the store rather than in component
+    // state (T245, so the Analysis panel can arm the same tool), which
+    // means it survives unmount and must be reset between tests.
+    measurementMode: null,
   })
 }
 

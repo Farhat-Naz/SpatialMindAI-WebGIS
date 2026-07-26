@@ -1053,6 +1053,25 @@ describe.skipIf(!dbAvailable)("Analysis API — Spatial Statistics (US6)", () =>
     })
   })
 
+  it("raster operations are rejected as not-yet-implemented, not as unrecognized (US7/T244)", async () => {
+    for (const operationType of ["elevationDem", "slope", "aspect", "hillshade"]) {
+      const response = await POST(
+        jsonRequest(`http://localhost/api/projects/${projectId}/analysis`, "POST", {
+          operationType,
+          inputLayerIds: [polygonLayerId],
+        }) as never,
+        { params: Promise.resolve({ projectId }) },
+      )
+
+      expect(response.status).toBe(400)
+      const body = await response.json()
+      // FR-017: visibly present but explicitly unavailable — the message
+      // must say the operation is planned, not that it does not exist.
+      expect(JSON.stringify(body)).toMatch(/not yet implemented/i)
+      expect(JSON.stringify(body)).toMatch(new RegExp(operationType))
+    }
+  })
+
   it("summarize: an empty layer succeeds with a zero count rather than failing", async () => {
     const result = await runStatistic("summarize", emptyLayerId)
 

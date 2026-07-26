@@ -8,6 +8,7 @@ import { useEditingStore } from "@/features/database/store/editingStore"
 import { useLayers } from "@/features/database/hooks/useLayers"
 import { useFeatures } from "@/features/database/hooks/useFeatures"
 import { FeatureLayer } from "@/features/database/components/FeatureLayer"
+import { HeatmapLayer } from "@/features/analysis/components/HeatmapLayer"
 import { FeatureContextMenu } from "@/features/database/components/FeatureContextMenu"
 import { SelectionBox } from "@/features/database/components/SelectionBox"
 import { LayerContextMenu } from "@/features/database/components/LayerContextMenu"
@@ -74,6 +75,9 @@ export function MapEditingLayer() {
 
   return (
     <>
+      {/* US7/FR-018 — renders only when a Heatmap is toggled on, and draws
+          beneath the feature layers so it reads as a backdrop. */}
+      <HeatmapLayer />
       {layers?.map((layer) => <FeatureLayer key={layer.id} layerId={layer.id} />)}
       {layers?.map((layer) => <FeatureContextMenu key={layer.id} layerId={layer.id} />)}
       {selectedLayerId && <SelectionBox layerId={selectedLayerId} />}

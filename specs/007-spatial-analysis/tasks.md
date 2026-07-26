@@ -2277,7 +2277,7 @@ description: "Task list for feature implementation"
 
 **Independent Test**: Open the Analysis Panel, confirm the Toolbox lists all operation categories, dock/resize/collapse without affecting the map or other panels — independent of running any specific analysis.
 
-- [ ] T239 [US10] `AnalysisPanel.tsx` shell mounted into `DashboardLayout`
+- [X] T239 [US10] `AnalysisPanel.tsx` shell mounted into `DashboardLayout`
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/analysis/components/AnalysisPanel.tsx` (new), `src/features/dashboard/components/DashboardLayout.tsx` (modify)
@@ -2286,7 +2286,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T255
   - **Dependencies**: T113, T130
 
-- [ ] T240 [US10] `analysisPanelStore` wiring — dock/resize/collapse
+- [X] T240 [US10] `analysisPanelStore` wiring — dock/resize/collapse
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/analysis/components/AnalysisPanel.tsx` (modify, same file as T239)
@@ -2295,7 +2295,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T255
   - **Dependencies**: T101, T114, T239
 
-- [ ] T241 [US10] `AnalysisToolbox.tsx` full assembly
+- [X] T241 [US10] `AnalysisToolbox.tsx` full assembly
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/analysis/components/AnalysisToolbox.tsx` (modify, from T130/T175/T191/T201)
@@ -2304,7 +2304,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T255
   - **Dependencies**: T130, T175, T191, T201
 
-- [ ] T242 [US7] [US10] Raster & Surface Analysis category
+- [X] T242 [US7] [US10] Raster & Surface Analysis category
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/features/analysis/components/AnalysisToolbox.tsx` (modify, same file as T241)
@@ -2313,7 +2313,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T257
   - **Dependencies**: T006, T241
 
-- [ ] T243 [US7] Heatmap wiring
+- [X] T243 [US7] Heatmap wiring
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/features/analysis/components/AnalysisToolbox.tsx` (modify, same file as T241)
@@ -2322,7 +2322,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T257
   - **Dependencies**: T242
 
-- [ ] T244 [US7] Non-Heatmap raster "not yet available" states
+- [X] T244 [US7] Non-Heatmap raster "not yet available" states
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/features/analysis/components/AnalysisToolbox.tsx` (modify, same file as T241), `src/server/repositories/analysisRepository.ts` (modify — reject with a specific "not yet implemented" error if invoked directly)
@@ -2331,7 +2331,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T257
   - **Dependencies**: T242
 
-- [ ] T245 [US10] Measurement tab wiring
+- [X] T245 [US10] Measurement tab wiring
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/analysis/components/AnalysisPanel.tsx` (modify, same file as T239)
@@ -2340,7 +2340,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T255
   - **Dependencies**: T153, T239
 
-- [ ] T246 [US10] `ProgressDialog.tsx` full implementation
+- [X] T246 [US10] `ProgressDialog.tsx` full implementation
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/analysis/components/ProgressDialog.tsx` (modify, from T131)
@@ -2349,7 +2349,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T255
   - **Dependencies**: T092, T093, T131
 
-- [ ] T247 [US10] `HistoryPanel` tab wiring
+- [X] T247 [US10] `HistoryPanel` tab wiring
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/analysis/components/AnalysisPanel.tsx` (modify, same file as T239)
@@ -2358,7 +2358,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T255
   - **Dependencies**: T216, T239
 
-- [ ] T248 [US10] Preset Dialog
+- [X] T248 [US10] Preset Dialog
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/analysis/components/PresetPicker.tsx` (modify, from T222)
@@ -2367,7 +2367,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T255
   - **Dependencies**: T222
 
-- [ ] T249 [US10] `ResultPanel.tsx` full implementation
+- [X] T249 [US10] `ResultPanel.tsx` full implementation
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/analysis/components/ResultPanel.tsx` (modify, from T129/T176/T232/T234)
@@ -2376,7 +2376,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T255
   - **Dependencies**: T129, T176, T232, T234, T239
 
-- [ ] T250 [US10] `StatisticsCards` wiring into `ResultPanel`
+- [X] T250 [US10] `StatisticsCards` wiring into `ResultPanel`
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/analysis/components/ResultPanel.tsx` (modify, same file as T249)
@@ -2385,7 +2385,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T255
   - **Dependencies**: T211, T249
 
-- [ ] T251 [US10] `AnalysisSummary.tsx` wiring
+- [X] T251 [US10] `AnalysisSummary.tsx` wiring
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/analysis/components/AnalysisPanel.tsx` (modify, same file as T239)
@@ -2394,7 +2394,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T255
   - **Dependencies**: T210, T239
 
-- [ ] T252 [US10] Loading States
+- [X] T252 [US10] Loading States
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/analysis/components/AnalysisPanel.tsx`, `HistoryPanel.tsx`, `ResultPanel.tsx` (all modify)
@@ -2403,7 +2403,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T256
   - **Dependencies**: T239, T247, T249
 
-- [ ] T253 [US10] Empty States
+- [X] T253 [US10] Empty States
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/analysis/components/HistoryPanel.tsx`, `PresetPicker.tsx`, `ResultPanel.tsx` (all modify)
@@ -2412,7 +2412,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T256
   - **Dependencies**: T216, T222, T249
 
-- [ ] T254 [US10] Error States
+- [X] T254 [US10] Error States
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/analysis/components/AnalysisPanel.tsx` (modify, same file as T239)
@@ -2421,7 +2421,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T256
   - **Dependencies**: T085, T106, T239
 
-- [ ] T255 [P] [US10] Component tests — panel dock/resize/collapse
+- [X] T255 [P] [US10] Component tests — panel dock/resize/collapse
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/analysis/components/__tests__/AnalysisPanel.test.tsx` (new)
@@ -2430,7 +2430,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- AnalysisPanel`
   - **Dependencies**: T239–T251
 
-- [ ] T256 [P] [US10] Component tests — loading/empty/error states
+- [X] T256 [P] [US10] Component tests — loading/empty/error states
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/analysis/components/__tests__/AnalysisPanel.states.test.tsx` (new)
@@ -2439,7 +2439,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- AnalysisPanel.states`
   - **Dependencies**: T252, T253, T254
 
-- [ ] T257 [P] [US10] Integration test — full Analysis Workspace UI flow
+- [X] T257 [P] [US10] Integration test — full Analysis Workspace UI flow
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/analysis/__tests__/analysisWorkspace.integration.test.tsx` (new)
@@ -2448,7 +2448,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- analysisWorkspace.integration`
   - **Dependencies**: T242, T243, T244, T255
 
-- [ ] T258 [US10] Checkpoint (Phase 16)
+- [X] T258 [US10] Checkpoint (Phase 16)
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: None (verification-only task)

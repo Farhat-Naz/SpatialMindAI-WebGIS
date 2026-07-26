@@ -96,7 +96,7 @@ export const ANALYSIS_OPERATION_CATALOG: readonly AnalysisOperationCatalogEntry[
   // implements (research.md Decision 9) — flipped to `true` when Phase 16
   // ships its client-side Turf.js point-density rendering; `false` for now
   // since nothing in this codebase renders it yet.
-  { key: "heatmap", category: "raster", label: "Heatmap", implemented: false },
+  { key: "heatmap", category: "raster", label: "Heatmap", implemented: true },
   { key: "elevationDem", category: "raster", label: "Elevation / DEM", implemented: false },
   { key: "slope", category: "raster", label: "Slope", implemented: false },
   { key: "aspect", category: "raster", label: "Aspect", implemented: false },

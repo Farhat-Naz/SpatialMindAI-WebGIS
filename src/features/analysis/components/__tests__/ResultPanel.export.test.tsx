@@ -24,6 +24,40 @@ vi.mock("@/features/database", () => ({
   featureService: { list: vi.fn() },
 }))
 
+// The analysis feature imports these from their own modules rather than
+// the `@/features/database` barrel (the barrel re-exports map components,
+// which drag Leaflet into non-map consumers). These delegate to the barrel
+// mock above so there is still only one place to configure the fakes; the
+// try/catch covers files whose barrel mock only defines some of the four.
+vi.mock("@/features/database/services/queryKeys", async () => {
+  try {
+    return { queryKeys: (await import("@/features/database")).queryKeys }
+  } catch {
+    return { queryKeys: {} }
+  }
+})
+vi.mock("@/features/database/services/featureService", async () => {
+  try {
+    return { featureService: (await import("@/features/database")).featureService }
+  } catch {
+    return { featureService: { list: vi.fn() } }
+  }
+})
+vi.mock("@/features/database/hooks/useFeatures", async () => {
+  try {
+    return { useFeatures: (await import("@/features/database")).useFeatures }
+  } catch {
+    return { useFeatures: () => ({ data: undefined }) }
+  }
+})
+vi.mock("@/features/database/store/databaseStore", async () => {
+  try {
+    return { useDatabaseStore: (await import("@/features/database")).useDatabaseStore }
+  } catch {
+    return { useDatabaseStore: (selector: (state: unknown) => unknown) => selector({}) }
+  }
+})
+
 const mockedService = vi.mocked(analysisService)
 
 function createWrapper() {

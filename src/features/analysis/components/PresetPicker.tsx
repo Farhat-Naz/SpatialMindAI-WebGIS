@@ -2,6 +2,16 @@
 
 import { useState, type FormEvent } from "react"
 import { Button } from "@/shared/components/ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/shared/components/ui/alert-dialog"
 import { usePresets, useSavePreset } from "../hooks/useAnalysisPresets"
 import { useAnalysisStore } from "../store/analysisStore"
 
@@ -33,6 +43,7 @@ export function PresetPicker({ projectId, operationType, parametersToSave }: Pre
 
   const [name, setName] = useState("")
   const [validationError, setValidationError] = useState<string | null>(null)
+  const [pendingOverwrite, setPendingOverwrite] = useState<string | null>(null)
 
   const presets = data?.presets ?? []
   const canSave = operationType !== undefined && parametersToSave !== undefined
@@ -51,8 +62,21 @@ export function PresetPicker({ projectId, operationType, parametersToSave }: Pre
     }
     setValidationError(null)
 
+    // T248 — a name already in use is caught here rather than let through
+    // to the server's DUPLICATE_NAME, so the user is asked to confirm an
+    // overwrite instead of being handed an error for something they meant
+    // to do. The server check still stands as the real guard.
+    if (presets.some((preset) => preset.name.toLowerCase() === trimmed.toLowerCase())) {
+      setPendingOverwrite(trimmed)
+      return
+    }
+
+    commitSave(trimmed)
+  }
+
+  function commitSave(presetName: string) {
     savePreset.mutate(
-      { name: trimmed, operationType: operationType as never, parameters: parametersToSave },
+      { name: presetName, operationType: operationType as never, parameters: parametersToSave },
       {
         onSuccess: () => setName(""),
         onError: (error) => setLastError(error instanceof Error ? error.message : "Failed to save the preset."),
@@ -112,6 +136,28 @@ export function PresetPicker({ projectId, operationType, parametersToSave }: Pre
           )}
         </form>
       )}
+
+      <AlertDialog open={pendingOverwrite !== null} onOpenChange={(open) => !open && setPendingOverwrite(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Replace the preset &ldquo;{pendingOverwrite}&rdquo;?</AlertDialogTitle>
+            <AlertDialogDescription>
+              A preset with this name already exists for this operation. Saving will replace its parameters.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingOverwrite) commitSave(pendingOverwrite)
+                setPendingOverwrite(null)
+              }}
+            >
+              Replace
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   )
 }

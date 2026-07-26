@@ -6,12 +6,12 @@ import { Circle, MapPin, Ruler, Waves } from "lucide-react"
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group"
 import { Button } from "@/shared/components/ui/button"
 import type { LatLng } from "@/shared/types/common.types"
-import { useAnalysisStore } from "../store/analysisStore"
+import { useAnalysisStore, type MeasurementMode } from "../store/analysisStore"
 import { useSaveMeasurement } from "../hooks/useMeasurements"
 import { measurementService } from "../services/measurementService"
 import { formatDistance, formatArea } from "@/features/database/utils/formatMeasurement"
 
-type MeasureMode = "distance" | "area" | "radius" | "coordinates"
+type MeasureMode = MeasurementMode
 
 const MODE_OPTIONS: { value: MeasureMode; label: string; icon: typeof Ruler }[] = [
   { value: "distance", label: "Measure distance", icon: Ruler },
@@ -38,14 +38,10 @@ const MIN_POINTS_FOR_MODE: Record<MeasureMode, number> = {
  * `<MapContainer>`.
  */
 export function MeasureToolbar({ projectId }: { projectId: string }) {
+  const mode = useAnalysisStore((state) => state.measurementMode)
   const measurementDraft = useAnalysisStore((state) => state.measurementDraft)
   const setMeasurementDraft = useAnalysisStore((state) => state.setMeasurementDraft)
-  const clearMeasurementDraft = useAnalysisStore((state) => state.clearMeasurementDraft)
-  const setLastError = useAnalysisStore((state) => state.setLastError)
-  const saveMeasurement = useSaveMeasurement(projectId)
-
-  const [mode, setMode] = useState<MeasureMode | null>(null)
-  const [savedTypes, setSavedTypes] = useState<Set<string>>(new Set())
+  const setMeasurementMode = useAnalysisStore((state) => state.setMeasurementMode)
 
   const points = mode && measurementDraft?.type === mode ? measurementDraft.points : []
 
@@ -53,25 +49,43 @@ export function MeasureToolbar({ projectId }: { projectId: string }) {
     click(event) {
       if (!mode) return
       const point: LatLng = { lat: event.latlng.lat, lng: event.latlng.lng }
-      const nextPoints = [...points, point]
-      setSavedTypes(new Set())
       // `measurementDraft.type` stores one representative reading type per
       // mode (the store's own doc: one draft, not one per readout) —
       // "distance" for the distance/bearing/azimuth trio, "area" for the
       // area/perimeter pair, matching how the existing `database` Measurement
       // Toolbar already reports area+perimeter from one draw.
-      setMeasurementDraft({ type: mode, points: nextPoints })
+      setMeasurementDraft({ type: mode, points: [...points, point] })
     },
     dblclick() {
       if (!mode) return
-      setMode(null)
+      setMeasurementMode(null)
     },
   })
 
+  return <MeasurementControls projectId={projectId} />
+}
+
+/**
+ * The measurement tool picker and live readouts, with no map dependency —
+ * so it can render both inside the map overlay (via `MeasureToolbar`,
+ * which adds click collection) and in the Analysis panel's Toolbox tab
+ * (T245). Selecting a tool here arms the map; the clicks themselves are
+ * still collected on the map, the only place a click has a coordinate.
+ */
+export function MeasurementControls({ projectId }: { projectId: string }) {
+  const mode = useAnalysisStore((state) => state.measurementMode)
+  const measurementDraft = useAnalysisStore((state) => state.measurementDraft)
+  const setMeasurementMode = useAnalysisStore((state) => state.setMeasurementMode)
+  const setLastError = useAnalysisStore((state) => state.setLastError)
+  const saveMeasurement = useSaveMeasurement(projectId)
+
+  const [savedTypes, setSavedTypes] = useState<Set<string>>(new Set())
+
+  const points = mode && measurementDraft?.type === mode ? measurementDraft.points : []
+
   function handleModeChange(value: string) {
     setSavedTypes(new Set())
-    clearMeasurementDraft()
-    setMode((value || null) as MeasureMode | null)
+    setMeasurementMode((value || null) as MeasureMode | null)
   }
 
   function handleSave(measurementType: Parameters<typeof measurementService.measure>[0], geometry: object) {
