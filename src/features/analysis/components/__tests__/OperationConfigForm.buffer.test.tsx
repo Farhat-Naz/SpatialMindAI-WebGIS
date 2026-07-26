@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { OperationConfigForm } from "../OperationConfigForm"
 import { analysisService } from "../../services/analysisService"
 import { useAnalysisStore } from "../../store/analysisStore"
+import { ANALYSIS_OPERATION_CATALOG } from "../../types/analysisOperations.constants"
 
 vi.mock("../../services/analysisService", () => ({
   analysisService: { runAnalysis: vi.fn() },
@@ -116,9 +117,17 @@ describe("OperationConfigForm — Buffer", () => {
   })
 
   it("shows a graceful placeholder for an operation with no form yet", () => {
-    // `simplify` ships in Phase 12 (Geometry Processing) and has no form
-    // variant yet — Overlay's 7 operations gained theirs in Phase 11.
-    useAnalysisStore.setState({ selectedOperationType: "simplify" })
+    // Read the subject from the catalog rather than naming an operation:
+    // each user-story phase ships another form, so any hard-coded choice
+    // here silently becomes wrong the moment that phase lands (it already
+    // did twice, for `union` in Phase 11 and `simplify` in Phase 12).
+    const pending = ANALYSIS_OPERATION_CATALOG.find((entry) => entry.operationType && !entry.implemented)
+    if (!pending?.operationType) {
+      // Every catalogued operation has a form — the placeholder branch is
+      // dead code, which is a real finding, not a passing test.
+      throw new Error("No unimplemented operation left in the catalog; remove OperationConfigForm's placeholder branch.")
+    }
+    useAnalysisStore.setState({ selectedOperationType: pending.operationType })
     render(<OperationConfigForm projectId="p1" />, { wrapper: createWrapper() })
     expect(screen.getByText(/not yet available/i)).toBeTruthy()
   })

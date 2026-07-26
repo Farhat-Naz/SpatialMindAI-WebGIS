@@ -2,7 +2,9 @@
 
 import { useState, type FormEvent } from "react"
 import { Button } from "@/shared/components/ui/button"
-import { featureService, useDatabaseStore } from "@/features/database"
+import { Slider } from "@/shared/components/ui/slider"
+import { featureService, useDatabaseStore, useFeatures } from "@/features/database"
+import { useEditingStore } from "@/features/database/store/editingStore"
 import { useAnalysisStore, type SpatialQueryPredicate } from "../store/analysisStore"
 import { useRunAnalysis } from "../hooks/useAnalysis"
 import type { MeasurementDistanceUnit } from "../services/spatialMath"
@@ -53,6 +55,19 @@ export function OperationConfigForm({ projectId }: OperationConfigFormProps) {
     case "identity":
     case "symmetricalDifference":
       return <OverlayForm projectId={projectId} operationType={operationType} />
+    case "simplify":
+      return <SimplifyForm projectId={projectId} />
+    case "smoothGeometry":
+    case "repairGeometry":
+    case "multipartToSinglepart":
+    case "singlepartToMultipart":
+      return <SingleLayerGeometryForm projectId={projectId} operationType={operationType} />
+    case "dissolve":
+      return <DissolveForm projectId={projectId} />
+    case "merge":
+      return <MergeForm projectId={projectId} />
+    case "split":
+      return <SplitForm projectId={projectId} />
     default:
       return (
         <p className="p-3 text-sm text-muted-foreground">
@@ -573,6 +588,350 @@ function OverlayForm({ projectId, operationType }: { projectId: string; operatio
 
       <Button type="submit" disabled={runAnalysis.isPending}>
         {runAnalysis.isPending ? "Running…" : `Run ${labels.title}`}
+      </Button>
+    </form>
+  )
+}
+
+/**
+ * Simplify (US5, FR-011) — a tolerance slider paired with a number input
+ * over the same value. The slider gives a quick coarse sweep, the input
+ * lets a user type an exact tolerance the slider's step could not land on;
+ * both are labelled so either alone is usable by keyboard.
+ */
+function SimplifyForm({ projectId }: { projectId: string }) {
+  const stagedInputLayerIds = useAnalysisStore((state) => state.stagedInputLayerIds)
+  const setLastError = useAnalysisStore((state) => state.setLastError)
+  const runAnalysis = useRunAnalysis(projectId)
+
+  const [tolerance, setTolerance] = useState(0.001)
+  const [validationError, setValidationError] = useState<string | null>(null)
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const [layerId] = stagedInputLayerIds
+    if (!layerId) {
+      setValidationError("Select a layer first.")
+      return
+    }
+    if (!Number.isFinite(tolerance) || tolerance <= 0) {
+      setValidationError("Tolerance must be a positive number.")
+      return
+    }
+    setValidationError(null)
+
+    runAnalysis.mutate(
+      { operationType: "simplify", inputLayerIds: [layerId], parameters: { tolerance } },
+      { onError: (error) => setLastError(error instanceof Error ? error.message : "Failed to run Simplify.") },
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit} aria-label="Simplify parameters" className="flex flex-col gap-3 p-3">
+      <div className="flex flex-col gap-1">
+        <label htmlFor="simplify-tolerance" className="text-sm text-muted-foreground">
+          Tolerance (degrees)
+        </label>
+        <input
+          id="simplify-tolerance"
+          type="number"
+          min={0}
+          step="any"
+          value={tolerance}
+          onChange={(event) => setTolerance(Number(event.target.value))}
+          aria-invalid={Boolean(validationError)}
+          className="h-8 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
+        />
+      </div>
+
+      <Slider
+        thumbLabel="Simplify tolerance"
+        min={0.0001}
+        max={0.05}
+        step={0.0001}
+        value={[tolerance]}
+        onValueChange={([next]) => setTolerance(next)}
+      />
+
+      <p className="text-xs text-muted-foreground">
+        A larger tolerance removes more vertices. Features already simpler than the tolerance are reported as
+        needing no change.
+      </p>
+
+      {validationError && (
+        <p role="alert" className="text-sm text-destructive">
+          {validationError}
+        </p>
+      )}
+
+      <Button type="submit" disabled={runAnalysis.isPending}>
+        {runAnalysis.isPending ? "Running…" : "Run Simplify"}
+      </Button>
+    </form>
+  )
+}
+
+type SingleLayerGeometryOperation =
+  | "smoothGeometry"
+  | "repairGeometry"
+  | "multipartToSinglepart"
+  | "singlepartToMultipart"
+
+const SINGLE_LAYER_GEOMETRY_LABELS: Record<SingleLayerGeometryOperation, { title: string; description: string }> = {
+  smoothGeometry: {
+    title: "Smooth",
+    description: "Rounds sharp corners using Chaikin smoothing. Attributes are preserved.",
+  },
+  repairGeometry: {
+    title: "Repair Geometry",
+    description:
+      "Fixes invalid geometry such as self-intersections. Features that cannot be repaired are listed in the result rather than dropped silently.",
+  },
+  multipartToSinglepart: {
+    title: "Multipart to Singlepart",
+    description: "Splits each multi-part feature into one feature per part, each keeping the original's attributes.",
+  },
+  singlepartToMultipart: {
+    title: "Singlepart to Multipart",
+    description: "Wraps each feature in its multi-part equivalent.",
+  },
+}
+
+/** The four no-parameter Geometry Processing operations (US5) — a confirm step over one staged layer. */
+function SingleLayerGeometryForm({
+  projectId,
+  operationType,
+}: {
+  projectId: string
+  operationType: SingleLayerGeometryOperation
+}) {
+  const stagedInputLayerIds = useAnalysisStore((state) => state.stagedInputLayerIds)
+  const setLastError = useAnalysisStore((state) => state.setLastError)
+  const runAnalysis = useRunAnalysis(projectId)
+  const [validationError, setValidationError] = useState<string | null>(null)
+
+  const labels = SINGLE_LAYER_GEOMETRY_LABELS[operationType]
+  const [layerId] = stagedInputLayerIds
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (!layerId) {
+      setValidationError("Select a layer first.")
+      return
+    }
+    setValidationError(null)
+
+    runAnalysis.mutate(
+      { operationType, inputLayerIds: [layerId], parameters: undefined } as AnalysisRequestInput,
+      {
+        onError: (error) =>
+          setLastError(error instanceof Error ? error.message : `Failed to run ${labels.title}.`),
+      },
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit} aria-label={`${labels.title} parameters`} className="flex flex-col gap-3 p-3">
+      <p className="text-sm text-muted-foreground">Layer: {layerId ?? "not staged"}</p>
+      <p className="text-xs text-muted-foreground">{labels.description}</p>
+
+      {validationError && (
+        <p role="alert" className="text-sm text-destructive">
+          {validationError}
+        </p>
+      )}
+
+      <Button type="submit" disabled={runAnalysis.isPending}>
+        {runAnalysis.isPending ? "Running…" : `Run ${labels.title}`}
+      </Button>
+    </form>
+  )
+}
+
+/** Dissolve (US5, FR-013) — merges features sharing one attribute value, so the key to group by is picked from the staged layer's own attribute keys. */
+function DissolveForm({ projectId }: { projectId: string }) {
+  const stagedInputLayerIds = useAnalysisStore((state) => state.stagedInputLayerIds)
+  const setLastError = useAnalysisStore((state) => state.setLastError)
+  const runAnalysis = useRunAnalysis(projectId)
+
+  const [layerId] = stagedInputLayerIds
+  const { data: layerFeatures } = useFeatures(layerId ?? "")
+  const [attributeKey, setAttributeKey] = useState("")
+  const [validationError, setValidationError] = useState<string | null>(null)
+
+  const availableKeys = [
+    ...new Set(layerFeatures?.features.flatMap((feature) => feature.attributes.map((a) => a.key)) ?? []),
+  ].sort()
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (!layerId) {
+      setValidationError("Select a layer first.")
+      return
+    }
+    const key = attributeKey.trim()
+    if (!key) {
+      setValidationError("Choose the attribute to dissolve by.")
+      return
+    }
+    setValidationError(null)
+
+    runAnalysis.mutate(
+      { operationType: "dissolve", inputLayerIds: [layerId], parameters: { attributeKey: key } },
+      { onError: (error) => setLastError(error instanceof Error ? error.message : "Failed to run Dissolve.") },
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit} aria-label="Dissolve parameters" className="flex flex-col gap-3 p-3">
+      <p className="text-sm text-muted-foreground">Layer: {layerId ?? "not staged"}</p>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="dissolve-attribute" className="text-sm text-muted-foreground">
+          Dissolve by attribute
+        </label>
+        {availableKeys.length > 0 ? (
+          <select
+            id="dissolve-attribute"
+            value={attributeKey}
+            onChange={(event) => setAttributeKey(event.target.value)}
+            className="h-8 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
+          >
+            <option value="">Select an attribute…</option>
+            {availableKeys.map((key) => (
+              <option key={key} value={key}>
+                {key}
+              </option>
+            ))}
+          </select>
+        ) : (
+          // The layer's features may not be loaded (or may carry no
+          // attributes at all) — typing the key stays possible rather than
+          // leaving an empty, unusable picker.
+          <input
+            id="dissolve-attribute"
+            value={attributeKey}
+            onChange={(event) => setAttributeKey(event.target.value)}
+            placeholder="Attribute key"
+            className="h-8 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
+          />
+        )}
+      </div>
+
+      {validationError && (
+        <p role="alert" className="text-sm text-destructive">
+          {validationError}
+        </p>
+      )}
+
+      <Button type="submit" disabled={runAnalysis.isPending}>
+        {runAnalysis.isPending ? "Running…" : "Run Dissolve"}
+      </Button>
+    </form>
+  )
+}
+
+/** Merge (US5, FR-012) — concatenates every staged layer into one, so it takes all staged layers rather than a fixed pair. */
+function MergeForm({ projectId }: { projectId: string }) {
+  const stagedInputLayerIds = useAnalysisStore((state) => state.stagedInputLayerIds)
+  const setLastError = useAnalysisStore((state) => state.setLastError)
+  const runAnalysis = useRunAnalysis(projectId)
+  const [validationError, setValidationError] = useState<string | null>(null)
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (stagedInputLayerIds.length < 2) {
+      setValidationError("Stage at least two layers to merge.")
+      return
+    }
+    setValidationError(null)
+
+    runAnalysis.mutate(
+      { operationType: "merge", inputLayerIds: stagedInputLayerIds, parameters: undefined },
+      { onError: (error) => setLastError(error instanceof Error ? error.message : "Failed to run Merge.") },
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit} aria-label="Merge parameters" className="flex flex-col gap-3 p-3">
+      <p className="text-sm text-muted-foreground">
+        Merging {stagedInputLayerIds.length} staged layer{stagedInputLayerIds.length === 1 ? "" : "s"}
+        {stagedInputLayerIds.length > 0 ? `: ${stagedInputLayerIds.join(", ")}` : ""}
+      </p>
+      <p className="text-xs text-muted-foreground">
+        Every layer must hold the same geometry type. Features are copied unchanged, attributes included — use
+        Dissolve to combine overlapping shapes instead.
+      </p>
+
+      {validationError && (
+        <p role="alert" className="text-sm text-destructive">
+          {validationError}
+        </p>
+      )}
+
+      <Button type="submit" disabled={runAnalysis.isPending}>
+        {runAnalysis.isPending ? "Running…" : "Run Merge"}
+      </Button>
+    </form>
+  )
+}
+
+/**
+ * Split (US5, FR-012) — cuts the target layer with a "blade" layer. The
+ * blade is a layer of line features, so the draw trigger switches the map
+ * into line-draw mode (`editingStore.tool`, the same channel the Drawing
+ * Toolbar uses); the drawn line lands in the currently selected layer,
+ * which can then be staged as the split layer.
+ */
+function SplitForm({ projectId }: { projectId: string }) {
+  const stagedInputLayerIds = useAnalysisStore((state) => state.stagedInputLayerIds)
+  const setLastError = useAnalysisStore((state) => state.setLastError)
+  const setTool = useEditingStore((state) => state.setTool)
+  const runAnalysis = useRunAnalysis(projectId)
+  const [validationError, setValidationError] = useState<string | null>(null)
+
+  const [targetLayerId, splitterLayerId] = stagedInputLayerIds
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (!targetLayerId || !splitterLayerId) {
+      setValidationError("Stage two layers: the layer to split and the layer holding the split line.")
+      return
+    }
+    setValidationError(null)
+
+    runAnalysis.mutate(
+      { operationType: "split", inputLayerIds: [targetLayerId, splitterLayerId], parameters: undefined },
+      { onError: (error) => setLastError(error instanceof Error ? error.message : "Failed to run Split.") },
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit} aria-label="Split parameters" className="flex flex-col gap-3 p-3">
+      <p className="text-sm text-muted-foreground">
+        Layer to split: {targetLayerId ?? "not staged"} · Split line layer: {splitterLayerId ?? "not staged"}
+      </p>
+
+      <Button type="button" variant="outline" size="sm" onClick={() => setTool("draw-line")}>
+        Draw a split line
+      </Button>
+      <p className="text-xs text-muted-foreground">
+        Drawing adds the line to the layer selected in the Layers panel. Stage that layer second to cut with it.
+      </p>
+
+      {validationError && (
+        <p role="alert" className="text-sm text-destructive">
+          {validationError}
+        </p>
+      )}
+
+      <Button type="submit" disabled={runAnalysis.isPending}>
+        {runAnalysis.isPending ? "Running…" : "Run Split"}
       </Button>
     </form>
   )

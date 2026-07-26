@@ -64,14 +64,14 @@ export const ANALYSIS_OPERATION_CATALOG: readonly AnalysisOperationCatalogEntry[
   { key: "symmetricalDifference", operationType: "symmetricalDifference", category: "overlay", label: "Symmetrical Difference", implemented: true },
 
   // --- Geometry Processing (US5, FR-011–015) ---
-  { key: "simplify", operationType: "simplify", category: "geometry", label: "Simplify", implemented: false },
-  { key: "smoothGeometry", operationType: "smoothGeometry", category: "geometry", label: "Smooth", implemented: false },
-  { key: "split", operationType: "split", category: "geometry", label: "Split", implemented: false },
-  { key: "merge", operationType: "merge", category: "geometry", label: "Merge", implemented: false },
-  { key: "dissolve", operationType: "dissolve", category: "geometry", label: "Dissolve", implemented: false },
-  { key: "multipartToSinglepart", operationType: "multipartToSinglepart", category: "geometry", label: "Multipart to Singlepart", implemented: false },
-  { key: "singlepartToMultipart", operationType: "singlepartToMultipart", category: "geometry", label: "Singlepart to Multipart", implemented: false },
-  { key: "repairGeometry", operationType: "repairGeometry", category: "geometry", label: "Repair Geometry", implemented: false },
+  { key: "simplify", operationType: "simplify", category: "geometry", label: "Simplify", implemented: true },
+  { key: "smoothGeometry", operationType: "smoothGeometry", category: "geometry", label: "Smooth", implemented: true },
+  { key: "split", operationType: "split", category: "geometry", label: "Split", implemented: true },
+  { key: "merge", operationType: "merge", category: "geometry", label: "Merge", implemented: true },
+  { key: "dissolve", operationType: "dissolve", category: "geometry", label: "Dissolve", implemented: true },
+  { key: "multipartToSinglepart", operationType: "multipartToSinglepart", category: "geometry", label: "Multipart to Singlepart", implemented: true },
+  { key: "singlepartToMultipart", operationType: "singlepartToMultipart", category: "geometry", label: "Singlepart to Multipart", implemented: true },
+  { key: "repairGeometry", operationType: "repairGeometry", category: "geometry", label: "Repair Geometry", implemented: true },
   { key: "coordinateConversion", operationType: "coordinateConversion", category: "geometry", label: "Coordinate Conversion", implemented: false },
   { key: "crsTransformation", operationType: "crsTransformation", category: "geometry", label: "CRS Transformation", implemented: false },
 

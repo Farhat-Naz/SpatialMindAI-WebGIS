@@ -1741,7 +1741,7 @@ description: "Task list for feature implementation"
 
 **Independent Test**: Select a vertex-heavy feature, run Simplify with a tolerance, confirm fewer vertices while remaining valid and recognizable — independent of any other geometry operation.
 
-- [ ] T183 [US5] Geometry Processing parameter forms
+- [X] T183 [US5] Geometry Processing parameter forms
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/analysis/components/OperationConfigForm.tsx` (modify, from T121 — adds the Geometry Processing variants)
@@ -1750,7 +1750,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T195
   - **Dependencies**: T056, T121
 
-- [ ] T184 [P] [US5] Simplify
+- [X] T184 [P] [US5] Simplify
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T043)
@@ -1759,7 +1759,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T197
   - **Dependencies**: T043, T183
 
-- [ ] T185 [P] [US5] Smooth
+- [X] T185 [P] [US5] Smooth
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T043)
@@ -1768,7 +1768,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T197
   - **Dependencies**: T043, T183
 
-- [ ] T186 [P] [US5] Merge
+- [X] T186 [P] [US5] Merge
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, 005's existing `merge` builder)
@@ -1777,7 +1777,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T197
   - **Dependencies**: T034, T183
 
-- [ ] T187 [P] [US5] Split
+- [X] T187 [P] [US5] Split
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/analysis/components/OperationConfigForm.tsx` (modify, same file as T183)
@@ -1786,7 +1786,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T197
   - **Dependencies**: T034, T183
 
-- [ ] T188 [P] [US5] Repair Geometry
+- [X] T188 [P] [US5] Repair Geometry
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T043)
@@ -1795,7 +1795,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T197
   - **Dependencies**: T043, T183
 
-- [ ] T189 [P] [US5] Multipart to Singlepart
+- [X] T189 [P] [US5] Multipart to Singlepart
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T043)
@@ -1804,7 +1804,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T197
   - **Dependencies**: T043, T183
 
-- [ ] T190 [P] [US5] Singlepart to Multipart
+- [X] T190 [P] [US5] Singlepart to Multipart
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T043)
@@ -1813,7 +1813,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T197
   - **Dependencies**: T043, T183
 
-- [ ] T191 [US5] Toolbox Geometry Processing entries
+- [X] T191 [US5] Toolbox Geometry Processing entries
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/analysis/components/AnalysisToolbox.tsx` (modify, from T130)
@@ -1822,7 +1822,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T196
   - **Dependencies**: T130, T183
 
-- [ ] T192 [US5] No-op handling
+- [X] T192 [US5] No-op handling
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/server/repositories/analysisOperations.ts` (modify, from T043)
@@ -1831,7 +1831,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T198
   - **Dependencies**: T043, T184, T185, T188
 
-- [ ] T193 [US5] Validation rejection
+- [X] T193 [US5] Validation rejection
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/shared/contracts/analysis.schema.ts` (modify, from T070)
@@ -1840,7 +1840,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T198
   - **Dependencies**: T070, T187, T186
 
-- [ ] T194 [US5] Topology validation audit
+- [X] T194 [US5] Topology validation audit
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T043)
@@ -1849,7 +1849,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T197
   - **Dependencies**: T043, T184, T185, T188, T189, T190
 
-- [ ] T195 [P] [US5] Component tests — Geometry Processing forms
+- [X] T195 [P] [US5] Component tests — Geometry Processing forms
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/analysis/components/__tests__/OperationConfigForm.geometry.test.tsx` (new)
@@ -1858,7 +1858,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- OperationConfigForm.geometry`
   - **Dependencies**: T183
 
-- [ ] T196 [P] [US5] Integration test — full Geometry Processing flow
+- [X] T196 [P] [US5] Integration test — full Geometry Processing flow
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/analysis/__tests__/geometryProcessing.integration.test.tsx` (new)
@@ -1867,7 +1867,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- geometryProcessing.integration`
   - **Dependencies**: T191
 
-- [ ] T197 [P] [US5] API test — Split/Merge/Dissolve/Multipart/Repair
+- [X] T197 [P] [US5] API test — Split/Merge/Dissolve/Multipart/Repair
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/app/api/analysis/__tests__/analysis.api.test.ts` (modify, extends T074)
@@ -1876,7 +1876,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test:db -- analysis.api`
   - **Dependencies**: T044, T184–T190, T194
 
-- [ ] T198 [P] [US5] API test — no-op and validation-rejection edge cases
+- [X] T198 [P] [US5] API test — no-op and validation-rejection edge cases
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/app/api/analysis/__tests__/analysis.api.test.ts` (modify, extends T074)
@@ -1885,7 +1885,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test:db -- analysis.api`
   - **Dependencies**: T192, T193
 
-- [ ] T199 [US5] Accessibility check — Geometry Processing
+- [X] T199 [US5] Accessibility check — Geometry Processing
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/analysis/components/__tests__/OperationConfigForm.geometry.a11y.test.tsx` (new)
@@ -1894,7 +1894,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- OperationConfigForm.geometry.a11y`
   - **Dependencies**: T183, T195
 
-- [ ] T200 [US5] Checkpoint (Phase 12)
+- [X] T200 [US5] Checkpoint (Phase 12)
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: None (verification-only task)

@@ -626,3 +626,252 @@ describe.skipIf(!dbAvailable)("Analysis API — Overlay Analysis (US4)", () => {
     expect(response.status).toBe(400)
   })
 })
+
+/**
+ * T197/T198 (US5) — Geometry Processing against seeded fixtures, including
+ * a deliberately self-intersecting polygon, plus T192's no-op reporting
+ * and T193's pre-run rejections.
+ */
+describe.skipIf(!dbAvailable)("Analysis API — Geometry Processing (US5)", () => {
+  let projectId: string
+  let squareLayerId: string
+  let detailedLayerId: string
+  let multipartLayerId: string
+  let invalidLayerId: string
+  let zonedLayerId: string
+  let bladeLayerId: string
+  let emptyLayerId: string
+  let pointLayerId: string
+
+  async function createLayer(name: string, order: number): Promise<string> {
+    const layer = await prismaClient.layer.create({ data: { projectId, name, order } })
+    return layer.id
+  }
+
+  /** Inserts one feature from raw WKT so deliberately invalid geometry can be seeded (ST_GeomFromGeoJSON would reject some of these). */
+  async function insertWkt(layerId: string, wkt: string, attributes: Record<string, string> = {}): Promise<string> {
+    const rows = await prismaClient.$queryRaw<{ id: string }[]>`
+      INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
+      VALUES (gen_random_uuid(), ${layerId}, ST_SetSRID(ST_GeomFromText(${wkt}), 4326), NOW(), NOW())
+      RETURNING id
+    `
+    for (const [key, value] of Object.entries(attributes)) {
+      await prismaClient.featureAttribute.create({ data: { featureId: rows[0].id, key, value } })
+    }
+    return rows[0].id
+  }
+
+  beforeAll(async () => {
+    process.env.DEV_USER_ID = TEST_OWNER_ID
+    await ensureTestOwner()
+    const project = await prismaClient.project.create({
+      data: { ownerId: TEST_OWNER_ID, name: `Geometry API Test ${Date.now()}` },
+    })
+    projectId = project.id
+
+    squareLayerId = await createLayer("Square", 0)
+    detailedLayerId = await createLayer("Detailed", 1)
+    multipartLayerId = await createLayer("Multipart", 2)
+    invalidLayerId = await createLayer("Invalid", 3)
+    zonedLayerId = await createLayer("Zoned", 4)
+    bladeLayerId = await createLayer("Blade", 5)
+    emptyLayerId = await createLayer("Empty", 6)
+    pointLayerId = await createLayer("Points", 7)
+
+    // A plain square: every vertex is a corner, so Simplify has nothing to remove.
+    await insertWkt(squareLayerId, "POLYGON((0 0, 0 10, 10 10, 10 0, 0 0))", { label: "square" })
+
+    // The same square plus a near-collinear vertex on the bottom edge,
+    // which a tolerance of 0.01 removes (6 points -> 5).
+    await insertWkt(detailedLayerId, "POLYGON((0 0, 5 0.0001, 10 0, 10 10, 0 10, 0 0))", { label: "detailed" })
+
+    // Three disjoint squares in one feature, for ST_Dump.
+    await insertWkt(
+      multipartLayerId,
+      "MULTIPOLYGON(((0 0, 0 1, 1 1, 1 0, 0 0)), ((5 5, 5 6, 6 6, 6 5, 5 5)), ((9 9, 9 10, 10 10, 10 9, 9 9)))",
+      { name: "Island", zone: "A" },
+    )
+
+    // A self-intersecting "bowtie" - invalid, but ST_MakeValid can fix it -
+    // alongside an already-valid square that needs no repair.
+    await insertWkt(invalidLayerId, "POLYGON((0 0, 10 10, 10 0, 0 10, 0 0))", { label: "bowtie" })
+    await insertWkt(invalidLayerId, "POLYGON((20 20, 20 30, 30 30, 30 20, 20 20))", { label: "valid" })
+
+    // Four features across two zones, for Dissolve.
+    await insertWkt(zonedLayerId, "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", { zone: "A" })
+    await insertWkt(zonedLayerId, "POLYGON((2 0, 2 2, 4 2, 4 0, 2 0))", { zone: "A" })
+    await insertWkt(zonedLayerId, "POLYGON((10 0, 10 2, 12 2, 12 0, 10 0))", { zone: "B" })
+    await insertWkt(zonedLayerId, "POLYGON((12 0, 12 2, 14 2, 14 0, 12 0))", { zone: "B" })
+
+    // A vertical line cutting the square in two.
+    await insertWkt(bladeLayerId, "LINESTRING(5 -1, 5 11)", { label: "blade" })
+
+    await insertWkt(pointLayerId, "POINT(1 1)", { label: "point" })
+  })
+
+  afterAll(async () => {
+    await prismaClient.project.deleteMany({ where: { ownerId: TEST_OWNER_ID } })
+  })
+
+  async function runOperation(
+    operationType: string,
+    inputLayerIds: string[],
+    parameters?: unknown,
+  ): Promise<{ status: number; run: Record<string, unknown> }> {
+    const response = await POST(
+      jsonRequest(`http://localhost/api/projects/${projectId}/analysis`, "POST", {
+        operationType,
+        inputLayerIds,
+        parameters,
+      }) as never,
+      { params: Promise.resolve({ projectId }) },
+    )
+    const body = await response.json()
+    return { status: response.status, run: body.run ?? body }
+  }
+
+  /** Succeeds the run and returns it, failing loudly if the operation errored. */
+  async function runSucceeding(operationType: string, inputLayerIds: string[], parameters?: unknown) {
+    const { run } = await runOperation(operationType, inputLayerIds, parameters)
+    expect(run.status).toBe("succeeded")
+    return run
+  }
+
+  async function totalVertices(layerId: string): Promise<number> {
+    const rows = await prismaClient.$queryRaw<{ points: number }[]>`
+      SELECT COALESCE(SUM(ST_NPoints(geometry)), 0)::int AS points FROM "Feature" WHERE "layerId" = ${layerId}
+    `
+    return rows[0].points
+  }
+
+  async function allValid(layerId: string): Promise<boolean> {
+    const rows = await prismaClient.$queryRaw<{ invalid: number }[]>`
+      SELECT COUNT(*)::int AS invalid FROM "Feature" WHERE "layerId" = ${layerId} AND NOT ST_IsValid(geometry)
+    `
+    return rows[0].invalid === 0
+  }
+
+  async function attributesOf(layerId: string): Promise<{ key: string; value: string }[]> {
+    const rows = await prismaClient.featureAttribute.findMany({
+      where: { feature: { layerId } },
+      select: { key: true, value: true },
+    })
+    return rows.sort((a, b) => a.key.localeCompare(b.key) || a.value.localeCompare(b.value))
+  }
+
+  it("simplify: removes near-collinear vertices and keeps attributes (US5.1)", async () => {
+    const before = await totalVertices(detailedLayerId)
+    const run = await runSucceeding("simplify", [detailedLayerId], { tolerance: 0.01 })
+
+    expect(await totalVertices(run.resultLayerId as string)).toBeLessThan(before)
+    expect(await allValid(run.resultLayerId as string)).toBe(true)
+    expect(await attributesOf(run.resultLayerId as string)).toEqual([{ key: "label", value: "detailed" }])
+  })
+
+  it("simplify: an already-minimal shape reports no change needed rather than failing (T192)", async () => {
+    const run = await runSucceeding("simplify", [squareLayerId], { tolerance: 0.0001 })
+
+    expect(run.resultData).toMatchObject({ unchangedFeatureCount: 1, noChangeNeeded: true })
+  })
+
+  it("smoothGeometry: produces valid geometry and keeps attributes (US5.2)", async () => {
+    const run = await runSucceeding("smoothGeometry", [squareLayerId])
+
+    expect(await allValid(run.resultLayerId as string)).toBe(true)
+    expect(await attributesOf(run.resultLayerId as string)).toEqual([{ key: "label", value: "square" }])
+  })
+
+  it("repairGeometry: fixes a self-intersection and reports what needed no repair (US5.8, T192)", async () => {
+    expect(await allValid(invalidLayerId)).toBe(false)
+
+    const run = await runSucceeding("repairGeometry", [invalidLayerId])
+
+    // Every persisted result is valid (T194) and both inputs survive.
+    expect(await allValid(run.resultLayerId as string)).toBe(true)
+    // The already-valid square needed no repair; the bowtie did.
+    expect(run.resultData).toMatchObject({ unchangedFeatureCount: 1, noChangeNeeded: false })
+    const labels = (await attributesOf(run.resultLayerId as string)).map((a) => a.value)
+    expect(labels).toContain("bowtie")
+    expect(labels).toContain("valid")
+  })
+
+  it("multipartToSinglepart: one feature per part, attributes copied to each (US5.6)", async () => {
+    const run = await runSucceeding("multipartToSinglepart", [multipartLayerId])
+
+    expect(await prismaClient.feature.count({ where: { layerId: run.resultLayerId as string } })).toBe(3)
+    // FR-014: each of the three parts carries both of the parent's attributes.
+    expect(await attributesOf(run.resultLayerId as string)).toEqual([
+      { key: "name", value: "Island" },
+      { key: "name", value: "Island" },
+      { key: "name", value: "Island" },
+      { key: "zone", value: "A" },
+      { key: "zone", value: "A" },
+      { key: "zone", value: "A" },
+    ])
+  })
+
+  it("singlepartToMultipart: wraps each feature 1:1, keeping attributes (US5.7)", async () => {
+    const run = await runSucceeding("singlepartToMultipart", [squareLayerId])
+
+    expect(await prismaClient.feature.count({ where: { layerId: run.resultLayerId as string } })).toBe(1)
+    expect(await attributesOf(run.resultLayerId as string)).toEqual([{ key: "label", value: "square" }])
+  })
+
+  it("split: cuts the target with the blade layer, each part keeping attributes (US5.3)", async () => {
+    const run = await runSucceeding("split", [squareLayerId, bladeLayerId])
+
+    // One square cut by a vertical line yields two halves...
+    expect(await prismaClient.feature.count({ where: { layerId: run.resultLayerId as string } })).toBe(2)
+    // ...each carrying the original's attribute.
+    expect(await attributesOf(run.resultLayerId as string)).toEqual([
+      { key: "label", value: "square" },
+      { key: "label", value: "square" },
+    ])
+    expect(await allValid(run.resultLayerId as string)).toBe(true)
+  })
+
+  it("merge: concatenates every input layer's features and attributes (US5.4)", async () => {
+    const run = await runSucceeding("merge", [squareLayerId, detailedLayerId])
+
+    expect(await prismaClient.feature.count({ where: { layerId: run.resultLayerId as string } })).toBe(2)
+    expect(await attributesOf(run.resultLayerId as string)).toEqual([
+      { key: "label", value: "detailed" },
+      { key: "label", value: "square" },
+    ])
+  })
+
+  it("dissolve: one output feature per distinct attribute value (T044's whole-layer invariant)", async () => {
+    const run = await runSucceeding("dissolve", [zonedLayerId], { attributeKey: "zone" })
+
+    // Four inputs across two zones collapse to exactly two features. A
+    // per-chunk Dissolve would emit one partial union per chunk instead,
+    // so this count is the invariant that proves it runs whole-layer.
+    expect(await prismaClient.feature.count({ where: { layerId: run.resultLayerId as string } })).toBe(2)
+    expect(await allValid(run.resultLayerId as string)).toBe(true)
+  })
+
+  it("split: rejects an empty split-line layer before running (T193)", async () => {
+    const { status, run } = await runOperation("split", [squareLayerId, emptyLayerId])
+
+    expect(status).toBe(400)
+    expect(JSON.stringify(run)).toMatch(/split line/i)
+  })
+
+  it("merge: rejects layers of incompatible geometry types before running (T193)", async () => {
+    const { status, run } = await runOperation("merge", [squareLayerId, pointLayerId])
+
+    expect(status).toBe(400)
+    // The message must name the actual problem, not just "invalid input".
+    expect(JSON.stringify(run)).toMatch(/point/i)
+    expect(JSON.stringify(run)).toMatch(/polygon/i)
+  })
+
+  it("merge: accepts single- and multi- variants of the same shape as compatible (T193)", async () => {
+    await runSucceeding("merge", [squareLayerId, multipartLayerId])
+  })
+
+  it("simplify: rejects a non-positive tolerance at the schema boundary", async () => {
+    const { status } = await runOperation("simplify", [squareLayerId], { tolerance: 0 })
+    expect(status).toBe(400)
+  })
+})

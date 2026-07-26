@@ -291,6 +291,57 @@ async function runWholeStatement<T>(runId: string, run: (tx: Prisma.TransactionC
   })
 }
 
+/**
+ * Pages through a layer running a per-chunk *probe* query, collecting the
+ * feature ids it returns. Shared by Repair's "could not repair" report
+ * (FR-015) and T192's "no change needed" report — both need to walk the
+ * input layer asking a yes/no question per feature, using the same
+ * keyset paging as the transform pass itself.
+ */
+async function collectProbedFeatureIds(
+  layerId: string,
+  pageSize: number,
+  buildProbeSql: (chunkIds: string[]) => Prisma.Sql,
+): Promise<string[]> {
+  const collected: string[] = []
+  let afterId: string | null = null
+  let hasMore = true
+
+  while (hasMore) {
+    const page: { id: string }[] = await prismaClient.$queryRaw(ops.buildChunkPageSql(layerId, afterId, pageSize))
+    if (page.length === 0) break
+    const ids = page.map((row) => row.id)
+    const hits: { id: string }[] = await prismaClient.$queryRaw(buildProbeSql(ids))
+    collected.push(...hits.map((row) => row.id))
+    afterId = ids[ids.length - 1]
+    hasMore = page.length === pageSize
+  }
+  return collected
+}
+
+/** T192's "no change needed" outcome — reported on `resultData` so a transform that found nothing to do reads as a successful no-op rather than a silent or failed run (spec.md Edge Cases). */
+interface NoChangeReport {
+  unchangedFeatureCount: number
+  noChangeNeeded: boolean
+}
+
+/**
+ * Counts the features a geometry transform left byte-identical (T192).
+ * Returns `undefined` when everything changed, so the ordinary case adds
+ * no noise to the run payload; `noChangeNeeded` is true only when *every*
+ * input feature was already in its final form.
+ */
+async function buildNoChangeReport(
+  layerId: string,
+  pageSize: number,
+  buildProbeSql: (chunkIds: string[]) => Prisma.Sql,
+): Promise<NoChangeReport | undefined> {
+  const unchanged = await collectProbedFeatureIds(layerId, pageSize, buildProbeSql)
+  if (unchanged.length === 0) return undefined
+  const total = await prismaClient.feature.count({ where: { layerId } })
+  return { unchangedFeatureCount: unchanged.length, noChangeNeeded: unchanged.length === total }
+}
+
 interface ExecutionResult {
   resultLayerId?: string
   resultData?: unknown
@@ -335,7 +386,12 @@ async function executeOperation(run: RawAnalysisRunRow, input: AnalysisRequestIn
       await runChunkedFeatureMap(runId, layerId, chunkPageSize("geometry"), (ids) =>
         ops.buildSimplifyChunkSql(newLayerId, ids, tolerance),
       )
-      return { resultLayerId: newLayerId }
+      return {
+        resultLayerId: newLayerId,
+        resultData: await buildNoChangeReport(layerId, chunkPageSize("geometry"), (ids) =>
+          ops.buildUnchangedBySimplifyFeatureIdsSql(ids, tolerance),
+        ),
+      }
     }
 
     case "smoothGeometry": {
@@ -344,7 +400,12 @@ async function executeOperation(run: RawAnalysisRunRow, input: AnalysisRequestIn
       await runChunkedFeatureMap(runId, layerId, chunkPageSize("geometry"), (ids) =>
         ops.buildSmoothChunkSql(newLayerId, ids),
       )
-      return { resultLayerId: newLayerId }
+      return {
+        resultLayerId: newLayerId,
+        resultData: await buildNoChangeReport(layerId, chunkPageSize("geometry"), (ids) =>
+          ops.buildUnchangedFeatureIdsSql(ids, "smoothGeometry"),
+        ),
+      }
     }
 
     case "multipartToSinglepart":
@@ -361,21 +422,27 @@ async function executeOperation(run: RawAnalysisRunRow, input: AnalysisRequestIn
     case "repairGeometry": {
       const [layerId] = input.inputLayerIds
       const newLayerId = await createResultLayer(projectId, `Repair Geometry of ${layerId}`)
-      const unrepaired: string[] = []
       await runChunkedFeatureMap(runId, layerId, chunkPageSize("geometry"), (ids) => ops.buildRepairGeometryChunkSql(newLayerId, ids))
-      // A second pass over the same pages to collect unrepairable ids (FR-015's "clearly report" requirement) — cheap relative to the repair pass itself, and keeps buildRepairGeometryChunkSql's own contract simple (INSERT-only).
-      let afterId: string | null = null
-      let hasMore = true
-      while (hasMore) {
-        const page: { id: string }[] = await prismaClient.$queryRaw(ops.buildChunkPageSql(layerId, afterId, chunkPageSize("geometry")))
-        if (page.length === 0) break
-        const ids = page.map((r) => r.id)
-        const bad: { id: string }[] = await prismaClient.$queryRaw(ops.buildUnrepairableFeatureIdsSql(ids))
-        unrepaired.push(...bad.map((r) => r.id))
-        afterId = ids[ids.length - 1]
-        hasMore = page.length === chunkPageSize("geometry")
+
+      // Second passes over the same pages (cheap relative to the repair
+      // pass itself, and they keep buildRepairGeometryChunkSql's own
+      // contract simple/INSERT-only): which features ST_MakeValid could
+      // not fix, per FR-015's "clearly report" requirement, and which were
+      // already valid so nothing needed repairing at all (T192).
+      const unrepaired = await collectProbedFeatureIds(layerId, chunkPageSize("geometry"), (ids) =>
+        ops.buildUnrepairableFeatureIdsSql(ids),
+      )
+      const noChange = await buildNoChangeReport(layerId, chunkPageSize("geometry"), (ids) =>
+        ops.buildUnchangedFeatureIdsSql(ids, "repairGeometry"),
+      )
+      const resultData = {
+        ...(unrepaired.length > 0 ? { unrepairedFeatureIds: unrepaired } : {}),
+        ...(noChange ?? {}),
       }
-      return { resultLayerId: newLayerId, resultData: unrepaired.length > 0 ? { unrepairedFeatureIds: unrepaired } : undefined }
+      return {
+        resultLayerId: newLayerId,
+        resultData: Object.keys(resultData).length > 0 ? resultData : undefined,
+      }
     }
 
     case "clip": {
@@ -664,6 +731,42 @@ async function assertUnderConcurrentJobCap(userId: string): Promise<void> {
  * behavior; larger inputs return immediately with `status: "queued"` and
  * continue via a fire-and-forget `executeRun` call (research.md Decision 5).
  */
+/**
+ * Preconditions a Zod schema cannot express, because they depend on the
+ * *contents* of the input layers rather than the shape of the request
+ * (T193). Checked before the run row is created so the caller gets a 400
+ * naming the specific problem, instead of a queued run that fails later
+ * for an opaque reason (spec.md US5 Edge Cases).
+ */
+async function assertOperationPreconditions(input: AnalysisRequestInput): Promise<void> {
+  if (input.operationType === "split") {
+    const [, splitterLayerId] = input.inputLayerIds
+    const bladeCount = await prismaClient.feature.count({ where: { layerId: splitterLayerId } })
+    if (bladeCount === 0) {
+      throw new ValidationError(
+        "Split needs a split line, but the second input layer has no features to cut with. Draw or select a line first.",
+      )
+    }
+    return
+  }
+
+  if (input.operationType === "merge") {
+    const rows = await prismaClient.$queryRaw<{ type: string | null }[]>(
+      ops.buildLayerGeometryTypesSql(input.inputLayerIds),
+    )
+    const families = [
+      ...new Set(rows.map((row) => row.type).filter((type): type is string => Boolean(type)).map(ops.toGeometryFamily)),
+    ].sort()
+    if (families.length > 1) {
+      throw new ValidationError(
+        `Merge needs every input layer to hold one geometry type, but these mix ${families
+          .join(" and ")
+          .toLowerCase()} features. Merge layers of the same type, or convert them first.`,
+      )
+    }
+  }
+}
+
 export async function createAnalysisRun(
   projectId: string,
   userId: string,
@@ -679,6 +782,8 @@ export async function createAnalysisRun(
       throw new NotFoundError(`No layer found with id "${layerId}" in this project.`)
     }
   }
+
+  await assertOperationPreconditions(input)
 
   const featureCounts = await Promise.all(
     input.inputLayerIds.map((layerId) => prismaClient.feature.count({ where: { layerId } })),

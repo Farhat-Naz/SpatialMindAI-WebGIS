@@ -276,67 +276,104 @@ export function buildIdentitySql(newLayerId: string, sourceLayerId: string): Pri
 // Geometry Processing (US5, FR-011/FR-012/FR-014/FR-015)
 // ---------------------------------------------------------------------------
 
+/**
+ * The shared shape of every per-feature Geometry Processing transform
+ * (US5) — `sourceRows` selects `old_id`/`new_geometry` pairs, and this
+ * wraps them so that:
+ *
+ * 1. **Attributes survive.** A geometry-processing result represents the
+ *    same real-world feature as its input (unlike Buffer/Overlay's
+ *    genuinely-derived geometry), so a geometry-only copy would strip
+ *    every attribute — the same defect fixed for Clip/Erase/Identity.
+ *    FR-014 requires this explicitly for multipart conversion, where each
+ *    dumped part must carry the parent's attributes.
+ * 2. **Invalid output is never persisted** (Constitution Principle IV /
+ *    T194). NULL, empty, and `ST_IsValid`-failing results are dropped
+ *    rather than written; callers pair this with a companion
+ *    `…FeatureIdsSql` query so a drop is reported, never silent.
+ *
+ * Assigning `new_id` *after* `sourceRows` matters: a row-expanding
+ * transform (`ST_Dump` for Split / Multipart→Singlepart) produces several
+ * rows per input feature, and each part must get its own id while still
+ * pointing back at one `old_id` for the attribute copy.
+ */
+function buildAttributePreservingTransformSql(newLayerId: string, sourceRows: Prisma.Sql): Prisma.Sql {
+  return Prisma.sql`
+    WITH computed AS (${sourceRows}
+    ), matched AS (
+      SELECT old_id, new_geometry, gen_random_uuid()::text AS new_id
+      FROM computed
+      WHERE new_geometry IS NOT NULL AND NOT ST_IsEmpty(new_geometry) AND ST_IsValid(new_geometry)
+    ), ins_feature AS (
+      INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
+      SELECT new_id, ${newLayerId}, new_geometry, NOW(), NOW() FROM matched
+    )
+    INSERT INTO "FeatureAttribute" (id, "featureId", key, value)
+    SELECT gen_random_uuid()::text, matched.new_id, fa.key, fa.value
+    FROM matched JOIN "FeatureAttribute" fa ON fa."featureId" = matched.old_id
+  `
+}
+
 /** One chunk of Simplify (FR-011) — `ST_SimplifyPreserveTopology` is topology-safe by default, unlike bare `ST_Simplify` (research.md Decision 7). */
 export function buildSimplifyChunkSql(newLayerId: string, chunkFeatureIds: string[], tolerance: number): Prisma.Sql {
-  return Prisma.sql`
-    INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
-    SELECT gen_random_uuid()::text, ${newLayerId}, ST_SimplifyPreserveTopology(geometry, ${tolerance}), NOW(), NOW()
-    FROM "Feature"
-    WHERE id IN (${Prisma.join(chunkFeatureIds)})
-  `
+  return buildAttributePreservingTransformSql(
+    newLayerId,
+    Prisma.sql`
+      SELECT id AS old_id, ST_SimplifyPreserveTopology(geometry, ${tolerance}) AS new_geometry
+      FROM "Feature"
+      WHERE id IN (${Prisma.join(chunkFeatureIds)})`,
+  )
 }
 
 /** One chunk of Smooth (FR-011), PostGIS >= 3.2's `ST_ChaikinSmoothing`. */
 export function buildSmoothChunkSql(newLayerId: string, chunkFeatureIds: string[]): Prisma.Sql {
-  return Prisma.sql`
-    INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
-    SELECT gen_random_uuid()::text, ${newLayerId}, ST_ChaikinSmoothing(geometry), NOW(), NOW()
-    FROM "Feature"
-    WHERE id IN (${Prisma.join(chunkFeatureIds)})
-  `
+  return buildAttributePreservingTransformSql(
+    newLayerId,
+    Prisma.sql`
+      SELECT id AS old_id, ST_ChaikinSmoothing(geometry) AS new_geometry
+      FROM "Feature"
+      WHERE id IN (${Prisma.join(chunkFeatureIds)})`,
+  )
 }
 
 export type MultipartConversionDirection = "toSinglepart" | "toMultipart"
 
-/** One chunk of a multipart<->singlepart conversion (FR-014) — `toSinglepart` may expand row count (one output row per part via `ST_Dump`); `toMultipart` is a 1:1 `ST_Multi` wrap. */
+/** One chunk of a multipart<->singlepart conversion (FR-014) — `toSinglepart` may expand row count (one output row per part via `ST_Dump`, each carrying the parent's attributes); `toMultipart` is a 1:1 `ST_Multi` wrap. */
 export function buildMultipartConversionChunkSql(
   newLayerId: string,
   chunkFeatureIds: string[],
   direction: MultipartConversionDirection,
 ): Prisma.Sql {
-  if (direction === "toSinglepart") {
-    return Prisma.sql`
-      INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
-      SELECT gen_random_uuid()::text, ${newLayerId}, (ST_Dump(geometry)).geom, NOW(), NOW()
+  const expression =
+    direction === "toSinglepart" ? Prisma.sql`(ST_Dump(geometry)).geom` : Prisma.sql`ST_Multi(geometry)`
+  return buildAttributePreservingTransformSql(
+    newLayerId,
+    Prisma.sql`
+      SELECT id AS old_id, ${expression} AS new_geometry
       FROM "Feature"
-      WHERE id IN (${Prisma.join(chunkFeatureIds)})
-    `
-  }
-  return Prisma.sql`
-    INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
-    SELECT gen_random_uuid()::text, ${newLayerId}, ST_Multi(geometry), NOW(), NOW()
-    FROM "Feature"
-    WHERE id IN (${Prisma.join(chunkFeatureIds)})
-  `
+      WHERE id IN (${Prisma.join(chunkFeatureIds)})`,
+  )
 }
+
+/** The repair expression itself — an already-valid feature passes through untouched, an invalid one goes through `ST_MakeValid`. Shared so the insert and its "could not repair" companion can never disagree about what repair means. */
+const REPAIRED_GEOMETRY = Prisma.sql`CASE WHEN ST_IsValid(geometry) THEN geometry ELSE ST_MakeValid(geometry) END`
 
 /**
  * One chunk of Repair Geometry (FR-015) — an already-valid feature is
  * copied unchanged; an invalid one is passed through `ST_MakeValid`. A
- * feature `ST_MakeValid` still cannot fix is excluded here and must be
- * reported via `buildUnrepairableFeatureIdsSql` below, so the caller can
- * "clearly report" it per FR-015 rather than silently dropping it.
+ * feature `ST_MakeValid` still cannot fix is excluded by the shared
+ * validity guard and must be reported via `buildUnrepairableFeatureIdsSql`
+ * below, so the caller can "clearly report" it per FR-015 rather than
+ * silently dropping it.
  */
 export function buildRepairGeometryChunkSql(newLayerId: string, chunkFeatureIds: string[]): Prisma.Sql {
-  return Prisma.sql`
-    INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
-    SELECT gen_random_uuid()::text, ${newLayerId},
-      CASE WHEN ST_IsValid(geometry) THEN geometry ELSE ST_MakeValid(geometry) END,
-      NOW(), NOW()
-    FROM "Feature"
-    WHERE id IN (${Prisma.join(chunkFeatureIds)})
-      AND ST_IsValid(CASE WHEN ST_IsValid(geometry) THEN geometry ELSE ST_MakeValid(geometry) END)
-  `
+  return buildAttributePreservingTransformSql(
+    newLayerId,
+    Prisma.sql`
+      SELECT id AS old_id, ${REPAIRED_GEOMETRY} AS new_geometry
+      FROM "Feature"
+      WHERE id IN (${Prisma.join(chunkFeatureIds)})`,
+  )
 }
 
 /** Ids in this chunk that Repair Geometry could not fix (companion to `buildRepairGeometryChunkSql`, FR-015). */
@@ -344,31 +381,86 @@ export function buildUnrepairableFeatureIdsSql(chunkFeatureIds: string[]): Prism
   return Prisma.sql`
     SELECT id FROM "Feature"
     WHERE id IN (${Prisma.join(chunkFeatureIds)})
-      AND NOT ST_IsValid(CASE WHEN ST_IsValid(geometry) THEN geometry ELSE ST_MakeValid(geometry) END)
+      AND NOT ST_IsValid(${REPAIRED_GEOMETRY})
   `
 }
 
-/** Split (FR-012) — cuts every feature of the target layer using the combined "blade" geometry of the splitter layer (`ST_Split`), one output row per resulting part. */
+/**
+ * Ids in this chunk whose geometry a no-parameter/tolerance transform
+ * leaves unchanged (T192) — Simplify below its tolerance, Smooth on an
+ * already-smooth shape, Repair on already-valid input. Reported as
+ * "no change needed" rather than treated as a failure (spec.md Edge
+ * Cases): the run succeeds, it simply had nothing to do.
+ */
+export function buildUnchangedFeatureIdsSql(chunkFeatureIds: string[], transform: GeometryNoOpTransform): Prisma.Sql {
+  const expression = NO_OP_TRANSFORM_EXPRESSION[transform]
+  return Prisma.sql`
+    SELECT id FROM "Feature"
+    WHERE id IN (${Prisma.join(chunkFeatureIds)})
+      AND ${expression} IS NOT NULL
+      AND ST_OrderingEquals(geometry, ${expression})
+  `
+}
+
+export type GeometryNoOpTransform = "smoothGeometry" | "repairGeometry"
+
+/** Fixed lookup — never interpolated from user input (Constitution Principle VI). Simplify is excluded because its expression needs the run's tolerance; it has its own builder below. */
+const NO_OP_TRANSFORM_EXPRESSION: Record<GeometryNoOpTransform, Prisma.Sql> = {
+  smoothGeometry: Prisma.sql`ST_ChaikinSmoothing(geometry)`,
+  repairGeometry: REPAIRED_GEOMETRY,
+}
+
+/** Simplify's own no-op probe (T192) — separate from `buildUnchangedFeatureIdsSql` because the expression is parameterized by the run's tolerance. */
+export function buildUnchangedBySimplifyFeatureIdsSql(chunkFeatureIds: string[], tolerance: number): Prisma.Sql {
+  return Prisma.sql`
+    SELECT id FROM "Feature"
+    WHERE id IN (${Prisma.join(chunkFeatureIds)})
+      AND ST_OrderingEquals(geometry, ST_SimplifyPreserveTopology(geometry, ${tolerance}))
+  `
+}
+
+/** Split (FR-012) — cuts every feature of the target layer using the combined "blade" geometry of the splitter layer (`ST_Split`), one output row per resulting part, each keeping the original feature's attributes. */
 export function buildSplitSql(newLayerId: string, targetLayerId: string, splitterLayerId: string): Prisma.Sql {
+  return buildAttributePreservingTransformSql(
+    newLayerId,
+    Prisma.sql`
+      SELECT a.id AS old_id, (ST_Dump(ST_Split(a.geometry, splitter.blade))).geom AS new_geometry
+      FROM "Feature" a
+      CROSS JOIN LATERAL (
+        SELECT ST_Union(geometry) AS blade FROM "Feature" WHERE "layerId" = ${splitterLayerId}
+      ) splitter
+      WHERE a."layerId" = ${targetLayerId}`,
+  )
+}
+
+/** The distinct PostGIS geometry type names present across one or more layers (`POINT`, `MULTIPOLYGON`, …) — backs Merge's pre-run compatibility check (T193). */
+export function buildLayerGeometryTypesSql(layerIds: string[]): Prisma.Sql {
   return Prisma.sql`
-    INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
-    SELECT gen_random_uuid()::text, ${newLayerId}, (ST_Dump(ST_Split(a.geometry, splitter.blade))).geom, NOW(), NOW()
-    FROM "Feature" a
-    CROSS JOIN LATERAL (
-      SELECT ST_Union(geometry) AS blade FROM "Feature" WHERE "layerId" = ${splitterLayerId}
-    ) splitter
-    WHERE a."layerId" = ${targetLayerId}
+    SELECT DISTINCT GeometryType(geometry) AS type
+    FROM "Feature"
+    WHERE "layerId" IN (${Prisma.join(layerIds)})
   `
 }
 
-/** Merge (FR-012) — concatenates every feature from every input layer into one output layer unchanged (does not union/dissolve geometry — that is Dissolve's job). */
+/**
+ * Collapses a PostGIS geometry type name to the family Merge cares about
+ * (T193): a layer of `POINT`s and a layer of `MULTIPOINT`s merge together
+ * fine, but points and polygons do not. Single- and multi- variants of
+ * one shape are therefore the same family.
+ */
+export function toGeometryFamily(geometryType: string): string {
+  return geometryType.toUpperCase().replace(/^MULTI/, "")
+}
+
+/** Merge (FR-012) — concatenates every feature from every input layer into one output layer unchanged, attributes included (does not union/dissolve geometry — that is Dissolve's job). */
 export function buildMergeSql(newLayerId: string, inputLayerIds: string[]): Prisma.Sql {
-  return Prisma.sql`
-    INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
-    SELECT gen_random_uuid()::text, ${newLayerId}, geometry, NOW(), NOW()
-    FROM "Feature"
-    WHERE "layerId" IN (${Prisma.join(inputLayerIds)})
-  `
+  return buildAttributePreservingTransformSql(
+    newLayerId,
+    Prisma.sql`
+      SELECT id AS old_id, geometry AS new_geometry
+      FROM "Feature"
+      WHERE "layerId" IN (${Prisma.join(inputLayerIds)})`,
+  )
 }
 
 /**
