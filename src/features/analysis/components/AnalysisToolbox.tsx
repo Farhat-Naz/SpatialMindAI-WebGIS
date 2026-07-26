@@ -41,7 +41,12 @@ function groupByCategory(entries: readonly AnalysisOperationCatalogEntry[]) {
  * Categorized Toolbox of every analysis operation (US10/FR-023) — the
  * single source `ANALYSIS_OPERATION_CATALOG` renders from. Measurement
  * tools and not-yet-reachable raster placeholders (no `operationType`) are
- * shown but disabled; every other entry opens `OperationConfigForm`,
+ * shown but disabled, and the two are annotated differently so a disabled
+ * entry always explains itself: shipped Measurement tools point at the
+ * Measure toolbar they actually live on (research.md Decision 8 — they are
+ * computed client-side and never hit the analysis endpoint), while raster
+ * placeholders read "(coming soon)". Every other entry opens
+ * `OperationConfigForm`,
  * whether or not that operation's form has landed yet (an operation whose
  * form isn't built shows a graceful "not yet available" state rather than
  * being hidden — matches research.md Decision 9's "visibly present"
@@ -82,6 +87,9 @@ export function AnalysisToolbox() {
                     {entry.label}
                     {!entry.implemented && (
                       <span className="ml-1.5 text-xs text-muted-foreground">(coming soon)</span>
+                    )}
+                    {entry.implemented && !entry.operationType && (
+                      <span className="ml-1.5 text-xs text-muted-foreground">(Measure toolbar)</span>
                     )}
                   </button>
                 </li>

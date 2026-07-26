@@ -46,13 +46,13 @@ export const ANALYSIS_OPERATION_CATALOG: readonly AnalysisOperationCatalogEntry[
   { key: "overlaps", operationType: "overlaps", category: "query", label: "Overlaps", implemented: true },
 
   // --- Measurement Tools (US3, FR-007–009) — no operationType (Decision 8) ---
-  { key: "measureDistance", category: "measurement", label: "Distance", implemented: false },
-  { key: "measureArea", category: "measurement", label: "Area", implemented: false },
-  { key: "measurePerimeter", category: "measurement", label: "Perimeter", implemented: false },
-  { key: "measureRadius", category: "measurement", label: "Radius", implemented: false },
-  { key: "measureBearing", category: "measurement", label: "Bearing", implemented: false },
-  { key: "measureAzimuth", category: "measurement", label: "Azimuth", implemented: false },
-  { key: "measureCoordinates", category: "measurement", label: "Coordinates", implemented: false },
+  { key: "measureDistance", category: "measurement", label: "Distance", implemented: true },
+  { key: "measureArea", category: "measurement", label: "Area", implemented: true },
+  { key: "measurePerimeter", category: "measurement", label: "Perimeter", implemented: true },
+  { key: "measureRadius", category: "measurement", label: "Radius", implemented: true },
+  { key: "measureBearing", category: "measurement", label: "Bearing", implemented: true },
+  { key: "measureAzimuth", category: "measurement", label: "Azimuth", implemented: true },
+  { key: "measureCoordinates", category: "measurement", label: "Coordinates", implemented: true },
 
   // --- Overlay Analysis (US4, FR-010) ---
   { key: "union", operationType: "union", category: "overlay", label: "Union", implemented: true },
