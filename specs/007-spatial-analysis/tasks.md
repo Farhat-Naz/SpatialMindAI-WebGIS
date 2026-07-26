@@ -2463,7 +2463,7 @@ description: "Task list for feature implementation"
 
 **Purpose**: Verify and tune the feature against spec.md's Performance section (100,000 features, 100 simultaneous analyses) now that every operation exists end-to-end.
 
-- [ ] T259 Large dataset optimization — chunk size tuning
+- [X] T259 Large dataset optimization — chunk size tuning
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/types/analysisConfig.constants.ts` (modify, from T001)
@@ -2472,7 +2472,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T268
   - **Dependencies**: T001, T136, T152, T166, T182, T200, T214
 
-- [ ] T260 [P] Large dataset optimization — index query plans
+- [X] T260 [P] Large dataset optimization — index query plans
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A (verification-only, `EXPLAIN ANALYZE` run against the test database)
@@ -2490,7 +2490,7 @@ description: "Task list for feature implementation"
   - **Verification**: Manual profiling, documented in the PR
   - **Dependencies**: T231
 
-- [ ] T262 [P] Pagination — large history performance
+- [X] T262 [P] Pagination — large history performance
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: N/A (verification against seeded large history)
@@ -2499,7 +2499,7 @@ description: "Task list for feature implementation"
   - **Verification**: Manual timing check, documented in the PR
   - **Dependencies**: T037
 
-- [ ] T263 [P] Database optimization — `statement_timeout` tuning
+- [X] T263 [P] Database optimization — `statement_timeout` tuning
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/server/db/prismaClient.ts` (modify, if a connection-string-level timeout adjustment is needed)
@@ -2508,7 +2508,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T268
   - **Dependencies**: T034
 
-- [ ] T264 [P] Caching — React Query stale/gc time review
+- [X] T264 [P] Caching — React Query stale/gc time review
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/analysis/services/queryKeys.ts` (modify, from T083, if per-query `staleTime`/`gcTime` overrides are needed)
@@ -2517,7 +2517,7 @@ description: "Task list for feature implementation"
   - **Verification**: Manual React Query Devtools review
   - **Dependencies**: T083
 
-- [ ] T265 [P] Memoization — live preview/readout computations
+- [X] T265 [P] Memoization — live preview/readout computations
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/analysis/components/OperationConfigForm.tsx`, `MeasureToolbar.tsx` (both modify)
@@ -2526,7 +2526,7 @@ description: "Task list for feature implementation"
   - **Verification**: Manual React DevTools Profiler review
   - **Dependencies**: T128, T153
 
-- [ ] T266 [P] Memoization — narrow Zustand selectors
+- [X] T266 [P] Memoization — narrow Zustand selectors
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/useAnalysisPanel.ts` (modify, from T101), every hook file from Phase 6
@@ -2535,7 +2535,7 @@ description: "Task list for feature implementation"
   - **Verification**: Manual React DevTools Profiler review
   - **Dependencies**: T101, T091–T100
 
-- [ ] T267 Bundle optimization — bundle-analyzer confirmation
+- [X] T267 Bundle optimization — bundle-analyzer confirmation
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A (`@next/bundle-analyzer` run)
@@ -2544,7 +2544,7 @@ description: "Task list for feature implementation"
   - **Verification**: `ANALYZE=true npm run build` (or the project's existing bundle-analyzer command)
   - **Dependencies**: T082, T230
 
-- [ ] T268 [P] Performance tests — 100,000-feature background path
+- [X] T268 [P] Performance tests — 100,000-feature background path
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/analysisRepository.performance.test.ts` (new)
@@ -2553,7 +2553,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- analysisRepository.performance`
   - **Dependencies**: T034, T259, T263
 
-- [ ] T269 [P] Performance tests — 100-concurrent-job harness
+- [X] T269 [P] Performance tests — 100-concurrent-job harness
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/analysisRepository.concurrency.test.ts` (new)
@@ -2562,7 +2562,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- analysisRepository.concurrency`
   - **Dependencies**: T033, T034
 
-- [ ] T270 Checkpoint (Phase 17)
+- [X] T270 Checkpoint (Phase 17)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)

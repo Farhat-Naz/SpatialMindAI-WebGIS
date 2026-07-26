@@ -20,6 +20,22 @@ export type AnalysisOperationCategory =
  * ops), larger for cheap per-feature scans (single-layer statistics), so
  * the 100,000-feature target (spec Performance) stays responsive without
  * any single chunk's statement risking `statement_timeout`.
+ *
+ * T259 (tuning review): these values are **kept as-is**, on evidence
+ * rather than assumption. `analysisRepository.performance.test.ts` runs
+ * Buffer, Simplify and Union against a real 100,000-feature layer and
+ * SC-002 holds at these sizes — each reaches a terminal status inside the
+ * budget with progress observed more than once and never going backwards,
+ * which is the property the Progress Dialog depends on.
+ *
+ * The chunk size trades two things off: larger chunks mean fewer round
+ * trips but coarser progress and a longer single statement (closer to
+ * `statement_timeout`); smaller chunks mean smoother progress and more
+ * overhead. Since the acceptance criterion is *responsiveness with visible
+ * progress* rather than raw throughput, and it is met, changing these
+ * numbers now would be churn without a measurement to justify it. Overlay
+ * stays lowest because its builders do the most work per row — Clip/Erase
+ * copy attributes through a CTE on top of the geometry operation.
  */
 export const CHUNK_PAGE_SIZE: Record<AnalysisOperationCategory, number> = {
   buffer: 500,

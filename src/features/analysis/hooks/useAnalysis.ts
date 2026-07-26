@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { queryKeys as databaseQueryKeys } from "@/features/database/services/queryKeys"
 import { DEFAULT_POLL_INTERVAL_MS } from "@/features/analysis/types/analysisConfig.constants"
 import { analysisService, type ListRunsParams } from "../services/analysisService"
-import { queryKeys } from "../services/queryKeys"
+import { ANALYSIS_QUERY_FRESHNESS, queryKeys } from "../services/queryKeys"
 import { useAnalysisStore } from "../store/analysisStore"
 import type { AnalysisRequestInput } from "../types/analysis.types"
 
@@ -46,6 +46,7 @@ export function useAnalysisRuns(projectId: string, params: ListRunsParams = {}) 
     queryKey: queryKeys.analysisRuns(projectId, params),
     queryFn: () => analysisService.listRuns(projectId, params),
     enabled: Boolean(projectId),
+    staleTime: ANALYSIS_QUERY_FRESHNESS.runsStaleTimeMs,
   })
 }
 
@@ -62,6 +63,7 @@ export function useAnalysisRun(runId: string, options?: { poll?: boolean }) {
     queryKey: queryKeys.analysisRun(runId),
     queryFn: () => analysisService.getRun(runId),
     enabled: Boolean(runId),
+    staleTime: ANALYSIS_QUERY_FRESHNESS.runDetailStaleTimeMs,
     retry: 3,
     refetchInterval: (query) => {
       if (!options?.poll) return false

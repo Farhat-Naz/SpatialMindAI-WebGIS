@@ -191,7 +191,13 @@ model AnalysisRun {
   /// "show running/queued jobs for this project" (Progress Dialog, History
   /// Panel status filter) without scanning completed history — also the
   /// query "Analysis History" itself runs through (research.md Decision 1).
-  @@index([projectId, status])
+  ///
+  /// `createdAt` is the third column (T260): history is always ordered
+  /// newest-first, and on `[projectId, status]` alone the planner ignored
+  /// this index in favour of `[projectId, createdAt]` — satisfying the
+  /// sort but filtering status row by row through the heap. With the sort
+  /// key in the index, one scan serves both the filter and the ordering.
+  @@index([projectId, status, createdAt])
   /// "my analyses" queries and the per-user concurrent-job cap check
   /// (research.md Decision 12).
   @@index([userId])

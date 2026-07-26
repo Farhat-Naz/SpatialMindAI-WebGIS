@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useMapEvents } from "react-leaflet"
 import { Circle, MapPin, Ruler, Waves } from "lucide-react"
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group"
@@ -19,6 +19,9 @@ const MODE_OPTIONS: { value: MeasureMode; label: string; icon: typeof Ruler }[] 
   { value: "radius", label: "Measure radius", icon: Circle },
   { value: "coordinates", label: "Read coordinates", icon: MapPin },
 ]
+
+/** Stable empty array, so "no active measurement" does not produce a new reference every render. */
+const NO_POINTS: LatLng[] = []
 
 const MIN_POINTS_FOR_MODE: Record<MeasureMode, number> = {
   distance: 2,
@@ -81,7 +84,43 @@ export function MeasurementControls({ projectId }: { projectId: string }) {
 
   const [savedTypes, setSavedTypes] = useState<Set<string>>(new Set())
 
-  const points = mode && measurementDraft?.type === mode ? measurementDraft.points : []
+  // Derived rather than rebuilt inline so the reference is stable between
+  // store updates — otherwise every render produced a new array and the
+  // memo below could never hit.
+  const points = useMemo(
+    () => (mode && measurementDraft?.type === mode ? measurementDraft.points : NO_POINTS),
+    [mode, measurementDraft],
+  )
+
+  /**
+   * The readouts the *active mode* needs, computed once per draft change
+   * (T265). Previously each Turf call re-ran on every render of this
+   * component — including renders caused by unrelated store fields — and
+   * distance mode runs three of them, while the user is moving the mouse
+   * and producing renders continuously.
+   *
+   * Only the active mode's readings are computed: measuring area on a
+   * 2-point draft is both wasted work and a meaningless number.
+   */
+  const readings = useMemo(() => {
+    if (!mode || points.length < MIN_POINTS_FOR_MODE[mode]) return null
+    const read = (type: Parameters<typeof measurementService.measure>[0]) => measurementService.measure(type, points)
+
+    switch (mode) {
+      case "distance":
+        return {
+          distance: read("distance").value ?? 0,
+          bearing: read("bearing").value ?? 0,
+          azimuth: read("azimuth").value ?? 0,
+        }
+      case "area":
+        return { area: read("area").value ?? 0, perimeter: read("perimeter").value ?? 0 }
+      case "radius":
+        return { radius: read("radius").value ?? 0 }
+      case "coordinates":
+        return { coordinates: read("coordinates").formatted }
+    }
+  }, [mode, points])
 
   function handleModeChange(value: string) {
     setSavedTypes(new Set())
@@ -123,19 +162,19 @@ export function MeasurementControls({ projectId }: { projectId: string }) {
           rows={[
             {
               label: "Distance",
-              value: formatDistance(measurementService.measure("distance", points).value ?? 0),
+              value: formatDistance(readings?.distance ?? 0),
               onSave: () => handleSave("distance", { type: "LineString", coordinates: points.map((p) => [p.lng, p.lat]) }),
               saved: savedTypes.has("distance"),
             },
             {
               label: "Bearing",
-              value: `${(measurementService.measure("bearing", points).value ?? 0).toFixed(1)}°`,
+              value: `${(readings?.bearing ?? 0).toFixed(1)}°`,
               onSave: () => handleSave("bearing", { type: "LineString", coordinates: points.map((p) => [p.lng, p.lat]) }),
               saved: savedTypes.has("bearing"),
             },
             {
               label: "Azimuth",
-              value: `${(measurementService.measure("azimuth", points).value ?? 0).toFixed(1)}°`,
+              value: `${(readings?.azimuth ?? 0).toFixed(1)}°`,
               onSave: () => handleSave("azimuth", { type: "LineString", coordinates: points.map((p) => [p.lng, p.lat]) }),
               saved: savedTypes.has("azimuth"),
             },
@@ -148,7 +187,7 @@ export function MeasurementControls({ projectId }: { projectId: string }) {
           rows={[
             {
               label: "Area",
-              value: formatArea(measurementService.measure("area", points).value ?? 0),
+              value: formatArea(readings?.area ?? 0),
               onSave: () => {
                 const ring = [...points, points[0]].map((p) => [p.lng, p.lat])
                 handleSave("area", { type: "Polygon", coordinates: [ring] })
@@ -157,7 +196,7 @@ export function MeasurementControls({ projectId }: { projectId: string }) {
             },
             {
               label: "Perimeter",
-              value: formatDistance(measurementService.measure("perimeter", points).value ?? 0),
+              value: formatDistance(readings?.perimeter ?? 0),
               onSave: () => {
                 const ring = [...points, points[0]].map((p) => [p.lng, p.lat])
                 handleSave("perimeter", { type: "Polygon", coordinates: [ring] })
@@ -173,7 +212,7 @@ export function MeasurementControls({ projectId }: { projectId: string }) {
           rows={[
             {
               label: "Radius",
-              value: formatDistance(measurementService.measure("radius", points).value ?? 0),
+              value: formatDistance(readings?.radius ?? 0),
               onSave: () => handleSave("radius", { type: "LineString", coordinates: points.map((p) => [p.lng, p.lat]) }),
               saved: savedTypes.has("radius"),
             },
@@ -187,7 +226,7 @@ export function MeasurementControls({ projectId }: { projectId: string }) {
             {
               label: "Coordinates",
               value: (() => {
-                const formatted = measurementService.measure("coordinates", points).formatted
+                const formatted = readings?.coordinates
                 return formatted ? `${formatted.lat}, ${formatted.lng}` : ""
               })(),
               onSave: () => handleSave("coordinates", { type: "Point", coordinates: [points[0].lng, points[0].lat] }),
