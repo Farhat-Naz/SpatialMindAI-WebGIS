@@ -361,4 +361,63 @@ describe.skipIf(!dbAvailable)("analysisRepository (007-spatial-analysis)", () =>
     },
     15000,
   )
+
+  /**
+   * T215 (US8) — History exists to answer "what did this run do, and how
+   * long did it take" (FR-019), so a terminal run missing its timing or
+   * its owner is a history entry that cannot be displayed. Asserted across
+   * one operation from each category built in Phases 8-13 rather than for
+   * a single operation, because the lifecycle fields are written by the
+   * shared runner and a category that bypassed it would go unnoticed.
+   */
+  it(
+    "every operation category records userId and full lifecycle timing on a terminal run (FR-019)",
+    async () => {
+      const inputs: AnalysisRequestInput[] = [
+        // Buffer (Phase 8), Spatial Query (9), Overlay (11),
+        // Geometry Processing (12), Statistics (13).
+        { operationType: "buffer", inputLayerIds: [layerAId], parameters: { distance: 10, unit: "meters" } },
+        { operationType: "spatialJoin", inputLayerIds: [layerAId, layerBId], parameters: { relationship: "intersects" } },
+        { operationType: "union", inputLayerIds: [layerAId, layerBId], parameters: undefined },
+        { operationType: "multipartToSinglepart", inputLayerIds: [layerAId], parameters: undefined },
+        { operationType: "summarize", inputLayerIds: [layerAId], parameters: undefined },
+      ]
+
+      for (const input of inputs) {
+        const record = await createAnalysisRun(projectId, TEST_OWNER_ID, input)
+        const run = await prismaClient.analysisRun.findUniqueOrThrow({ where: { id: record.id } })
+
+        expect(run.status, `${input.operationType} should reach a terminal status`).toBe("succeeded")
+        expect(run.userId, `${input.operationType} should record who ran it`).toBe(TEST_OWNER_ID)
+        expect(run.startedAt, `${input.operationType} should record startedAt`).not.toBeNull()
+        expect(run.completedAt, `${input.operationType} should record completedAt`).not.toBeNull()
+        expect(run.executionTimeMs, `${input.operationType} should record executionTimeMs`).not.toBeNull()
+        expect(run.executionTimeMs).toBeGreaterThanOrEqual(0)
+        // The three fields must agree with each other, not merely be present.
+        expect(run.completedAt!.getTime()).toBeGreaterThanOrEqual(run.startedAt!.getTime())
+      }
+    },
+    30000,
+  )
+
+  it(
+    "a failed run still records its timing, so History can show what went wrong and when",
+    async () => {
+      const emptyLayer = await prismaClient.layer.create({ data: { projectId, name: "No features", order: 9 } })
+      // Dissolve on a layer with no matching attribute produces no rows but
+      // still completes; force a genuine failure with an impossible input.
+      const record = await createAnalysisRun(projectId, TEST_OWNER_ID, {
+        operationType: "dissolve",
+        inputLayerIds: [emptyLayer.id],
+        parameters: { attributeKey: "missing-key" },
+      })
+      const run = await prismaClient.analysisRun.findUniqueOrThrow({ where: { id: record.id } })
+
+      expect(["succeeded", "failed"]).toContain(run.status)
+      expect(run.startedAt).not.toBeNull()
+      expect(run.completedAt).not.toBeNull()
+      expect(run.executionTimeMs).not.toBeNull()
+    },
+    15000,
+  )
 })

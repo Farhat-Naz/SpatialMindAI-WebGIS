@@ -2045,7 +2045,7 @@ description: "Task list for feature implementation"
 
 **Independent Test**: Run any single analysis, open the History panel, confirm an entry appears with correct parameters and a working Re-run action — independent of which analysis type was run.
 
-- [ ] T215 [US8] History storage end-to-end confirmation
+- [X] T215 [US8] History storage end-to-end confirmation
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/server/repositories/__tests__/analysisRepository.test.ts` (verification, from T048)
@@ -2054,7 +2054,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test:db -- analysisRepository`
   - **Dependencies**: T048, T136, T152, T166, T182, T200, T214
 
-- [ ] T216 [US8] `HistoryPanel.tsx`
+- [X] T216 [US8] `HistoryPanel.tsx`
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/features/analysis/components/HistoryPanel.tsx` (new)
@@ -2063,7 +2063,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T223
   - **Dependencies**: T091, T216 self (T098 for rerun/delete wiring in T219/T220)
 
-- [ ] T217 [US8] History filters
+- [X] T217 [US8] History filters
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/features/analysis/components/HistoryPanel.tsx` (modify, same file as T216)
@@ -2072,7 +2072,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T223
   - **Dependencies**: T052, T216
 
-- [ ] T218 [US8] View Result (practical "restore")
+- [X] T218 [US8] View Result (practical "restore")
   - **Priority**: Should-have
   - **User Story**: US8
   - **Files**: `src/features/analysis/components/HistoryPanel.tsx` (modify, same file as T216)
@@ -2081,7 +2081,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T223
   - **Dependencies**: T112, T216
 
-- [ ] T219 [US8] History rerun
+- [X] T219 [US8] History rerun
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/features/analysis/components/HistoryPanel.tsx` (modify, same file as T216)
@@ -2090,7 +2090,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T223
   - **Dependencies**: T098, T216
 
-- [ ] T220 [US8] History delete
+- [X] T220 [US8] History delete
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/features/analysis/components/HistoryPanel.tsx` (modify, same file as T216)
@@ -2099,7 +2099,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T223
   - **Dependencies**: T098, T216
 
-- [ ] T221 [US8] `PropertyPanel.tsx`
+- [X] T221 [US8] `PropertyPanel.tsx`
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/features/analysis/components/PropertyPanel.tsx` (new)
@@ -2108,7 +2108,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T223
   - **Dependencies**: T110, T216
 
-- [ ] T222 [US8] `PresetPicker.tsx`
+- [X] T222 [US8] `PresetPicker.tsx`
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/features/analysis/components/PresetPicker.tsx` (new)
@@ -2117,7 +2117,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T223
   - **Dependencies**: T099, T112, T121
 
-- [ ] T223 [P] [US8] Component tests — History/Property/Preset
+- [X] T223 [P] [US8] Component tests — History/Property/Preset
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/features/analysis/components/__tests__/HistoryPanel.test.tsx` (new), `src/features/analysis/components/__tests__/PropertyPanel.test.tsx` (new), `src/features/analysis/components/__tests__/PresetPicker.test.tsx` (new)
@@ -2126,7 +2126,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- HistoryPanel PropertyPanel PresetPicker`
   - **Dependencies**: T217–T222
 
-- [ ] T224 [P] [US8] Integration test — full History flow
+- [X] T224 [P] [US8] Integration test — full History flow
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/features/analysis/__tests__/history.integration.test.tsx` (new)
@@ -2135,7 +2135,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- history.integration`
   - **Dependencies**: T223
 
-- [ ] T225 [US8] Checkpoint (Phase 14)
+- [X] T225 [US8] Checkpoint (Phase 14)
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: None (verification-only task)

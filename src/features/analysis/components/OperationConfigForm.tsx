@@ -10,6 +10,7 @@ import { useRunAnalysis } from "../hooks/useAnalysis"
 import type { MeasurementDistanceUnit } from "../services/spatialMath"
 import type { AnalysisRunRecord } from "../types/analysis.types"
 import type { AnalysisRequestInput } from "@/shared/contracts/analysis.schema"
+import { PresetPicker } from "./PresetPicker"
 
 /** Mirrors `analysisOperations.ts`'s server-side `AttributeFilterOperator` union (kept as a small client-local copy — that file is server-only and must not be imported client-side). */
 type AttributeFilterOperator = "eq" | "neq" | "contains" | "gt" | "lt" | "gte" | "lte"
@@ -29,12 +30,23 @@ interface OperationConfigFormProps {
  */
 export function OperationConfigForm({ projectId }: OperationConfigFormProps) {
   const operationType = useAnalysisStore((state) => state.selectedOperationType)
+  const draftParameters = useAnalysisStore((state) => state.draftParameters)
 
   if (!operationType) {
     return <p className="p-3 text-sm text-muted-foreground">Select an operation from the Toolbox to begin.</p>
   }
 
-  switch (operationType) {
+  return (
+    <>
+      {renderVariant()}
+      {/* T222 — the preset quick-start list sits with the form it fills,
+          scoped to the operation currently selected. */}
+      <PresetPicker projectId={projectId} operationType={operationType} parametersToSave={draftParameters ?? {}} />
+    </>
+  )
+
+  function renderVariant() {
+    switch (operationType) {
     case "buffer":
       return <BufferForm projectId={projectId} />
     case "spatialJoin":
@@ -81,12 +93,13 @@ export function OperationConfigForm({ projectId }: OperationConfigFormProps) {
       return <MergeForm projectId={projectId} />
     case "split":
       return <SplitForm projectId={projectId} />
-    default:
-      return (
-        <p className="p-3 text-sm text-muted-foreground">
-          Configuration for &ldquo;{operationType}&rdquo; is not yet available.
-        </p>
-      )
+      default:
+        return (
+          <p className="p-3 text-sm text-muted-foreground">
+            Configuration for &ldquo;{operationType}&rdquo; is not yet available.
+          </p>
+        )
+    }
   }
 }
 
