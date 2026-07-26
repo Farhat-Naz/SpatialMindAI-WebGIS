@@ -61,7 +61,20 @@ export function OperationConfigForm({ projectId }: OperationConfigFormProps) {
     case "repairGeometry":
     case "multipartToSinglepart":
     case "singlepartToMultipart":
-      return <SingleLayerGeometryForm projectId={projectId} operationType={operationType} />
+    case "summarize":
+    case "featureCount":
+    case "areaCalculation":
+    case "averageArea":
+    case "lengthCalculation":
+    case "totalLength":
+    case "averageLength":
+    case "boundingBox":
+    case "centroid":
+    case "convexHull":
+    case "extent":
+      return <SingleLayerForm projectId={projectId} operationType={operationType} />
+    case "densityAnalysis":
+      return <DensityForm projectId={projectId} />
     case "dissolve":
       return <DissolveForm projectId={projectId} />
     case "merge":
@@ -672,13 +685,24 @@ function SimplifyForm({ projectId }: { projectId: string }) {
   )
 }
 
-type SingleLayerGeometryOperation =
+type SingleLayerOperation =
   | "smoothGeometry"
   | "repairGeometry"
   | "multipartToSinglepart"
   | "singlepartToMultipart"
+  | "summarize"
+  | "featureCount"
+  | "areaCalculation"
+  | "averageArea"
+  | "lengthCalculation"
+  | "totalLength"
+  | "averageLength"
+  | "boundingBox"
+  | "centroid"
+  | "convexHull"
+  | "extent"
 
-const SINGLE_LAYER_GEOMETRY_LABELS: Record<SingleLayerGeometryOperation, { title: string; description: string }> = {
+const SINGLE_LAYER_LABELS: Record<SingleLayerOperation, { title: string; description: string }> = {
   smoothGeometry: {
     title: "Smooth",
     description: "Rounds sharp corners using Chaikin smoothing. Attributes are preserved.",
@@ -696,22 +720,40 @@ const SINGLE_LAYER_GEOMETRY_LABELS: Record<SingleLayerGeometryOperation, { title
     title: "Singlepart to Multipart",
     description: "Wraps each feature in its multi-part equivalent.",
   },
+
+  // Spatial Statistics (US6) — all read-only: they report numbers about
+  // the layer and never create a result layer.
+  summarize: {
+    title: "Summarize",
+    description:
+      "Reports feature count, area, length, bounding box, centroid, convex hull, and extent in one pass. No new layer is created.",
+  },
+  featureCount: { title: "Feature Count", description: "Counts the features in the layer." },
+  areaCalculation: { title: "Area Calculation", description: "Total area of the layer's features, in square metres." },
+  averageArea: { title: "Average Area", description: "Mean feature area, in square metres." },
+  lengthCalculation: { title: "Length Calculation", description: "Total length of the layer's features, in metres." },
+  totalLength: { title: "Total Length", description: "Total length of the layer's features, in metres." },
+  averageLength: { title: "Average Length", description: "Mean feature length, in metres." },
+  boundingBox: { title: "Bounding Box", description: "The rectangle enclosing every feature in the layer." },
+  centroid: { title: "Centroid", description: "The centre of mass of the layer's combined geometry." },
+  convexHull: { title: "Convex Hull", description: "The smallest convex shape containing every feature." },
+  extent: { title: "Extent", description: "The layer's coordinate extent." },
 }
 
-/** The four no-parameter Geometry Processing operations (US5) — a confirm step over one staged layer. */
-function SingleLayerGeometryForm({
+/** Every no-parameter operation that takes exactly one layer (US5's geometry conversions and US6's statistics) — a confirm step over one staged layer. */
+function SingleLayerForm({
   projectId,
   operationType,
 }: {
   projectId: string
-  operationType: SingleLayerGeometryOperation
+  operationType: SingleLayerOperation
 }) {
   const stagedInputLayerIds = useAnalysisStore((state) => state.stagedInputLayerIds)
   const setLastError = useAnalysisStore((state) => state.setLastError)
   const runAnalysis = useRunAnalysis(projectId)
   const [validationError, setValidationError] = useState<string | null>(null)
 
-  const labels = SINGLE_LAYER_GEOMETRY_LABELS[operationType]
+  const labels = SINGLE_LAYER_LABELS[operationType]
   const [layerId] = stagedInputLayerIds
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -745,6 +787,101 @@ function SingleLayerGeometryForm({
 
       <Button type="submit" disabled={runAnalysis.isPending}>
         {runAnalysis.isPending ? "Running…" : `Run ${labels.title}`}
+      </Button>
+    </form>
+  )
+}
+
+/**
+ * Density Analysis (US6, FR-016). The request contract requires a cell
+ * size, but the current server implementation reports a single
+ * convex-hull density rather than a grid surface, so the cell size does
+ * not yet affect the result — a documented scope decision in
+ * `buildStatisticsSql`. The field is labelled to say so rather than
+ * implying a precision the result does not have.
+ */
+function DensityForm({ projectId }: { projectId: string }) {
+  const stagedInputLayerIds = useAnalysisStore((state) => state.stagedInputLayerIds)
+  const setLastError = useAnalysisStore((state) => state.setLastError)
+  const runAnalysis = useRunAnalysis(projectId)
+
+  const [cellSize, setCellSize] = useState("100")
+  const [unit, setUnit] = useState<ShortDistanceUnit>("meters")
+  const [validationError, setValidationError] = useState<string | null>(null)
+
+  const [layerId] = stagedInputLayerIds
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (!layerId) {
+      setValidationError("Select a layer first.")
+      return
+    }
+    const parsed = Number(cellSize)
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      setValidationError("Cell size must be a positive number.")
+      return
+    }
+    setValidationError(null)
+
+    runAnalysis.mutate(
+      { operationType: "densityAnalysis", inputLayerIds: [layerId], parameters: { cellSize: parsed, unit } },
+      { onError: (error) => setLastError(error instanceof Error ? error.message : "Failed to run Density Analysis.") },
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit} aria-label="Density Analysis parameters" className="flex flex-col gap-3 p-3">
+      <p className="text-sm text-muted-foreground">Layer: {layerId ?? "not staged"}</p>
+
+      <div className="flex gap-2">
+        <div className="flex flex-1 flex-col gap-1">
+          <label htmlFor="density-cell-size" className="text-sm text-muted-foreground">
+            Cell size
+          </label>
+          <input
+            id="density-cell-size"
+            type="number"
+            min={0}
+            step="any"
+            value={cellSize}
+            onChange={(event) => setCellSize(event.target.value)}
+            className="h-8 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="density-unit" className="text-sm text-muted-foreground">
+            Cell unit
+          </label>
+          <select
+            id="density-unit"
+            value={unit}
+            onChange={(event) => setUnit(event.target.value as ShortDistanceUnit)}
+            className="h-8 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
+          >
+            {SHORT_DISTANCE_UNITS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <p className="text-xs text-muted-foreground">
+        Reports one density value over the layer&rsquo;s convex hull. Grid-cell density surfaces are not implemented
+        yet, so the cell size does not change the result.
+      </p>
+
+      {validationError && (
+        <p role="alert" className="text-sm text-destructive">
+          {validationError}
+        </p>
+      )}
+
+      <Button type="submit" disabled={runAnalysis.isPending}>
+        {runAnalysis.isPending ? "Running…" : "Run Density Analysis"}
       </Button>
     </form>
   )

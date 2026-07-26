@@ -4,6 +4,15 @@ import { Button } from "@/shared/components/ui/button"
 import { useFeatures } from "@/features/database"
 import { useAnalysisStore } from "../store/analysisStore"
 import { useAnalysisRun, useDiscardAnalysisResult } from "../hooks/useAnalysis"
+import { ANALYSIS_OPERATION_CATALOG } from "../types/analysisOperations.constants"
+import { StatisticsCards, type StatisticsResult } from "./StatisticsCards"
+
+/** Derived from the catalog so a statistics operation added later is picked up without touching this file. */
+const STATISTICS_OPERATIONS: ReadonlySet<string> = new Set(
+  ANALYSIS_OPERATION_CATALOG.filter((entry) => entry.category === "statistics" && entry.operationType).map(
+    (entry) => entry.operationType as string,
+  ),
+)
 
 interface ResultPanelProps {
   projectId: string
@@ -43,6 +52,11 @@ export function ResultPanel({ projectId }: ResultPanelProps) {
     ...new Set(resultFeatures?.features.flatMap((feature) => feature.attributes.map((a) => a.key)) ?? []),
   ]
 
+  // Statistics runs (US6) report numbers rather than producing a layer, so
+  // their payload gets labelled cards instead of the raw-JSON fallback.
+  const isStatisticsRun =
+    run.resultData != null && typeof run.resultData === "object" && STATISTICS_OPERATIONS.has(run.operationType)
+
   return (
     <section aria-label="Analysis result" className="flex flex-col gap-3 border-t p-3">
       <h3 className="text-sm font-semibold">Result</h3>
@@ -53,10 +67,14 @@ export function ResultPanel({ projectId }: ResultPanelProps) {
       {run.resultLayerId && attributeKeys.length > 0 && (
         <p className="text-sm text-muted-foreground">Attributes preserved: {attributeKeys.join(", ")}</p>
       )}
-      {run.resultData != null && (
-        <pre className="max-h-40 overflow-auto rounded-md bg-muted p-2 text-xs">
-          {JSON.stringify(run.resultData, null, 2)}
-        </pre>
+      {isStatisticsRun ? (
+        <StatisticsCards result={run.resultData as StatisticsResult} />
+      ) : (
+        run.resultData != null && (
+          <pre className="max-h-40 overflow-auto rounded-md bg-muted p-2 text-xs">
+            {JSON.stringify(run.resultData, null, 2)}
+          </pre>
+        )
       )}
 
       <div className="flex flex-wrap gap-2">

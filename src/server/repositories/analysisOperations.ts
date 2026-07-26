@@ -704,6 +704,37 @@ export function buildStatisticsSql(layerId: string, statType: StatisticType): Pr
   }
 }
 
+/**
+ * Summarize (US6, FR-016) — every statistic `buildStatisticsSql` exposes
+ * individually, computed in one pass over the layer.
+ *
+ * `geometryTypes` is what lets the UI show only the applicable cards: a
+ * point layer has no meaningful area or length, and reporting `0 m²` for
+ * one is worse than omitting it, because a zero reads as a measurement
+ * rather than as "not applicable". Single- and multi- variants collapse to
+ * one family for the same reason `toGeometryFamily` exists.
+ *
+ * Areas and lengths are geography casts (true metres), while the geometry
+ * outputs stay in EPSG:4326 — matching every other statistic's units.
+ */
+export function buildSummarySql(layerId: string): Prisma.Sql {
+  return Prisma.sql`
+    SELECT jsonb_build_object(
+      'featureCount', COUNT(*),
+      'geometryTypes', COALESCE(jsonb_agg(DISTINCT regexp_replace(GeometryType(geometry), '^MULTI', '')), '[]'::jsonb),
+      'totalAreaSquareMeters', COALESCE(SUM(ST_Area(geometry::geography)), 0),
+      'averageAreaSquareMeters', COALESCE(AVG(ST_Area(geometry::geography)), 0),
+      'totalLengthMeters', COALESCE(SUM(ST_Length(geometry::geography)), 0),
+      'averageLengthMeters', COALESCE(AVG(ST_Length(geometry::geography)), 0),
+      'boundingBox', ST_AsGeoJSON(ST_Envelope(ST_Collect(geometry)))::jsonb,
+      'centroid', ST_AsGeoJSON(ST_Centroid(ST_Collect(geometry)))::jsonb,
+      'convexHull', ST_AsGeoJSON(ST_ConvexHull(ST_Collect(geometry)))::jsonb,
+      'extent', ST_AsGeoJSON(ST_SetSRID(ST_Extent(geometry)::geometry, 4326))::jsonb
+    ) AS result
+    FROM "Feature" WHERE "layerId" = ${layerId}
+  `
+}
+
 // ---------------------------------------------------------------------------
 // Coordinate Conversion / CRS Transformation (005-originated, unchanged SRID policy)
 // ---------------------------------------------------------------------------

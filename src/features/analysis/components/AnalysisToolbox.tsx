@@ -4,6 +4,8 @@ import { useMemo } from "react"
 import { ANALYSIS_OPERATION_CATALOG, type AnalysisOperationCatalogEntry } from "../types/analysisOperations.constants"
 import type { AnalysisOperationCategory } from "../types/analysisConfig.constants"
 import { useAnalysisStore } from "../store/analysisStore"
+import { useRunAnalysis } from "../hooks/useAnalysis"
+import type { AnalysisRequestInput } from "@/shared/contracts/analysis.schema"
 import { cn } from "@/shared/lib/utils"
 
 const CATEGORY_LABELS: Record<AnalysisOperationCategory, string> = {
@@ -53,11 +55,47 @@ function groupByCategory(entries: readonly AnalysisOperationCatalogEntry[]) {
  * precedent for raster, applied here to the toolbox generally during
  * phased rollout).
  */
-export function AnalysisToolbox() {
+interface AnalysisToolboxProps {
+  /**
+   * Enables the run-on-select behaviour for operations that need no
+   * configuration (currently only Summarize, T201). Optional so the
+   * Toolbox stays a pure selector wherever a project context is not
+   * available; without it, Summarize opens its confirm form like any
+   * other operation instead of running.
+   */
+  projectId?: string
+}
+
+/** Operations that carry no parameters at all, so selecting one in the Toolbox is already the whole request (spec.md US6.1: "choose Summarize, expect the statistics displayed"). */
+const RUN_ON_SELECT: ReadonlySet<string> = new Set(["summarize"])
+
+export function AnalysisToolbox({ projectId }: AnalysisToolboxProps = {}) {
   const selectedOperationType = useAnalysisStore((state) => state.selectedOperationType)
   const setSelectedOperationType = useAnalysisStore((state) => state.setSelectedOperationType)
+  const stagedInputLayerIds = useAnalysisStore((state) => state.stagedInputLayerIds)
+  const setLastError = useAnalysisStore((state) => state.setLastError)
+  const runAnalysis = useRunAnalysis(projectId ?? "")
 
   const grouped = useMemo(() => groupByCategory(ANALYSIS_OPERATION_CATALOG), [])
+
+  function handleSelect(entry: AnalysisOperationCatalogEntry) {
+    if (!entry.operationType) return
+    setSelectedOperationType(entry.operationType)
+
+    if (!projectId || !RUN_ON_SELECT.has(entry.operationType)) return
+
+    const [layerId] = stagedInputLayerIds
+    if (!layerId) {
+      // The confirm form this selection just opened states the same thing,
+      // so the user is not left without a next step.
+      setLastError("Select a layer before running Summarize.")
+      return
+    }
+    runAnalysis.mutate(
+      { operationType: entry.operationType, inputLayerIds: [layerId], parameters: undefined } as AnalysisRequestInput,
+      { onError: (error) => setLastError(error instanceof Error ? error.message : "Failed to run Summarize.") },
+    )
+  }
 
   return (
     <nav aria-label="Analysis toolbox" className="flex flex-col gap-4 overflow-y-auto p-3">
@@ -76,7 +114,7 @@ export function AnalysisToolbox() {
                     type="button"
                     disabled={!entry.operationType}
                     aria-pressed={Boolean(entry.operationType) && selectedOperationType === entry.operationType}
-                    onClick={() => entry.operationType && setSelectedOperationType(entry.operationType)}
+                    onClick={() => handleSelect(entry)}
                     className={cn(
                       "w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent",
                       entry.operationType &&

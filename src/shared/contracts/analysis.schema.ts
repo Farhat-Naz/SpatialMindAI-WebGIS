@@ -110,6 +110,14 @@ const operationDefinitions = {
   averageLength: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
   averageArea: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
   extent: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
+  /**
+   * Summarize (US6) — every statistic above computed in one pass, the
+   * entry point spec.md's US6 scenarios describe ("choose Summarize,
+   * expect count/area/bbox/centroid/hull/extent all displayed"). One run
+   * rather than nine keeps the result a single coherent snapshot of the
+   * layer and avoids nine round trips for what is one user intent.
+   */
+  summarize: { inputLayerIds: z.tuple([layerId]), parameters: noParameters },
 } as const
 
 type OperationDefinitions = typeof operationDefinitions

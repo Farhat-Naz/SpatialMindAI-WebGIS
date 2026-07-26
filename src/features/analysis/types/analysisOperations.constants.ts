@@ -76,17 +76,20 @@ export const ANALYSIS_OPERATION_CATALOG: readonly AnalysisOperationCatalogEntry[
   { key: "crsTransformation", operationType: "crsTransformation", category: "geometry", label: "CRS Transformation", implemented: false },
 
   // --- Spatial Statistics (US6, FR-016) ---
-  { key: "featureCount", operationType: "featureCount", category: "statistics", label: "Feature Count", implemented: false },
-  { key: "areaCalculation", operationType: "areaCalculation", category: "statistics", label: "Area Calculation", implemented: false },
-  { key: "averageArea", operationType: "averageArea", category: "statistics", label: "Average Area", implemented: false },
-  { key: "lengthCalculation", operationType: "lengthCalculation", category: "statistics", label: "Length Calculation", implemented: false },
-  { key: "totalLength", operationType: "totalLength", category: "statistics", label: "Total Length", implemented: false },
-  { key: "averageLength", operationType: "averageLength", category: "statistics", label: "Average Length", implemented: false },
-  { key: "densityAnalysis", operationType: "densityAnalysis", category: "statistics", label: "Density Analysis", implemented: false },
-  { key: "boundingBox", operationType: "boundingBox", category: "statistics", label: "Bounding Box", implemented: false },
-  { key: "centroid", operationType: "centroid", category: "statistics", label: "Centroid", implemented: false },
-  { key: "convexHull", operationType: "convexHull", category: "statistics", label: "Convex Hull", implemented: false },
-  { key: "extent", operationType: "extent", category: "statistics", label: "Extent", implemented: false },
+  // Summarize leads the category: it is the one entry US6's scenarios
+  // describe, computing every statistic below in a single run.
+  { key: "summarize", operationType: "summarize", category: "statistics", label: "Summarize", implemented: true },
+  { key: "featureCount", operationType: "featureCount", category: "statistics", label: "Feature Count", implemented: true },
+  { key: "areaCalculation", operationType: "areaCalculation", category: "statistics", label: "Area Calculation", implemented: true },
+  { key: "averageArea", operationType: "averageArea", category: "statistics", label: "Average Area", implemented: true },
+  { key: "lengthCalculation", operationType: "lengthCalculation", category: "statistics", label: "Length Calculation", implemented: true },
+  { key: "totalLength", operationType: "totalLength", category: "statistics", label: "Total Length", implemented: true },
+  { key: "averageLength", operationType: "averageLength", category: "statistics", label: "Average Length", implemented: true },
+  { key: "densityAnalysis", operationType: "densityAnalysis", category: "statistics", label: "Density Analysis", implemented: true },
+  { key: "boundingBox", operationType: "boundingBox", category: "statistics", label: "Bounding Box", implemented: true },
+  { key: "centroid", operationType: "centroid", category: "statistics", label: "Centroid", implemented: true },
+  { key: "convexHull", operationType: "convexHull", category: "statistics", label: "Convex Hull", implemented: true },
+  { key: "extent", operationType: "extent", category: "statistics", label: "Extent", implemented: true },
 
   // --- Raster-Ready Framework (US7, FR-017–018) — no operationType yet ---
   // Heatmap is the one raster-adjacent capability this feature actually

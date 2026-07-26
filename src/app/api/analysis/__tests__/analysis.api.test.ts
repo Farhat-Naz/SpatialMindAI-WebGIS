@@ -875,3 +875,150 @@ describe.skipIf(!dbAvailable)("Analysis API — Geometry Processing (US5)", () =
     expect(status).toBe(400)
   })
 })
+
+/**
+ * T213 (US6) — Spatial Statistics against polygon, line, and point layer
+ * variants, matching quickstart.md §6. Every statistics operation reports
+ * on `resultData` and creates no layer.
+ */
+describe.skipIf(!dbAvailable)("Analysis API — Spatial Statistics (US6)", () => {
+  let projectId: string
+  let polygonLayerId: string
+  let lineLayerId: string
+  let pointLayerId: string
+  let emptyLayerId: string
+
+  async function insertWkt(layerId: string, wkt: string): Promise<void> {
+    await prismaClient.$executeRaw`
+      INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
+      VALUES (gen_random_uuid(), ${layerId}, ST_SetSRID(ST_GeomFromText(${wkt}), 4326), NOW(), NOW())
+    `
+  }
+
+  beforeAll(async () => {
+    process.env.DEV_USER_ID = TEST_OWNER_ID
+    await ensureTestOwner()
+    const project = await prismaClient.project.create({
+      data: { ownerId: TEST_OWNER_ID, name: `Statistics API Test ${Date.now()}` },
+    })
+    projectId = project.id
+
+    polygonLayerId = (await prismaClient.layer.create({ data: { projectId, name: "Polygons", order: 0 } })).id
+    lineLayerId = (await prismaClient.layer.create({ data: { projectId, name: "Lines", order: 1 } })).id
+    pointLayerId = (await prismaClient.layer.create({ data: { projectId, name: "Points", order: 2 } })).id
+    emptyLayerId = (await prismaClient.layer.create({ data: { projectId, name: "Empty", order: 3 } })).id
+
+    // Two 1x1-degree squares near the equator.
+    await insertWkt(polygonLayerId, "POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))")
+    await insertWkt(polygonLayerId, "POLYGON((2 0, 2 1, 3 1, 3 0, 2 0))")
+
+    await insertWkt(lineLayerId, "LINESTRING(0 0, 0 1)")
+    await insertWkt(lineLayerId, "LINESTRING(1 0, 1 2)")
+
+    await insertWkt(pointLayerId, "POINT(0 0)")
+    await insertWkt(pointLayerId, "POINT(1 1)")
+    await insertWkt(pointLayerId, "POINT(2 2)")
+  })
+
+  afterAll(async () => {
+    await prismaClient.project.deleteMany({ where: { ownerId: TEST_OWNER_ID } })
+  })
+
+  async function runStatistic(
+    operationType: string,
+    layerId: string,
+    parameters?: unknown,
+  ): Promise<Record<string, unknown>> {
+    const response = await POST(
+      jsonRequest(`http://localhost/api/projects/${projectId}/analysis`, "POST", {
+        operationType,
+        inputLayerIds: [layerId],
+        parameters,
+      }) as never,
+      { params: Promise.resolve({ projectId }) },
+    )
+    const { run } = await response.json()
+    expect(run.status).toBe("succeeded")
+    // spec.md US6: statistics report numbers without creating a new layer.
+    expect(run.resultLayerId).toBeNull()
+    return run.resultData as Record<string, unknown>
+  }
+
+  it("featureCount: counts the layer's features (US6.1)", async () => {
+    expect(await runStatistic("featureCount", polygonLayerId)).toMatchObject({ featureCount: 2 })
+    expect(await runStatistic("featureCount", pointLayerId)).toMatchObject({ featureCount: 3 })
+  })
+
+  it("areaCalculation / averageArea: total and mean area for polygons (US6.2)", async () => {
+    const total = await runStatistic("areaCalculation", polygonLayerId)
+    const average = await runStatistic("averageArea", polygonLayerId)
+
+    // Two ~1-degree squares near the equator: on the order of 1e10 m² each.
+    expect(total.totalAreaSquareMeters as number).toBeGreaterThan(0)
+    expect(average.averageAreaSquareMeters as number).toBeCloseTo((total.totalAreaSquareMeters as number) / 2, 0)
+  })
+
+  it("lengthCalculation / averageLength: total and mean length for lines (US6.3)", async () => {
+    const total = await runStatistic("lengthCalculation", lineLayerId)
+    const average = await runStatistic("averageLength", lineLayerId)
+
+    // 1 degree + 2 degrees of latitude, each ~111 km.
+    expect(total.totalLengthMeters as number).toBeGreaterThan(300_000)
+    expect(average.averageLengthMeters as number).toBeCloseTo((total.totalLengthMeters as number) / 2, 0)
+  })
+
+  it("densityAnalysis: features per square metre of the convex hull (US6.4)", async () => {
+    const result = await runStatistic("densityAnalysis", pointLayerId, { cellSize: 100, unit: "meters" })
+
+    expect(result).toMatchObject({ featureCount: 3 })
+    expect(result.densityPerSquareMeter).toBeDefined()
+  })
+
+  it("extent / boundingBox / centroid / convexHull: geometry statistics (US6.5)", async () => {
+    expect((await runStatistic("extent", polygonLayerId)).extent).toMatchObject({ type: "Polygon" })
+    expect((await runStatistic("boundingBox", polygonLayerId)).boundingBox).toMatchObject({ type: "Polygon" })
+    expect((await runStatistic("centroid", polygonLayerId)).centroid).toMatchObject({ type: "Point" })
+    expect((await runStatistic("convexHull", polygonLayerId)).convexHull).toMatchObject({ type: "Polygon" })
+  })
+
+  it("summarize: reports every statistic in one run for a polygon layer (US6.1-5)", async () => {
+    const result = await runStatistic("summarize", polygonLayerId)
+
+    expect(result).toMatchObject({ featureCount: 2, geometryTypes: ["POLYGON"] })
+    expect(result.totalAreaSquareMeters as number).toBeGreaterThan(0)
+    expect(result.averageAreaSquareMeters as number).toBeGreaterThan(0)
+    expect(result.boundingBox).toMatchObject({ type: "Polygon" })
+    expect(result.centroid).toMatchObject({ type: "Point" })
+    expect(result.convexHull).toMatchObject({ type: "Polygon" })
+    expect(result.extent).toMatchObject({ type: "Polygon" })
+  })
+
+  it("summarize: a line layer reports length and is typed LINESTRING", async () => {
+    const result = await runStatistic("summarize", lineLayerId)
+
+    expect(result).toMatchObject({ featureCount: 2, geometryTypes: ["LINESTRING"] })
+    expect(result.totalLengthMeters as number).toBeGreaterThan(300_000)
+    // A line has no area, which is what lets the UI omit the area cards.
+    expect(result.totalAreaSquareMeters).toBe(0)
+  })
+
+  it("summarize: a point layer reports neither area nor length", async () => {
+    const result = await runStatistic("summarize", pointLayerId)
+
+    expect(result).toMatchObject({
+      featureCount: 3,
+      geometryTypes: ["POINT"],
+      totalAreaSquareMeters: 0,
+      totalLengthMeters: 0,
+    })
+  })
+
+  it("summarize: an empty layer succeeds with a zero count rather than failing", async () => {
+    const result = await runStatistic("summarize", emptyLayerId)
+
+    expect(result).toMatchObject({ featureCount: 0, geometryTypes: [] })
+    // No geometry to collect, so the geometry statistics are absent, not zero.
+    expect(result.centroid).toBeNull()
+    expect(result.extent).toBeNull()
+  })
+})

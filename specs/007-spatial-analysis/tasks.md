@@ -1911,7 +1911,7 @@ description: "Task list for feature implementation"
 
 **Independent Test**: Select a layer, run Summarize, confirm feature count/total area/bounding box match the underlying data — independent of any other analysis operation.
 
-- [ ] T201 [US6] Summarize Toolbox entry
+- [X] T201 [US6] Summarize Toolbox entry
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/analysis/components/AnalysisToolbox.tsx` (modify, from T130)
@@ -1920,7 +1920,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T213
   - **Dependencies**: T057, T130
 
-- [ ] T202 [P] [US6] Feature Count
+- [X] T202 [P] [US6] Feature Count
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T042)
@@ -1929,7 +1929,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T213
   - **Dependencies**: T042, T201
 
-- [ ] T203 [P] [US6] Area Statistics
+- [X] T203 [P] [US6] Area Statistics
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T042)
@@ -1938,7 +1938,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T213
   - **Dependencies**: T042, T201
 
-- [ ] T204 [P] [US6] Length Statistics
+- [X] T204 [P] [US6] Length Statistics
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T042)
@@ -1947,7 +1947,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T213
   - **Dependencies**: T042, T201
 
-- [ ] T205 [P] [US6] Density
+- [X] T205 [P] [US6] Density
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, 005's existing `densityAnalysis` builder)
@@ -1956,7 +1956,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T213
   - **Dependencies**: T201
 
-- [ ] T206 [P] [US6] Extent
+- [X] T206 [P] [US6] Extent
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T042)
@@ -1965,7 +1965,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T213
   - **Dependencies**: T042, T201
 
-- [ ] T207 [P] [US6] Bounding Box
+- [X] T207 [P] [US6] Bounding Box
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, 005's existing `boundingBox` builder)
@@ -1974,7 +1974,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T213
   - **Dependencies**: T201
 
-- [ ] T208 [P] [US6] Centroid
+- [X] T208 [P] [US6] Centroid
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, 005's existing `centroid` builder)
@@ -1983,7 +1983,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T213
   - **Dependencies**: T201
 
-- [ ] T209 [P] [US6] Convex Hull
+- [X] T209 [P] [US6] Convex Hull
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, 005's existing `convexHull` builder)
@@ -1992,7 +1992,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T213
   - **Dependencies**: T201
 
-- [ ] T210 [US6] Summary Report
+- [X] T210 [US6] Summary Report
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/analysis/components/AnalysisSummary.tsx` (new — shell created here, wired into the panel in Phase 16)
@@ -2001,7 +2001,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T213
   - **Dependencies**: T096, T201
 
-- [ ] T211 [US6] `StatisticsCards`
+- [X] T211 [US6] `StatisticsCards`
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/analysis/components/StatisticsCards.tsx` (new)
@@ -2010,7 +2010,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T212
   - **Dependencies**: T201–T209
 
-- [ ] T212 [P] [US6] Component tests — `StatisticsCards`
+- [X] T212 [P] [US6] Component tests — `StatisticsCards`
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/analysis/components/__tests__/StatisticsCards.test.tsx` (new)
@@ -2019,7 +2019,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- StatisticsCards`
   - **Dependencies**: T211
 
-- [ ] T213 [P] [US6] Integration + API tests — full Statistics flow
+- [X] T213 [P] [US6] Integration + API tests — full Statistics flow
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/analysis/__tests__/statistics.integration.test.tsx` (new), `src/app/api/analysis/__tests__/analysis.api.test.ts` (modify, extends T074)
@@ -2028,7 +2028,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- statistics.integration && npm run test:db -- analysis.api`
   - **Dependencies**: T202–T209, T211
 
-- [ ] T214 [US6] Checkpoint (Phase 13)
+- [X] T214 [US6] Checkpoint (Phase 13)
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: None (verification-only task)

@@ -632,6 +632,16 @@ async function executeOperation(run: RawAnalysisRunRow, input: AnalysisRequestIn
       return { resultData: rows[0]?.result ?? {} }
     }
 
+    case "summarize": {
+      // Statistics never produce a layer (spec.md US6: "without creating a
+      // new layer by default") — the whole result is the resultData payload.
+      const [layerId] = input.inputLayerIds
+      const rows = await runWholeStatement(runId, (tx) =>
+        tx.$queryRaw<{ result: unknown }[]>(ops.buildSummarySql(layerId)),
+      )
+      return { resultData: rows[0]?.result ?? {} }
+    }
+
     case "coordinateConversion": {
       const { coordinates, sourceCrs } = input.parameters
       const rows = await runWholeStatement(runId, (tx) =>
