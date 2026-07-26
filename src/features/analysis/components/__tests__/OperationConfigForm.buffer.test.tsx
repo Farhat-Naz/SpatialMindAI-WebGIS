@@ -116,7 +116,9 @@ describe("OperationConfigForm — Buffer", () => {
   })
 
   it("shows a graceful placeholder for an operation with no form yet", () => {
-    useAnalysisStore.setState({ selectedOperationType: "union" })
+    // `simplify` ships in Phase 12 (Geometry Processing) and has no form
+    // variant yet — Overlay's 7 operations gained theirs in Phase 11.
+    useAnalysisStore.setState({ selectedOperationType: "simplify" })
     render(<OperationConfigForm projectId="p1" />, { wrapper: createWrapper() })
     expect(screen.getByText(/not yet available/i)).toBeTruthy()
   })

@@ -396,6 +396,13 @@ async function executeOperation(run: RawAnalysisRunRow, input: AnalysisRequestIn
       return { resultLayerId: newLayerId }
     }
 
+    // Overlay Analysis (US4, FR-010/FR-033): CRS mismatch between the two
+    // input layers cannot occur in this platform — every `Feature.geometry`
+    // column is fixed at EPSG:4326 by the schema itself (research.md
+    // Decision 13, unchanged from 003/005), so there is never a second CRS
+    // to reconcile before an overlay runs. FR-033's "reconcile automatically"
+    // requirement is satisfied by this fixed-SRID architecture, not by a
+    // per-run `ST_Transform` step (T177).
     case "union": {
       const [layerAId, layerBId] = input.inputLayerIds
       const newLayerId = await createResultLayer(projectId, "Union")

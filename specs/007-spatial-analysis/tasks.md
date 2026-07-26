@@ -27,7 +27,7 @@ description: "Task list for feature implementation"
 
 **Purpose**: Configuration, shared types, spatial/PostGIS/geometry helper utilities, constants, error types, validation scaffolding, and the job-framework primitives every later phase builds on.
 
-- [ ] T001 Add analysis background-job configuration constants
+- [X] T001 Add analysis background-job configuration constants
   - **Priority**: Must-have
   - **User Story**: None (cross-cutting)
   - **Files**: `src/features/analysis/types/analysisConfig.constants.ts` (new)
@@ -36,7 +36,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: None
 
-- [ ] T002 [P] Extend shared analysis types
+- [X] T002 [P] Extend shared analysis types
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/types/analysis.types.ts` (modify)
@@ -45,7 +45,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: None
 
-- [ ] T003 [P] Create the client-side spatial utility library entry point
+- [X] T003 [P] Create the client-side spatial utility library entry point
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/services/spatialMath.ts` (new)
@@ -54,7 +54,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: None
 
-- [ ] T004 [P] Add PostGIS helper SQL-fragment utilities
+- [X] T004 [P] Add PostGIS helper SQL-fragment utilities
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/analysisOperations.ts` (modify)
@@ -63,7 +63,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T001
 
-- [ ] T005 [P] Add client-side geometry helper functions
+- [X] T005 [P] Add client-side geometry helper functions
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/analysis/services/spatialMath.ts` (modify, same file as T003)
@@ -72,7 +72,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T003
 
-- [ ] T006 [P] Add the analysis operation catalog constant
+- [X] T006 [P] Add the analysis operation catalog constant
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/types/analysisOperations.constants.ts` (new)
@@ -81,7 +81,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T001
 
-- [ ] T007 [P] Add `ForbiddenError`/`FORBIDDEN` to the shared error vocabulary
+- [X] T007 [P] Add `ForbiddenError`/`FORBIDDEN` to the shared error vocabulary
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/errors/apiError.ts` (modify)
@@ -90,7 +90,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit` and `npx eslint src/shared/errors/apiError.ts --max-warnings 0`
   - **Dependencies**: None
 
-- [ ] T008 Create new Zod request contract files (schema shells)
+- [X] T008 Create new Zod request contract files (schema shells)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/presetRequest.schema.ts` (new), `src/shared/contracts/measurementRequest.schema.ts` (new), `src/shared/contracts/exportLogRequest.schema.ts` (new)
@@ -99,7 +99,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: None
 
-- [ ] T009 [P] Extend `analysis.schema.ts` with new `operationType` literals (enum shell)
+- [X] T009 [P] Extend `analysis.schema.ts` with new `operationType` literals (enum shell)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/analysis.schema.ts` (modify)
@@ -108,7 +108,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: None
 
-- [ ] T010 Define the shared job-status type
+- [X] T010 Define the shared job-status type
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/types/analysis.types.ts` (modify, same file as T002)
@@ -117,7 +117,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T002
 
-- [ ] T011 Add the chunked-execution keyset pagination helper
+- [X] T011 Add the chunked-execution keyset pagination helper
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/analysisOperations.ts` (modify, same file as T004)
@@ -126,7 +126,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; unit test added in T014
   - **Dependencies**: T004
 
-- [ ] T012 Add the `pg_cancel_backend` cancellation wrapper
+- [X] T012 Add the `pg_cancel_backend` cancellation wrapper
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/db/pgCancel.ts` (new)
@@ -135,7 +135,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: None
 
-- [ ] T013 [P] Extend structured request logging for job lifecycle fields
+- [X] T013 [P] Extend structured request logging for job lifecycle fields
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/shared/lib/logger.ts` (modify, only if a typed field addition is needed beyond its existing generic shape)
@@ -144,7 +144,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx eslint src/shared/lib/logger.ts --max-warnings 0`
   - **Dependencies**: None
 
-- [ ] T014 [P] Unit tests for Phase 1 utilities
+- [X] T014 [P] Unit tests for Phase 1 utilities
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/services/__tests__/spatialMath.test.ts` (new), `src/server/repositories/__tests__/analysisOperations.chunking.test.ts` (new), `src/server/db/__tests__/pgCancel.test.ts` (new)
@@ -153,7 +153,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- spatialMath analysisOperations.chunking pgCancel`
   - **Dependencies**: T003, T005, T011, T012
 
-- [ ] T015 Checkpoint (Phase 1)
+- [X] T015 Checkpoint (Phase 1)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)
@@ -168,7 +168,7 @@ description: "Task list for feature implementation"
 
 **Purpose**: Schema changes — widen `AnalysisRun`, add `AnalysisPreset`/`MeasurementHistory`/`ExportJob`, indexes, relations, migration, and seed data. Every "AnalysisJob"/"AnalysisHistory"/"AnalysisStatistics"/"GeometryOperation" item from the roadmap outline is implemented here as the data-model.md-approved consolidation onto `AnalysisRun` — see the Architecture note above.
 
-- [ ] T016 Widen `AnalysisRun` — background-job columns (covers "AnalysisJob")
+- [X] T016 Widen `AnalysisRun` — background-job columns (covers "AnalysisJob")
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify)
@@ -177,7 +177,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T002, T010
 
-- [ ] T017 [P] Confirm history-query readiness on `AnalysisRun` (covers "AnalysisHistory")
+- [X] T017 [P] Confirm history-query readiness on `AnalysisRun` (covers "AnalysisHistory")
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify, same file as T016)
@@ -186,7 +186,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T016
 
-- [ ] T018 [P] Add `AnalysisPreset` model
+- [X] T018 [P] Add `AnalysisPreset` model
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify, same file as T016)
@@ -195,7 +195,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T016
 
-- [ ] T019 [P] Add `MeasurementHistory` model
+- [X] T019 [P] Add `MeasurementHistory` model
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify, same file as T016)
@@ -204,7 +204,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T016
 
-- [ ] T020 Add statistics operationType literals to the catalog (covers "AnalysisStatistics")
+- [X] T020 Add statistics operationType literals to the catalog (covers "AnalysisStatistics")
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/types/analysisOperations.constants.ts` (modify, from T006), `prisma/schema.prisma` (modify — doc comment only)
@@ -213,7 +213,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T006, T017
 
-- [ ] T021 [P] Add `ExportJob` model
+- [X] T021 [P] Add `ExportJob` model
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify, same file as T016)
@@ -222,7 +222,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T016
 
-- [ ] T022 Document the Geometry Processing operationType consolidation (covers "GeometryOperation")
+- [X] T022 Document the Geometry Processing operationType consolidation (covers "GeometryOperation")
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/types/analysisOperations.constants.ts` (modify), `prisma/schema.prisma` (modify — doc comment only)
@@ -231,7 +231,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T006, T009
 
-- [ ] T023 [P] Add remaining `AnalysisRun` indexes
+- [X] T023 [P] Add remaining `AnalysisRun` indexes
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify, same file as T016)
@@ -240,7 +240,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T016, T017
 
-- [ ] T024 [P] Add GiST spatial index migration step for `MeasurementHistory.geometry`
+- [X] T024 [P] Add GiST spatial index migration step for `MeasurementHistory.geometry`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/migrations/<timestamp>_analysis_toolset/migration.sql` (generated by T027, edited by this task)
@@ -249,7 +249,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx prisma migrate status`
   - **Dependencies**: T019, T027
 
-- [ ] T025 Add back-relations to `Project`, `Layer`, `User`
+- [X] T025 Add back-relations to `Project`, `Layer`, `User`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify, same file as T016)
@@ -258,7 +258,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T016, T018, T019, T021
 
-- [ ] T026 Add defense-in-depth `CHECK` constraints
+- [X] T026 Add defense-in-depth `CHECK` constraints
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `prisma/migrations/<timestamp>_analysis_toolset/migration.sql` (edited, same migration as T024)
@@ -267,7 +267,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx prisma migrate status`; manual `psql` check documented in T031
   - **Dependencies**: T016, T027
 
-- [ ] T027 Generate and apply the additive migration
+- [X] T027 Generate and apply the additive migration
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/migrations/<timestamp>_analysis_toolset/migration.sql` (generated)
@@ -276,7 +276,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx prisma migrate status`
   - **Dependencies**: T016, T018, T019, T021, T023, T025
 
-- [ ] T028 Backfill `AnalysisRun.userId` before tightening to `NOT NULL`
+- [X] T028 Backfill `AnalysisRun.userId` before tightening to `NOT NULL`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/migrations/<timestamp>_analysis_toolset/migration.sql` (edited, same migration as T027)
@@ -285,7 +285,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx prisma migrate status`; row-count spot check documented in T031
   - **Dependencies**: T027
 
-- [ ] T029 [P] Update `prisma/seed.ts` — analysis-toolset sample rows
+- [X] T029 [P] Update `prisma/seed.ts` — analysis-toolset sample rows
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `prisma/seed.ts` (modify)
@@ -294,7 +294,7 @@ description: "Task list for feature implementation"
   - **Verification**: Run the project's seed command against the test database
   - **Dependencies**: T027, T028
 
-- [ ] T030 [P] Update `prisma/seed.ts` — second project member for permission scenarios
+- [X] T030 [P] Update `prisma/seed.ts` — second project member for permission scenarios
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `prisma/seed.ts` (modify, same file as T029)
@@ -303,7 +303,7 @@ description: "Task list for feature implementation"
   - **Verification**: Run the project's seed command against the test database
   - **Dependencies**: T029
 
-- [ ] T031 [P] Database-level tests
+- [X] T031 [P] Database-level tests
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/__tests__/schema.migration.test.ts` (new, or the project's existing DB-test location/convention)
@@ -312,7 +312,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test:db` (if present) or `npm run test -- schema.migration`
   - **Dependencies**: T024, T026, T027, T028
 
-- [ ] T032 Checkpoint (Phase 2)
+- [X] T032 Checkpoint (Phase 2)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)
@@ -327,7 +327,7 @@ description: "Task list for feature implementation"
 
 **Purpose**: Server-side data access. "AnalysisRepository"/"BufferRepository"/"OverlayRepository"/"StatisticsRepository"/"HistoryRepository" from the roadmap outline are all implemented inside the existing `analysisRepository.ts`/`analysisOperations.ts` pair per research.md Decision 1 (see Architecture note above) — this phase's tasks say exactly which function/builder each named concept becomes. "PresetRepository"/"MeasurementRepository"/"ExportRepository" are genuinely new, narrow files.
 
-- [ ] T033 Widen `analysisRepository.createAnalysisRun` — queued/running lifecycle
+- [X] T033 Widen `analysisRepository.createAnalysisRun` — queued/running lifecycle
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/analysisRepository.ts` (modify)
@@ -336,7 +336,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T016, T027, T033 self (T001 for constants)
 
-- [ ] T034 [P] Add `analysisRepository.executeInBackground`
+- [X] T034 [P] Add `analysisRepository.executeInBackground`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/analysisRepository.ts` (modify, same file as T033)
@@ -345,7 +345,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T011, T033
 
-- [ ] T035 [P] Add `analysisRepository.cancelRun`
+- [X] T035 [P] Add `analysisRepository.cancelRun`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/analysisRepository.ts` (modify, same file as T033)
@@ -354,7 +354,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T012, T034
 
-- [ ] T036 [P] Add `analysisRepository.discardResult`
+- [X] T036 [P] Add `analysisRepository.discardResult`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/analysisRepository.ts` (modify, same file as T033)
@@ -363,7 +363,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T033
 
-- [ ] T037 Extend `analysisRepository.listAnalysisRunsForProject` — status filter (covers "HistoryRepository")
+- [X] T037 Extend `analysisRepository.listAnalysisRunsForProject` — status filter (covers "HistoryRepository")
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/analysisRepository.ts` (modify, same file as T033)
@@ -372,7 +372,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T017, T033
 
-- [ ] T038 Swap ownership scoping to `assertProjectRole` across `analysisRepository.ts`
+- [X] T038 Swap ownership scoping to `assertProjectRole` across `analysisRepository.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/analysisRepository.ts` (modify, same file as T033)
@@ -381,7 +381,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T033, T034, T035, T036, T037
 
-- [ ] T039 [P] "BufferRepository" — confirm/extend chunked `buildBufferSql`
+- [X] T039 [P] "BufferRepository" — confirm/extend chunked `buildBufferSql`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/analysisOperations.ts` (modify)
@@ -390,7 +390,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T004, T011
 
-- [ ] T040 [P] "OverlayRepository" — Erase/Identity/Symmetrical Difference builders
+- [X] T040 [P] "OverlayRepository" — Erase/Identity/Symmetrical Difference builders
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/analysisOperations.ts` (modify, same file as T039)
@@ -399,7 +399,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T039
 
-- [ ] T041 [P] "OverlayRepository" cont'd — spatial predicate + select-by builders
+- [X] T041 [P] "OverlayRepository" cont'd — spatial predicate + select-by builders
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/analysisOperations.ts` (modify, same file as T039)
@@ -408,7 +408,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T039
 
-- [ ] T042 [P] "StatisticsRepository" — `buildStatisticsSql`
+- [X] T042 [P] "StatisticsRepository" — `buildStatisticsSql`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/analysisOperations.ts` (modify, same file as T039)
@@ -417,7 +417,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T039
 
-- [ ] T043 [P] Geometry Processing builders
+- [X] T043 [P] Geometry Processing builders
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/analysisOperations.ts` (modify, same file as T039)
@@ -426,7 +426,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T039
 
-- [ ] T044 [P] Confirm Split/Merge/Dissolve chunk-safety
+- [X] T044 [P] Confirm Split/Merge/Dissolve chunk-safety
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/analysisOperations.ts` (modify, same file as T039)
@@ -435,7 +435,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T197
   - **Dependencies**: T039
 
-- [ ] T045 [P] Create `analysisPresetRepository.ts`
+- [X] T045 [P] Create `analysisPresetRepository.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/analysisPresetRepository.ts` (new)
@@ -444,7 +444,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T049
   - **Dependencies**: T007, T018, T038
 
-- [ ] T046 [P] Create `measurementRepository.ts`
+- [X] T046 [P] Create `measurementRepository.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/measurementRepository.ts` (new)
@@ -453,7 +453,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T049
   - **Dependencies**: T019, T038
 
-- [ ] T047 [P] Create `exportLogRepository.ts`
+- [X] T047 [P] Create `exportLogRepository.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/exportLogRepository.ts` (new)
@@ -462,7 +462,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T049
   - **Dependencies**: T021, T038
 
-- [ ] T048 [P] Repository tests — `analysisRepository.ts`
+- [X] T048 [P] Repository tests — `analysisRepository.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/analysisRepository.test.ts` (modify/extend existing 005 test file)
@@ -471,7 +471,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test:db -- analysisRepository` (or `npm run test -- analysisRepository`, skip-if-unavailable)
   - **Dependencies**: T033–T044
 
-- [ ] T049 [P] Repository tests — preset/measurement/export
+- [X] T049 [P] Repository tests — preset/measurement/export
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/analysisPresetRepository.test.ts` (new), `src/server/repositories/__tests__/measurementRepository.test.ts` (new), `src/server/repositories/__tests__/exportLogRepository.test.ts` (new)
@@ -480,7 +480,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test:db -- analysisPresetRepository measurementRepository exportLogRepository`
   - **Dependencies**: T045, T046, T047
 
-- [ ] T050 Checkpoint (Phase 3)
+- [X] T050 Checkpoint (Phase 3)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)
@@ -495,7 +495,7 @@ description: "Task list for feature implementation"
 
 **Purpose**: HTTP surface. Per contracts/api-contracts.md and research.md Decision 1, "Buffer API"/"Spatial Query API"/"Overlay API"/"Geometry Processing API"/"Statistics API"/"History API" are **not** separate route files — they are `operationType` variants flowing through the one existing `POST`/`GET /api/projects/:projectId/analysis` endpoint family. This phase's tasks wire each named category through that shared endpoint and build the genuinely new endpoints (cancel, discard-result, presets, measurements, exports) as real new route files.
 
-- [ ] T051 Modify `POST /api/projects/:projectId/analysis` — 202 response + role check
+- [X] T051 Modify `POST /api/projects/:projectId/analysis` — 202 response + role check
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/projects/[projectId]/analysis/route.ts` (modify)
@@ -504,7 +504,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T033, T038, T070
 
-- [ ] T052 Modify `GET /api/projects/:projectId/analysis` — status filter
+- [X] T052 Modify `GET /api/projects/:projectId/analysis` — status filter
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/projects/[projectId]/analysis/route.ts` (modify, same file as T051)
@@ -513,7 +513,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T037, T038
 
-- [ ] T053 [P] "Buffer API" — verify buffer flows through the background-job path
+- [X] T053 [P] "Buffer API" — verify buffer flows through the background-job path
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/projects/[projectId]/analysis/route.ts` (verification only, no new file)
@@ -522,7 +522,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T074/T134
   - **Dependencies**: T039, T051
 
-- [ ] T054 [P] "Spatial Query API" — wire new predicate/select operationType variants
+- [X] T054 [P] "Spatial Query API" — wire new predicate/select operationType variants
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/analysis.schema.ts` (modify — full parameter shapes, see T070)
@@ -531,7 +531,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T074/T151
   - **Dependencies**: T041, T051, T070
 
-- [ ] T055 [P] "Overlay API" — wire Erase/Identity/Symmetrical Difference
+- [X] T055 [P] "Overlay API" — wire Erase/Identity/Symmetrical Difference
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/analysis.schema.ts` (modify, see T070)
@@ -540,7 +540,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T074/T180
   - **Dependencies**: T040, T051, T070
 
-- [ ] T056 [P] "Geometry Processing API" — wire Simplify/Smooth/Multipart/Repair
+- [X] T056 [P] "Geometry Processing API" — wire Simplify/Smooth/Multipart/Repair
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/analysis.schema.ts` (modify, see T070)
@@ -549,7 +549,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T074/T197
   - **Dependencies**: T043, T051, T070
 
-- [ ] T057 [P] "Statistics API" — wire feature/length/area/extent stats
+- [X] T057 [P] "Statistics API" — wire feature/length/area/extent stats
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/analysis.schema.ts` (modify, see T070)
@@ -558,7 +558,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T074/T213
   - **Dependencies**: T042, T051, T070
 
-- [ ] T058 "History API" — confirm extended response fields
+- [X] T058 "History API" — confirm extended response fields
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/projects/[projectId]/analysis/route.ts` (verification only, paired with T052)
@@ -567,7 +567,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T074
   - **Dependencies**: T052
 
-- [ ] T059 [P] "Preset API" — list/create route
+- [X] T059 [P] "Preset API" — list/create route
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/projects/[projectId]/analysis/presets/route.ts` (new)
@@ -576,7 +576,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T008, T045, T071
 
-- [ ] T060 [P] "Preset API" — delete route
+- [X] T060 [P] "Preset API" — delete route
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/analysis/presets/[presetId]/route.ts` (new)
@@ -585,7 +585,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T045
 
-- [ ] T061 [P] "Measurement API" — list/create route
+- [X] T061 [P] "Measurement API" — list/create route
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/projects/[projectId]/measurements/route.ts` (new)
@@ -594,7 +594,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T008, T046, T071
 
-- [ ] T062 [P] "Measurement API" — delete route
+- [X] T062 [P] "Measurement API" — delete route
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/measurements/[measurementId]/route.ts` (new)
@@ -603,7 +603,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T046
 
-- [ ] T063 [P] "Export API" — list/create (log) route
+- [X] T063 [P] "Export API" — list/create (log) route
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/projects/[projectId]/exports/route.ts` (new)
@@ -612,7 +612,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T008, T047, T071
 
-- [ ] T064 "Job Status API" — extend `GET /api/analysis/:runId`
+- [X] T064 "Job Status API" — extend `GET /api/analysis/:runId`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/analysis/[runId]/route.ts` (modify)
@@ -621,7 +621,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T038
 
-- [ ] T065 [P] "Job Status API" optional — SSE stream endpoint
+- [X] T065 [P] "Job Status API" optional — SSE stream endpoint
   - **Priority**: Nice-to-have
   - **User Story**: None
   - **Files**: `src/app/api/analysis/[runId]/stream/route.ts` (new)
@@ -630,7 +630,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T064
 
-- [ ] T066 "Cancel Job API" — cancel route
+- [X] T066 "Cancel Job API" — cancel route
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/analysis/[runId]/cancel/route.ts` (new)
@@ -639,7 +639,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T035, T038
 
-- [ ] T067 "Cancel Job API" cont'd — discard-result route
+- [X] T067 "Cancel Job API" cont'd — discard-result route
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/analysis/[runId]/discard-result/route.ts` (new)
@@ -648,7 +648,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T036, T038
 
-- [ ] T068 Modify `POST /api/analysis/:runId/rerun` — role check swap
+- [X] T068 Modify `POST /api/analysis/:runId/rerun` — role check swap
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/analysis/[runId]/rerun/route.ts` (modify)
@@ -657,7 +657,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T038
 
-- [ ] T069 Modify `DELETE /api/analysis/:runId` — role check swap
+- [X] T069 Modify `DELETE /api/analysis/:runId` — role check swap
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/analysis/[runId]/route.ts` (modify, same file as T064)
@@ -666,7 +666,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T038, T064
 
-- [ ] T070 [P] Fill in full `operationType` parameter shapes
+- [X] T070 [P] Fill in full `operationType` parameter shapes
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/analysis.schema.ts` (modify)
@@ -675,7 +675,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T009, T039–T044
 
-- [ ] T071 [P] Fill in preset/measurement/export request validation
+- [X] T071 [P] Fill in preset/measurement/export request validation
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/presetRequest.schema.ts`, `src/shared/contracts/measurementRequest.schema.ts`, `src/shared/contracts/exportLogRequest.schema.ts` (all modify, from T008)
@@ -684,7 +684,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T008
 
-- [ ] T072 Extend structured logging across new/modified routes
+- [X] T072 Extend structured logging across new/modified routes
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: All route files touched in T051–T069
@@ -693,7 +693,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx eslint src/app/api --max-warnings 0`
   - **Dependencies**: T013, T051–T069
 
-- [ ] T073 Confirm `ForbiddenError`/`FORBIDDEN` mapping across new/modified routes
+- [X] T073 Confirm `ForbiddenError`/`FORBIDDEN` mapping across new/modified routes
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: All route files touched in T051–T069
@@ -702,7 +702,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T074
   - **Dependencies**: T007, T051–T069
 
-- [ ] T074 [P] API tests — every new/modified endpoint
+- [X] T074 [P] API tests — every new/modified endpoint
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/analysis/__tests__/analysis.api.test.ts` (modify/extend), `src/app/api/projects/__tests__/analysisPresets.api.test.ts` (new), `src/app/api/projects/__tests__/measurements.api.test.ts` (new), `src/app/api/projects/__tests__/exports.api.test.ts` (new)
@@ -711,7 +711,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test:db -- api.test` (skip-if-unavailable) or `npm run test`
   - **Dependencies**: T051–T073
 
-- [ ] T075 Checkpoint (Phase 4)
+- [X] T075 Checkpoint (Phase 4)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)
@@ -726,7 +726,7 @@ description: "Task list for feature implementation"
 
 **Purpose**: Client-side HTTP wrappers and the two services permitted real logic (export assembly, live measurement math) per Constitution Principle I. This extends 005's never-built client shell (`src/features/analysis/` had only `index.ts`/`types/`).
 
-- [ ] T076 Create `analysisService.ts` — core run methods
+- [X] T076 Create `analysisService.ts` — core run methods
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/services/analysisService.ts` (new)
@@ -735,7 +735,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T051, T052, T064, T066, T067, T068, T069
 
-- [ ] T077 [P] "Buffer service" — type-check Buffer flows through `analysisService`
+- [X] T077 [P] "Buffer service" — type-check Buffer flows through `analysisService`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/services/analysisService.ts` (verification only, same file as T076)
@@ -744,7 +744,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T076
 
-- [ ] T078 [P] "Overlay service" — type-check Overlay flows through `analysisService`
+- [X] T078 [P] "Overlay service" — type-check Overlay flows through `analysisService`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/services/analysisService.ts` (verification only, same file as T076)
@@ -753,7 +753,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T076, T070
 
-- [ ] T079 [P] "History service" — preset methods on `analysisService`
+- [X] T079 [P] "History service" — preset methods on `analysisService`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/services/analysisService.ts` (modify, same file as T076)
@@ -762,7 +762,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T059, T060, T076
 
-- [ ] T080 [P] "Measurement service" — `measurementService.ts` + save/list/delete methods
+- [X] T080 [P] "Measurement service" — `measurementService.ts` + save/list/delete methods
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/services/measurementService.ts` (new), `src/features/analysis/services/analysisService.ts` (modify — add `saveMeasurement`/`listMeasurements`/`deleteMeasurement`)
@@ -771,7 +771,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T089
   - **Dependencies**: T003, T005, T061, T062, T076
 
-- [ ] T081 [P] "Export service" — `exportService.ts` + log methods
+- [X] T081 [P] "Export service" — `exportService.ts` + log methods
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/services/exportService.ts` (new), `src/features/analysis/services/analysisService.ts` (modify — add `logExport`/`listExports`)
@@ -780,7 +780,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T063, T076
 
-- [ ] T082 [P] Add the Shapefile-writer dependency
+- [X] T082 [P] Add the Shapefile-writer dependency
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `package.json`, `package-lock.json` (modify)
@@ -789,7 +789,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm install && npm run build`
   - **Dependencies**: None
 
-- [ ] T083 [P] "Query Keys" — extend `queryKeys.ts`
+- [X] T083 [P] "Query Keys" — extend `queryKeys.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/services/queryKeys.ts` (new)
@@ -798,7 +798,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: None
 
-- [ ] T084 [P] "API helpers" — typed response handling for new shapes
+- [X] T084 [P] "API helpers" — typed response handling for new shapes
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/analysis/services/analysisService.ts` (verification/typing only, same file as T076)
@@ -807,7 +807,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T076
 
-- [ ] T085 "API helpers" cont'd — typed `403 FORBIDDEN` handling
+- [X] T085 "API helpers" cont'd — typed `403 FORBIDDEN` handling
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/analysis/services/analysisService.ts` (modify, same file as T076)
@@ -816,7 +816,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T076, T084
 
-- [ ] T086 "Retry policies" — disable mutation retry for job creation
+- [X] T086 "Retry policies" — disable mutation retry for job creation
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/useAnalysis.ts` (configured in Phase 6, documented here as a service-layer contract note in `analysisService.ts`)
@@ -825,7 +825,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T104
   - **Dependencies**: T076
 
-- [ ] T087 "Retry policies" cont'd — query retry/backoff for polling
+- [X] T087 "Retry policies" cont'd — query retry/backoff for polling
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/useAnalysis.ts` (configured in Phase 6, documented here)
@@ -834,7 +834,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T104
   - **Dependencies**: T076
 
-- [ ] T088 [P] Service unit tests — `exportService.ts` shell
+- [X] T088 [P] Service unit tests — `exportService.ts` shell
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/services/__tests__/exportService.test.ts` (new, shell — full per-format assertions land in Phase 15's T236)
@@ -843,7 +843,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- exportService`
   - **Dependencies**: T081
 
-- [ ] T089 [P] Service unit tests — `measurementService.ts`
+- [X] T089 [P] Service unit tests — `measurementService.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/services/__tests__/measurementService.test.ts` (new)
@@ -852,7 +852,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- measurementService`
   - **Dependencies**: T080
 
-- [ ] T090 Checkpoint (Phase 5)
+- [X] T090 Checkpoint (Phase 5)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)
@@ -867,7 +867,7 @@ description: "Task list for feature implementation"
 
 **Purpose**: Data-fetching/mutation hooks over Phase 5's services. Per contracts/client-api.md, "Buffer hooks"/"Overlay hooks"/"Statistics hooks" are all the same `useRunAnalysis`/`useAnalysisRuns`/`useAnalysisRun` hooks (operation-agnostic) — this phase's tasks build the real hook set and verify each named category flows through it.
 
-- [ ] T091 Create `useAnalysis.ts` — core hooks
+- [X] T091 Create `useAnalysis.ts` — core hooks
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/useAnalysis.ts` (new)
@@ -876,7 +876,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T076, T083, T086
 
-- [ ] T092 [P] "Job hooks" — `useAnalysisRun` with polling
+- [X] T092 [P] "Job hooks" — `useAnalysisRun` with polling
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/useAnalysis.ts` (modify, same file as T091)
@@ -885,7 +885,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T001, T064, T087, T091
 
-- [ ] T093 [P] "Job hooks" cont'd — cancel/discard mutations
+- [X] T093 [P] "Job hooks" cont'd — cancel/discard mutations
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/useAnalysis.ts` (modify, same file as T091)
@@ -894,7 +894,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T066, T067, T091
 
-- [ ] T094 [P] "Buffer hooks" — confirm Buffer flows through `useRunAnalysis`
+- [X] T094 [P] "Buffer hooks" — confirm Buffer flows through `useRunAnalysis`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/useAnalysis.ts` (verification only, same file as T091)
@@ -903,7 +903,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T077, T091
 
-- [ ] T095 [P] "Overlay hooks" — confirm Overlay flows through `useRunAnalysis`
+- [X] T095 [P] "Overlay hooks" — confirm Overlay flows through `useRunAnalysis`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/useAnalysis.ts` (verification only, same file as T091)
@@ -912,7 +912,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T078, T091
 
-- [ ] T096 [P] "Statistics hooks" — confirm Statistics flows through `useRunAnalysis`
+- [X] T096 [P] "Statistics hooks" — confirm Statistics flows through `useRunAnalysis`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/useAnalysis.ts` (verification only, same file as T091)
@@ -921,7 +921,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T057, T091
 
-- [ ] T097 [P] "Measurement hooks" — `useMeasurements.ts`
+- [X] T097 [P] "Measurement hooks" — `useMeasurements.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/useMeasurements.ts` (new)
@@ -930,7 +930,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T080, T083
 
-- [ ] T098 [P] "History hooks" — rerun/delete
+- [X] T098 [P] "History hooks" — rerun/delete
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/useAnalysis.ts` (modify, same file as T091)
@@ -939,7 +939,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T068, T069, T091
 
-- [ ] T099 [P] "Preset hooks" — `useAnalysisPresets.ts`
+- [X] T099 [P] "Preset hooks" — `useAnalysisPresets.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/useAnalysisPresets.ts` (new)
@@ -948,7 +948,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T079, T083
 
-- [ ] T100 [P] "Export hooks" — `useExportHistory.ts`
+- [X] T100 [P] "Export hooks" — `useExportHistory.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/useExportHistory.ts` (new)
@@ -957,7 +957,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T081, T083
 
-- [ ] T101 [P] "Job hooks" cont'd — `useAnalysisPanel.ts` selector hooks
+- [X] T101 [P] "Job hooks" cont'd — `useAnalysisPanel.ts` selector hooks
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/useAnalysisPanel.ts` (new)
@@ -966,7 +966,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T113
 
-- [ ] T102 Cache invalidation — cross-feature layer invalidation
+- [X] T102 Cache invalidation — cross-feature layer invalidation
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/useAnalysis.ts` (verification, same file as T091)
@@ -975,7 +975,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T104/T133
   - **Dependencies**: T091, T093
 
-- [ ] T103 Cache invalidation cont'd — scoped invalidation for presets/measurements/exports
+- [X] T103 Cache invalidation cont'd — scoped invalidation for presets/measurements/exports
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/useAnalysisPresets.ts`, `useMeasurements.ts`, `useExportHistory.ts` (verification, same files as T099/T097/T100)
@@ -984,7 +984,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T104
   - **Dependencies**: T097, T099, T100
 
-- [ ] T104 [P] Hook tests
+- [X] T104 [P] Hook tests
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/hooks/__tests__/useAnalysis.test.ts` (new), `src/features/analysis/hooks/__tests__/useAnalysisPresets.test.ts` (new), `src/features/analysis/hooks/__tests__/useMeasurements.test.ts` (new), `src/features/analysis/hooks/__tests__/useExportHistory.test.ts` (new)
@@ -993,7 +993,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- useAnalysis useAnalysisPresets useMeasurements useExportHistory`
   - **Dependencies**: T091–T103
 
-- [ ] T105 Checkpoint (Phase 6)
+- [X] T105 Checkpoint (Phase 6)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)
@@ -1008,7 +1008,7 @@ description: "Task list for feature implementation"
 
 **Purpose**: Client UI/configuration state. Per contracts/client-api.md and research.md's precedent (005 Decision 6 — one `analysisStore`, not many), the "Analysis Store"/"Measurement Store"/"Selection Store"/"History Store"/"Job Store"/"Preset Store" named in the roadmap outline are fields/actions on exactly **two** stores (`analysisStore`, `analysisPanelStore|`), not six separate stores — each task below says which store and field a named concept becomes.
 
-- [ ] T106 Create `analysisStore.ts` — base fields
+- [X] T106 Create `analysisStore.ts` — base fields
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/store/analysisStore.ts` (new)
@@ -1017,7 +1017,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T117
   - **Dependencies**: None
 
-- [ ] T107 [P] "Analysis Store" cont'd — preset/active-run fields
+- [X] T107 [P] "Analysis Store" cont'd — preset/active-run fields
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/store/analysisStore.ts` (modify, same file as T106)
@@ -1026,7 +1026,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T117
   - **Dependencies**: T106
 
-- [ ] T108 [P] "Measurement Store" — `measurementDraft` on `analysisStore`
+- [X] T108 [P] "Measurement Store" — `measurementDraft` on `analysisStore`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/store/analysisStore.ts` (modify, same file as T106)
@@ -1035,7 +1035,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T117
   - **Dependencies**: T106
 
-- [ ] T109 [P] "Selection Store" — `spatialQueryPredicate` on `analysisStore`
+- [X] T109 [P] "Selection Store" — `spatialQueryPredicate` on `analysisStore`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/store/analysisStore.ts` (modify, same file as T106)
@@ -1044,7 +1044,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T117
   - **Dependencies**: T106
 
-- [ ] T110 [P] "History Store" — `selectedHistoryRunId` on `analysisPanelStore`
+- [X] T110 [P] "History Store" — `selectedHistoryRunId` on `analysisPanelStore`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/store/analysisPanelStore.ts` (new, see T113)
@@ -1053,7 +1053,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T118
   - **Dependencies**: T113
 
-- [ ] T111 [P] "Job Store" — active-job tracking actions
+- [X] T111 [P] "Job Store" — active-job tracking actions
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/store/analysisStore.ts` (modify, same file as T106)
@@ -1062,7 +1062,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T117
   - **Dependencies**: T091, T107
 
-- [ ] T112 [P] "Preset Store" — apply/clear preset actions
+- [X] T112 [P] "Preset Store" — apply/clear preset actions
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/store/analysisStore.ts` (modify, same file as T106)
@@ -1071,7 +1071,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T117
   - **Dependencies**: T106, T107
 
-- [ ] T113 Create `analysisPanelStore.ts` — base fields
+- [X] T113 Create `analysisPanelStore.ts` — base fields
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/store/analysisPanelStore.ts` (new)
@@ -1080,7 +1080,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T118
   - **Dependencies**: None
 
-- [ ] T114 [P] `analysisPanelStore` — actions
+- [X] T114 [P] `analysisPanelStore` — actions
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/store/analysisPanelStore.ts` (modify, same file as T113)
@@ -1089,7 +1089,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T118
   - **Dependencies**: T110, T113
 
-- [ ] T115 "Persistence" — persist dock position/width
+- [X] T115 "Persistence" — persist dock position/width
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/analysis/store/analysisPanelStore.ts` (modify, same file as T113)
@@ -1098,7 +1098,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T119
   - **Dependencies**: T114
 
-- [ ] T116 "Persistence" cont'd — confirm `analysisStore` is session-only
+- [X] T116 "Persistence" cont'd — confirm `analysisStore` is session-only
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/store/analysisStore.ts` (verification, same file as T106)
@@ -1107,7 +1107,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T119
   - **Dependencies**: T106–T112
 
-- [ ] T117 [P] Store tests — `analysisStore`
+- [X] T117 [P] Store tests — `analysisStore`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/store/__tests__/analysisStore.test.ts` (new)
@@ -1116,7 +1116,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- analysisStore`
   - **Dependencies**: T106–T112
 
-- [ ] T118 [P] Store tests — `analysisPanelStore`
+- [X] T118 [P] Store tests — `analysisPanelStore`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/analysis/store/__tests__/analysisPanelStore.test.ts` (new)
@@ -1125,7 +1125,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- analysisPanelStore`
   - **Dependencies**: T113, T114
 
-- [ ] T119 [P] Store tests — persistence round-trip
+- [X] T119 [P] Store tests — persistence round-trip
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/analysis/store/__tests__/analysisPanelStore.test.ts` (modify, same file as T118)
@@ -1134,7 +1134,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- analysisPanelStore`
   - **Dependencies**: T115, T116
 
-- [ ] T120 Checkpoint (Phase 7)
+- [X] T120 Checkpoint (Phase 7)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)
@@ -1151,7 +1151,7 @@ description: "Task list for feature implementation"
 
 **Independent Test**: Select a layer, run Buffer with a distance/unit, confirm a new result layer with correctly-shaped buffered geometry appears — independent of every other operation category.
 
-- [ ] T121 [US1] Buffer parameter form
+- [X] T121 [US1] Buffer parameter form
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/analysis/components/OperationConfigForm.tsx` (new — this task creates the shared form shell + the Buffer variant)
@@ -1160,7 +1160,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T132
   - **Dependencies**: T094, T106
 
-- [ ] T122 [P] [US1] Point Buffer
+- [X] T122 [P] [US1] Point Buffer
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T039)
@@ -1169,7 +1169,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T134
   - **Dependencies**: T039, T121
 
-- [ ] T123 [P] [US1] Line Buffer
+- [X] T123 [P] [US1] Line Buffer
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T039)
@@ -1178,7 +1178,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T134
   - **Dependencies**: T039, T121
 
-- [ ] T124 [P] [US1] Polygon Buffer
+- [X] T124 [P] [US1] Polygon Buffer
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T039)
@@ -1187,7 +1187,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T134
   - **Dependencies**: T039, T121
 
-- [ ] T125 [US1] Units
+- [X] T125 [US1] Units
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/analysis/components/OperationConfigForm.tsx` (modify, same file as T121)
@@ -1196,7 +1196,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T134
   - **Dependencies**: T004, T121
 
-- [ ] T126 [US1] Dissolve
+- [X] T126 [US1] Dissolve
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/analysis/components/OperationConfigForm.tsx` (modify, same file as T121)
@@ -1205,7 +1205,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T134
   - **Dependencies**: T039, T121
 
-- [ ] T127 [US1] Multiple selections
+- [X] T127 [US1] Multiple selections
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/analysis/components/OperationConfigForm.tsx` (modify, same file as T121)
@@ -1214,7 +1214,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T133
   - **Dependencies**: T109, T121
 
-- [ ] T128 [US1] Preview
+- [X] T128 [US1] Preview
   - **Priority**: Should-have
   - **User Story**: US1
   - **Files**: `src/features/analysis/components/OperationConfigForm.tsx` (modify, same file as T121)
@@ -1223,7 +1223,7 @@ description: "Task list for feature implementation"
   - **Verification**: Manual + covered by T132
   - **Dependencies**: T003, T121
 
-- [ ] T129 [US1] Result creation
+- [X] T129 [US1] Result creation
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/analysis/components/ResultPanel.tsx` (new — this task creates the shell + wires Buffer's result)
@@ -1232,7 +1232,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T133
   - **Dependencies**: T093, T121
 
-- [ ] T130 [US1] Toolbox Buffer entry
+- [X] T130 [US1] Toolbox Buffer entry
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/analysis/components/AnalysisToolbox.tsx` (new — this task creates the shell + the Buffer category entry)
@@ -1241,7 +1241,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T133
   - **Dependencies**: T006, T106, T121
 
-- [ ] T131 [US1] Progress Dialog wiring for Buffer
+- [X] T131 [US1] Progress Dialog wiring for Buffer
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/analysis/components/ProgressDialog.tsx` (new — this task creates the shell wired to Buffer; full build-out in Phase 16)
@@ -1250,7 +1250,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T133/T134
   - **Dependencies**: T092, T107, T121
 
-- [ ] T132 [P] [US1] Component tests — Buffer form
+- [X] T132 [P] [US1] Component tests — Buffer form
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/analysis/components/__tests__/OperationConfigForm.buffer.test.tsx` (new)
@@ -1259,7 +1259,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- OperationConfigForm.buffer`
   - **Dependencies**: T121
 
-- [ ] T133 [P] [US1] Integration test — full Buffer flow
+- [X] T133 [P] [US1] Integration test — full Buffer flow
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/analysis/__tests__/buffer.integration.test.tsx` (new)
@@ -1268,7 +1268,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- buffer.integration`
   - **Dependencies**: T126, T127, T129, T130, T131
 
-- [ ] T134 [P] [US1] API test — Buffer through background path
+- [X] T134 [P] [US1] API test — Buffer through background path
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/app/api/analysis/__tests__/analysis.api.test.ts` (modify, extends T074)
@@ -1277,7 +1277,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test:db -- analysis.api`
   - **Dependencies**: T039, T122, T123, T124, T125, T126
 
-- [ ] T135 [US1] Accessibility check — Buffer
+- [X] T135 [US1] Accessibility check — Buffer
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/analysis/components/__tests__/OperationConfigForm.buffer.a11y.test.tsx` (new)
@@ -1286,7 +1286,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- OperationConfigForm.buffer.a11y`
   - **Dependencies**: T121, T132
 
-- [ ] T136 [US1] Checkpoint (Phase 8) — MVP validation
+- [X] T136 [US1] Checkpoint (Phase 8) — MVP validation
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: None (verification-only task)
@@ -1303,7 +1303,7 @@ description: "Task list for feature implementation"
 
 **Independent Test**: Choose a source/reference layer and a predicate, run Select by Location, confirm the correct subset is selected — independent of Buffer/Overlay/etc.
 
-- [ ] T137 [US2] Select by Location parameter form
+- [X] T137 [US2] Select by Location parameter form
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/analysis/components/OperationConfigForm.tsx` (modify, from T121 — adds the Query variant)
@@ -1312,7 +1312,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T149
   - **Dependencies**: T054, T109, T121
 
-- [ ] T138 [P] [US2] Intersects predicate
+- [X] T138 [P] [US2] Intersects predicate
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from 005's existing `spatialJoin` builder)
@@ -1321,7 +1321,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T151
   - **Dependencies**: T137
 
-- [ ] T139 [P] [US2] Contains predicate
+- [X] T139 [P] [US2] Contains predicate
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification)
@@ -1330,7 +1330,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T151
   - **Dependencies**: T137
 
-- [ ] T140 [P] [US2] Within predicate
+- [X] T140 [P] [US2] Within predicate
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification)
@@ -1339,7 +1339,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T151
   - **Dependencies**: T137
 
-- [ ] T141 [P] [US2] Touches predicate
+- [X] T141 [P] [US2] Touches predicate
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T041)
@@ -1348,7 +1348,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T151
   - **Dependencies**: T041, T137
 
-- [ ] T142 [P] [US2] Crosses predicate
+- [X] T142 [P] [US2] Crosses predicate
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T041)
@@ -1357,7 +1357,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T151
   - **Dependencies**: T041, T137
 
-- [ ] T143 [P] [US2] Overlaps predicate
+- [X] T143 [P] [US2] Overlaps predicate
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T041)
@@ -1366,7 +1366,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T151
   - **Dependencies**: T041, T137
 
-- [ ] T144 [US2] Nearest
+- [X] T144 [US2] Nearest
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/analysis/components/OperationConfigForm.tsx` (modify, same file as T137)
@@ -1375,7 +1375,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T151
   - **Dependencies**: T137
 
-- [ ] T145 [US2] Distance
+- [X] T145 [US2] Distance
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/analysis/components/OperationConfigForm.tsx` (modify, same file as T137)
@@ -1384,7 +1384,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T151
   - **Dependencies**: T137, T144
 
-- [ ] T146 [US2] Select by Location — map highlight wiring
+- [X] T146 [US2] Select by Location — map highlight wiring
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/analysis/components/OperationConfigForm.tsx` (modify, same file as T137)
@@ -1393,7 +1393,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T150
   - **Dependencies**: T137, T138–T145
 
-- [ ] T147 [US2] Select by Attribute
+- [X] T147 [US2] Select by Attribute
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/analysis/components/OperationConfigForm.tsx` (modify, same file as T137 — new Attribute-filter variant)
@@ -1402,7 +1402,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T151
   - **Dependencies**: T041, T137
 
-- [ ] T148 [US2] Combined spatial + attribute filter
+- [X] T148 [US2] Combined spatial + attribute filter
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/analysis/components/OperationConfigForm.tsx` (modify, same file as T137)
@@ -1411,7 +1411,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T151
   - **Dependencies**: T146, T147
 
-- [ ] T149 [P] [US2] Component tests — Query forms
+- [X] T149 [P] [US2] Component tests — Query forms
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/analysis/components/__tests__/OperationConfigForm.query.test.tsx` (new)
@@ -1420,7 +1420,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- OperationConfigForm.query`
   - **Dependencies**: T137, T147
 
-- [ ] T150 [P] [US2] Integration test — full Spatial Query flow
+- [X] T150 [P] [US2] Integration test — full Spatial Query flow
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/analysis/__tests__/spatialQuery.integration.test.tsx` (new)
@@ -1429,7 +1429,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- spatialQuery.integration`
   - **Dependencies**: T146, T148
 
-- [ ] T151 [P] [US2] API test — every predicate
+- [X] T151 [P] [US2] API test — every predicate
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/app/api/analysis/__tests__/analysis.api.test.ts` (modify, extends T074)
@@ -1438,7 +1438,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test:db -- analysis.api`
   - **Dependencies**: T138–T145
 
-- [ ] T152 [US2] Checkpoint (Phase 9)
+- [X] T152 [US2] Checkpoint (Phase 9)
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: None (verification-only task)
@@ -1455,7 +1455,7 @@ description: "Task list for feature implementation"
 
 **Independent Test**: Activate Measure Distance, click points, confirm live distance/bearing readouts update — independent of any saved layer or analysis job.
 
-- [ ] T153 [US3] `MeasureToolbar.tsx` shell
+- [X] T153 [US3] `MeasureToolbar.tsx` shell
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/analysis/components/MeasureToolbar.tsx` (new)
@@ -1464,7 +1464,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T164
   - **Dependencies**: T108, T121
 
-- [ ] T154 [P] [US3] Distance
+- [X] T154 [P] [US3] Distance
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/analysis/components/MeasureToolbar.tsx` (modify, same file as T153)
@@ -1473,7 +1473,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T164
   - **Dependencies**: T080, T153
 
-- [ ] T155 [P] [US3] Area
+- [X] T155 [P] [US3] Area
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/analysis/components/MeasureToolbar.tsx` (modify, same file as T153)
@@ -1482,7 +1482,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T164
   - **Dependencies**: T080, T153
 
-- [ ] T156 [P] [US3] Perimeter
+- [X] T156 [P] [US3] Perimeter
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/analysis/components/MeasureToolbar.tsx` (modify, same file as T153)
@@ -1491,7 +1491,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T164
   - **Dependencies**: T155
 
-- [ ] T157 [P] [US3] Bearing
+- [X] T157 [P] [US3] Bearing
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/analysis/components/MeasureToolbar.tsx` (modify, same file as T153)
@@ -1500,7 +1500,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T164
   - **Dependencies**: T154
 
-- [ ] T158 [P] [US3] Radius
+- [X] T158 [P] [US3] Radius
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/analysis/components/MeasureToolbar.tsx` (modify, same file as T153)
@@ -1509,7 +1509,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T164
   - **Dependencies**: T153
 
-- [ ] T159 [P] [US3] Coordinates
+- [X] T159 [P] [US3] Coordinates
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/analysis/components/MeasureToolbar.tsx` (modify, same file as T153)
@@ -1518,7 +1518,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T164
   - **Dependencies**: T005, T153
 
-- [ ] T160 [P] [US3] Azimuth
+- [X] T160 [P] [US3] Azimuth
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/analysis/components/MeasureToolbar.tsx` (modify, same file as T153)
@@ -1527,7 +1527,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T164
   - **Dependencies**: T046, T153
 
-- [ ] T161 [US3] Elevation placeholder
+- [X] T161 [US3] Elevation placeholder
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/analysis/components/MeasureToolbar.tsx` (modify, same file as T153)
@@ -1536,7 +1536,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T165
   - **Dependencies**: T153
 
-- [ ] T162 [US3] Save to History
+- [X] T162 [US3] Save to History
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/analysis/components/MeasureToolbar.tsx` (modify, same file as T153)
@@ -1545,7 +1545,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T165
   - **Dependencies**: T097, T153
 
-- [ ] T163 [US3] Measurement History list UI
+- [X] T163 [US3] Measurement History list UI
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/analysis/components/MeasureToolbar.tsx` (modify, same file as T153, or a small sibling `MeasurementHistoryList.tsx` if the toolbar file grows too large)
@@ -1554,7 +1554,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T165
   - **Dependencies**: T097, T162
 
-- [ ] T164 [P] [US3] Component tests — `MeasureToolbar`
+- [X] T164 [P] [US3] Component tests — `MeasureToolbar`
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/analysis/components/__tests__/MeasureToolbar.test.tsx` (new)
@@ -1563,7 +1563,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- MeasureToolbar`
   - **Dependencies**: T154–T160
 
-- [ ] T165 [P] [US3] Integration test — full Measurement flow
+- [X] T165 [P] [US3] Integration test — full Measurement flow
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/analysis/__tests__/measurement.integration.test.tsx` (new)
@@ -1572,7 +1572,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- measurement.integration`
   - **Dependencies**: T161, T162, T163
 
-- [ ] T166 [US3] Checkpoint (Phase 10)
+- [X] T166 [US3] Checkpoint (Phase 10)
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: None (verification-only task)
@@ -1589,7 +1589,7 @@ description: "Task list for feature implementation"
 
 **Independent Test**: Select two overlapping polygon layers, run Intersection, confirm the result contains only the shared area — independent of any other overlay operation.
 
-- [ ] T167 [US4] Overlay parameter form
+- [X] T167 [US4] Overlay parameter form
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/features/analysis/components/OperationConfigForm.tsx` (modify, from T121 — adds the Overlay variant)
@@ -1598,7 +1598,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npx tsc --noEmit`; covered by T178
   - **Dependencies**: T055, T109, T121
 
-- [ ] T168 [P] [US4] Union
+- [X] T168 [P] [US4] Union
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, 005's existing `union` builder)
@@ -1607,7 +1607,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T180
   - **Dependencies**: T034, T167
 
-- [ ] T169 [P] [US4] Intersection
+- [X] T169 [P] [US4] Intersection
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, 005's existing `intersect` builder)
@@ -1616,7 +1616,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T180
   - **Dependencies**: T034, T167
 
-- [ ] T170 [P] [US4] Difference
+- [X] T170 [P] [US4] Difference
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, 005's existing `difference` builder)
@@ -1625,7 +1625,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T180
   - **Dependencies**: T034, T167
 
-- [ ] T171 [P] [US4] Clip
+- [X] T171 [P] [US4] Clip
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, 005's existing `clip` builder)
@@ -1634,7 +1634,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T180
   - **Dependencies**: T034, T167
 
-- [ ] T172 [P] [US4] Erase
+- [X] T172 [P] [US4] Erase
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T040)
@@ -1643,7 +1643,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T180
   - **Dependencies**: T040, T167
 
-- [ ] T173 [P] [US4] Identity
+- [X] T173 [P] [US4] Identity
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T040)
@@ -1652,7 +1652,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T180
   - **Dependencies**: T040, T167
 
-- [ ] T174 [P] [US4] Symmetrical Difference
+- [X] T174 [P] [US4] Symmetrical Difference
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/server/repositories/analysisOperations.ts` (verification, from T040)
@@ -1661,7 +1661,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T180
   - **Dependencies**: T040, T167
 
-- [ ] T175 [US4] Toolbox Overlay entries
+- [X] T175 [US4] Toolbox Overlay entries
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/features/analysis/components/AnalysisToolbox.tsx` (modify, from T130)
@@ -1670,7 +1670,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T179
   - **Dependencies**: T130, T167
 
-- [ ] T176 [US4] Overlay result attribute-merge display
+- [X] T176 [US4] Overlay result attribute-merge display
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/features/analysis/components/ResultPanel.tsx` (modify, from T129)
@@ -1679,7 +1679,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T179
   - **Dependencies**: T129, T167
 
-- [ ] T177 [US4] CRS mismatch handling
+- [X] T177 [US4] CRS mismatch handling
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/server/repositories/analysisRepository.ts` (modify, from T033)
@@ -1688,7 +1688,7 @@ description: "Task list for feature implementation"
   - **Verification**: Covered by T180
   - **Dependencies**: T033, T167
 
-- [ ] T178 [P] [US4] Component tests — Overlay form
+- [X] T178 [P] [US4] Component tests — Overlay form
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/features/analysis/components/__tests__/OperationConfigForm.overlay.test.tsx` (new)
@@ -1697,7 +1697,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- OperationConfigForm.overlay`
   - **Dependencies**: T167
 
-- [ ] T179 [P] [US4] Integration test — full Overlay flow
+- [X] T179 [P] [US4] Integration test — full Overlay flow
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/features/analysis/__tests__/overlay.integration.test.tsx` (new)
@@ -1706,7 +1706,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- overlay.integration`
   - **Dependencies**: T175, T176
 
-- [ ] T180 [P] [US4] API test — Erase/Identity/Symmetrical Difference
+- [X] T180 [P] [US4] API test — Erase/Identity/Symmetrical Difference
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/app/api/analysis/__tests__/analysis.api.test.ts` (modify, extends T074)
@@ -1715,7 +1715,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test:db -- analysis.api`
   - **Dependencies**: T172, T173, T174, T177
 
-- [ ] T181 [US4] Accessibility check — Overlay
+- [X] T181 [US4] Accessibility check — Overlay
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/features/analysis/components/__tests__/OperationConfigForm.overlay.a11y.test.tsx` (new)
@@ -1724,7 +1724,7 @@ description: "Task list for feature implementation"
   - **Verification**: `npm run test -- OperationConfigForm.overlay.a11y`
   - **Dependencies**: T167, T178
 
-- [ ] T182 [US4] Checkpoint (Phase 11)
+- [X] T182 [US4] Checkpoint (Phase 11)
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: None (verification-only task)

@@ -35,7 +35,7 @@ Checkpoint task.
 utilities, rate limiting, and realtime-channel configuration every later
 phase depends on.
 
-- [ ] T001 Add the `pg` (`node-postgres`) dependency
+- [X] T001 Add the `pg` (`node-postgres`) dependency
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `package.json`
@@ -47,7 +47,7 @@ phase depends on.
   - **Verification**: `npm ls pg`
   - **Dependencies**: None
 
-- [ ] T002 [P] Add `ForbiddenError`/`ConflictError` to the shared error taxonomy
+- [X] T002 [P] Add `ForbiddenError`/`ConflictError` to the shared error taxonomy
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/errors/apiError.ts`
@@ -61,7 +61,7 @@ phase depends on.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: None
 
-- [ ] T003 [P] Add the `collaboration:write` rate-limit bucket
+- [X] T003 [P] Add the `collaboration:write` rate-limit bucket
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/security/rateLimiter.ts` (or equivalent
@@ -74,7 +74,7 @@ phase depends on.
   - **Verification**: Covered by Phase 4's API tests.
   - **Dependencies**: None
 
-- [ ] T004 [P] Scaffold `src/features/collaboration/` module structure
+- [X] T004 [P] Scaffold `src/features/collaboration/` module structure
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/{components,hooks,services,store,types,__tests__}/`, `index.ts` (placeholder)
@@ -84,7 +84,7 @@ phase depends on.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: None
 
-- [ ] T005 [P] `src/shared/contracts/membership.schema.ts`
+- [X] T005 [P] `src/shared/contracts/membership.schema.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/membership.schema.ts`
@@ -96,7 +96,7 @@ phase depends on.
   - **Verification**: Covered by T060's unit test.
   - **Dependencies**: None
 
-- [ ] T006 [P] `src/shared/contracts/invitation.schema.ts`
+- [X] T006 [P] `src/shared/contracts/invitation.schema.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/invitation.schema.ts`
@@ -107,7 +107,7 @@ phase depends on.
   - **Verification**: Covered by T060.
   - **Dependencies**: None
 
-- [ ] T007 [P] `src/shared/contracts/comment.schema.ts`
+- [X] T007 [P] `src/shared/contracts/comment.schema.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/comment.schema.ts`
@@ -119,7 +119,7 @@ phase depends on.
   - **Verification**: Covered by T060.
   - **Dependencies**: None
 
-- [ ] T008 [P] `src/shared/contracts/version.schema.ts`
+- [X] T008 [P] `src/shared/contracts/version.schema.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/version.schema.ts`
@@ -130,7 +130,7 @@ phase depends on.
   - **Verification**: Covered by T060.
   - **Dependencies**: None
 
-- [ ] T009 [P] `src/shared/contracts/notification.schema.ts`
+- [X] T009 [P] `src/shared/contracts/notification.schema.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/notification.schema.ts`
@@ -140,7 +140,7 @@ phase depends on.
   - **Verification**: Covered by T060.
   - **Dependencies**: None
 
-- [ ] T010 [P] `src/shared/contracts/presence.schema.ts`
+- [X] T010 [P] `src/shared/contracts/presence.schema.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/presence.schema.ts`
@@ -152,7 +152,7 @@ phase depends on.
   - **Verification**: Covered by T060.
   - **Dependencies**: None
 
-- [ ] T011 [P] `src/shared/contracts/lock.schema.ts`
+- [X] T011 [P] `src/shared/contracts/lock.schema.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/lock.schema.ts`
@@ -162,7 +162,7 @@ phase depends on.
   - **Verification**: Covered by T060.
   - **Dependencies**: None
 
-- [ ] T012 `src/server/auth/assertProjectRole.ts`
+- [X] T012 `src/server/auth/assertProjectRole.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/auth/assertProjectRole.ts`
@@ -177,7 +177,7 @@ phase depends on.
     `ProjectMember` exists (Phase 2/3).
   - **Dependencies**: T002
 
-- [ ] T013 `src/server/realtime/channel.ts` — skeleton
+- [X] T013 `src/server/realtime/channel.ts` — skeleton
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/realtime/channel.ts`
@@ -194,7 +194,7 @@ phase depends on.
     dependent check this session).
   - **Dependencies**: T001
 
-- [ ] T014 [P] `src/features/collaboration/types/collaboration.types.ts`
+- [X] T014 [P] `src/features/collaboration/types/collaboration.types.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/types/collaboration.types.ts`
@@ -204,7 +204,7 @@ phase depends on.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T005, T006, T007, T008, T009, T010, T011
 
-- [ ] T015 **Checkpoint** — Foundation quality gate
+- [X] T015 **Checkpoint** — Foundation quality gate
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A
@@ -223,7 +223,7 @@ phase depends on.
 **Purpose**: The eight new Prisma models, one migration, and the seed
 update `quickstart.md` requires for multi-user testing.
 
-- [ ] T016 Add eight new models + back-relations to `prisma/schema.prisma`
+- [X] T016 Add eight new models + back-relations to `prisma/schema.prisma`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma`
@@ -238,7 +238,7 @@ update `quickstart.md` requires for multi-user testing.
   - **Verification**: `npx prisma validate`
   - **Dependencies**: None
 
-- [ ] T017 Regenerate the Prisma Client
+- [X] T017 Regenerate the Prisma Client
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: (generated) `node_modules/@prisma/client`
@@ -250,7 +250,7 @@ update `quickstart.md` requires for multi-user testing.
     will fail to compile without this).
   - **Dependencies**: T016
 
-- [ ] T018 Generate and apply the migration
+- [X] T018 Generate and apply the migration
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/migrations/<timestamp>_add_collaboration/migration.sql`
@@ -268,7 +268,7 @@ update `quickstart.md` requires for multi-user testing.
     recorded.
   - **Dependencies**: T016
 
-- [ ] T019 [P] Verify indexes against data-model.md
+- [X] T019 [P] Verify indexes against data-model.md
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma`
@@ -280,7 +280,7 @@ update `quickstart.md` requires for multi-user testing.
   - **Verification**: Manual schema review.
   - **Dependencies**: T016
 
-- [ ] T020 [P] Verify cascade/restrict rules against data-model.md
+- [X] T020 [P] Verify cascade/restrict rules against data-model.md
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma`
@@ -296,7 +296,7 @@ update `quickstart.md` requires for multi-user testing.
   - **Verification**: Manual schema review.
   - **Dependencies**: T016
 
-- [ ] T021 Seed script: add a second collaborator test user
+- [X] T021 Seed script: add a second collaborator test user
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/seed.ts`
@@ -312,7 +312,7 @@ update `quickstart.md` requires for multi-user testing.
     database, same as T018).
   - **Dependencies**: T018
 
-- [ ] T022 **Checkpoint** — Database quality gate
+- [X] T022 **Checkpoint** — Database quality gate
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A
@@ -332,7 +332,7 @@ update `quickstart.md` requires for multi-user testing.
 modification to the three existing ownership-scoping helpers and two
 existing feature-write functions research.md Decision 10 requires.
 
-- [ ] T023 [P] `src/server/repositories/membershipRepository.ts`
+- [X] T023 [P] `src/server/repositories/membershipRepository.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/membershipRepository.ts`
@@ -346,7 +346,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: Covered by T034.
   - **Dependencies**: T017
 
-- [ ] T024 [P] `src/server/repositories/invitationRepository.ts`
+- [X] T024 [P] `src/server/repositories/invitationRepository.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/invitationRepository.ts`
@@ -360,7 +360,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: Covered by T035.
   - **Dependencies**: T017
 
-- [ ] T025 [P] `src/server/repositories/commentRepository.ts`
+- [X] T025 [P] `src/server/repositories/commentRepository.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/commentRepository.ts`
@@ -375,7 +375,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: Covered by T036.
   - **Dependencies**: T017
 
-- [ ] T026 [P] `src/server/repositories/activityRepository.ts`
+- [X] T026 [P] `src/server/repositories/activityRepository.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/activityRepository.ts`
@@ -388,7 +388,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: Covered by T037.
   - **Dependencies**: T017
 
-- [ ] T027 [P] `src/server/repositories/versionRepository.ts`
+- [X] T027 [P] `src/server/repositories/versionRepository.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/versionRepository.ts`
@@ -404,7 +404,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: Covered by T038.
   - **Dependencies**: T017
 
-- [ ] T028 [P] `src/server/repositories/notificationRepository.ts`
+- [X] T028 [P] `src/server/repositories/notificationRepository.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/notificationRepository.ts`
@@ -416,7 +416,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: Covered by T039.
   - **Dependencies**: T017
 
-- [ ] T029 [P] `src/server/repositories/featureLockRepository.ts`
+- [X] T029 [P] `src/server/repositories/featureLockRepository.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/featureLockRepository.ts`
@@ -429,7 +429,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: Covered by T040.
   - **Dependencies**: T017
 
-- [ ] T030 [P] `src/server/repositories/presenceRepository.ts`
+- [X] T030 [P] `src/server/repositories/presenceRepository.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/presenceRepository.ts`
@@ -442,7 +442,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: Covered by T041.
   - **Dependencies**: T017
 
-- [ ] T031 Broaden `projectRepository.getProjectById`'s ownership scope
+- [X] T031 Broaden `projectRepository.getProjectById`'s ownership scope
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/projectRepository.ts`
@@ -457,7 +457,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: Covered by T042.
   - **Dependencies**: T023 (needs `ProjectMember` to query)
 
-- [ ] T032 Broaden `layerRepository.getLayerScopedToOwner`'s ownership scope
+- [X] T032 Broaden `layerRepository.getLayerScopedToOwner`'s ownership scope
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/layerRepository.ts`
@@ -468,7 +468,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: Covered by T042.
   - **Dependencies**: T023
 
-- [ ] T033 Broaden `featureRepository`'s ownership scope + add lock/conflict guards
+- [X] T033 Broaden `featureRepository`'s ownership scope + add lock/conflict guards
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/featureRepository.ts`
@@ -487,7 +487,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: Covered by T042.
   - **Dependencies**: T023, T029
 
-- [ ] T034 [P] Repository tests: `membershipRepository`
+- [X] T034 [P] Repository tests: `membershipRepository`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/membershipRepository.test.ts`
@@ -497,7 +497,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: `npm run test -- membershipRepository` passes or skips cleanly.
   - **Dependencies**: T023
 
-- [ ] T035 [P] Repository tests: `invitationRepository`
+- [X] T035 [P] Repository tests: `invitationRepository`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/invitationRepository.test.ts`
@@ -508,7 +508,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: `npm run test -- invitationRepository` passes or skips cleanly.
   - **Dependencies**: T024
 
-- [ ] T036 [P] Repository tests: `commentRepository`
+- [X] T036 [P] Repository tests: `commentRepository`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/commentRepository.test.ts`
@@ -519,7 +519,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: `npm run test -- commentRepository` passes or skips cleanly.
   - **Dependencies**: T025
 
-- [ ] T037 [P] Repository tests: `activityRepository`
+- [X] T037 [P] Repository tests: `activityRepository`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/activityRepository.test.ts`
@@ -530,7 +530,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: `npm run test -- activityRepository` passes or skips cleanly.
   - **Dependencies**: T026
 
-- [ ] T038 [P] Repository tests: `versionRepository`
+- [X] T038 [P] Repository tests: `versionRepository`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/versionRepository.test.ts`
@@ -541,7 +541,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: `npm run test -- versionRepository` passes or skips cleanly.
   - **Dependencies**: T027
 
-- [ ] T039 [P] Repository tests: `notificationRepository`
+- [X] T039 [P] Repository tests: `notificationRepository`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/notificationRepository.test.ts`
@@ -551,7 +551,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: `npm run test -- notificationRepository` passes or skips cleanly.
   - **Dependencies**: T028
 
-- [ ] T040 [P] Repository tests: `featureLockRepository`
+- [X] T040 [P] Repository tests: `featureLockRepository`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/featureLockRepository.test.ts`
@@ -561,7 +561,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: `npm run test -- featureLockRepository` passes or skips cleanly.
   - **Dependencies**: T029
 
-- [ ] T041 [P] Repository tests: `presenceRepository`
+- [X] T041 [P] Repository tests: `presenceRepository`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/presenceRepository.test.ts`
@@ -571,7 +571,7 @@ existing feature-write functions research.md Decision 10 requires.
   - **Verification**: `npm run test -- presenceRepository` passes or skips cleanly.
   - **Dependencies**: T030
 
-- [ ] T042 Regression test: broadened ownership helpers don't break 003/004/005
+- [X] T042 Regression test: broadened ownership helpers don't break 003/004/005
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/ownershipRegression.test.ts`
@@ -587,7 +587,7 @@ existing feature-write functions research.md Decision 10 requires.
     existing 003/004/005 test suites, all passing.
   - **Dependencies**: T031, T032, T033
 
-- [ ] T043 **Checkpoint** — Repository Layer quality gate
+- [X] T043 **Checkpoint** — Repository Layer quality gate
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A
@@ -607,7 +607,7 @@ existing feature-write functions research.md Decision 10 requires.
 **Purpose**: Every new endpoint from `contracts/api-contracts.md`, plus
 the additive extension to the two existing feature endpoints.
 
-- [ ] T044 [P] `POST`/`GET /api/projects/:projectId/invitations`
+- [X] T044 [P] `POST`/`GET /api/projects/:projectId/invitations`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/projects/[projectId]/invitations/route.ts`
@@ -620,7 +620,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T065.
   - **Dependencies**: T012, T024
 
-- [ ] T045 [P] `POST /api/invitations/:invitationId/accept`
+- [X] T045 [P] `POST /api/invitations/:invitationId/accept`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/invitations/[invitationId]/accept/route.ts`
@@ -630,7 +630,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T065.
   - **Dependencies**: T024
 
-- [ ] T046 [P] `POST /api/invitations/:invitationId/decline`
+- [X] T046 [P] `POST /api/invitations/:invitationId/decline`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/invitations/[invitationId]/decline/route.ts`
@@ -639,7 +639,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T065.
   - **Dependencies**: T024
 
-- [ ] T047 [P] `GET /api/projects/:projectId/members`
+- [X] T047 [P] `GET /api/projects/:projectId/members`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/projects/[projectId]/members/route.ts`
@@ -648,7 +648,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T065.
   - **Dependencies**: T012, T023
 
-- [ ] T048 [P] `PATCH`/`DELETE /api/projects/:projectId/members/:userId`
+- [X] T048 [P] `PATCH`/`DELETE /api/projects/:projectId/members/:userId`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/projects/[projectId]/members/[userId]/route.ts`
@@ -658,7 +658,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T065.
   - **Dependencies**: T012, T023
 
-- [ ] T049 [P] `POST /api/projects/:projectId/transfer-ownership`
+- [X] T049 [P] `POST /api/projects/:projectId/transfer-ownership`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/projects/[projectId]/transfer-ownership/route.ts`
@@ -668,7 +668,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T065.
   - **Dependencies**: T012, T023
 
-- [ ] T050 [P] `GET`/`POST /api/features/:featureId/comments`
+- [X] T050 [P] `GET`/`POST /api/features/:featureId/comments`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/features/[featureId]/comments/route.ts`
@@ -679,7 +679,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T066.
   - **Dependencies**: T012, T025
 
-- [ ] T051 [P] `PATCH`/`DELETE /api/comments/:commentId`
+- [X] T051 [P] `PATCH`/`DELETE /api/comments/:commentId`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/comments/[commentId]/route.ts`
@@ -689,7 +689,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T066.
   - **Dependencies**: T025
 
-- [ ] T052 [P] `GET /api/projects/:projectId/activity`
+- [X] T052 [P] `GET /api/projects/:projectId/activity`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/projects/[projectId]/activity/route.ts`
@@ -700,7 +700,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T067.
   - **Dependencies**: T012, T026
 
-- [ ] T053 [P] `POST`/`GET /api/projects/:projectId/versions`
+- [X] T053 [P] `POST`/`GET /api/projects/:projectId/versions`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/projects/[projectId]/versions/route.ts`
@@ -710,7 +710,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T067.
   - **Dependencies**: T012, T027
 
-- [ ] T054 [P] `GET /api/versions/:versionId`
+- [X] T054 [P] `GET /api/versions/:versionId`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/versions/[versionId]/route.ts`
@@ -719,7 +719,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T067.
   - **Dependencies**: T027
 
-- [ ] T055 [P] `POST /api/versions/:versionId/restore`
+- [X] T055 [P] `POST /api/versions/:versionId/restore`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/versions/[versionId]/restore/route.ts`
@@ -729,7 +729,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T067.
   - **Dependencies**: T012, T027
 
-- [ ] T056 [P] `GET /api/versions/compare`
+- [X] T056 [P] `GET /api/versions/compare`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/versions/compare/route.ts`
@@ -739,7 +739,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T067.
   - **Dependencies**: T027
 
-- [ ] T057 [P] `GET /api/notifications`
+- [X] T057 [P] `GET /api/notifications`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/notifications/route.ts`
@@ -749,7 +749,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T068.
   - **Dependencies**: T028
 
-- [ ] T058 [P] `PATCH /api/notifications/:notificationId/read`
+- [X] T058 [P] `PATCH /api/notifications/:notificationId/read`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/notifications/[notificationId]/read/route.ts`
@@ -759,7 +759,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T068.
   - **Dependencies**: T028
 
-- [ ] T059 [P] `POST /api/notifications/mark-all-read`
+- [X] T059 [P] `POST /api/notifications/mark-all-read`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/notifications/mark-all-read/route.ts`
@@ -768,7 +768,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T068.
   - **Dependencies**: T028
 
-- [ ] T060 [P] `POST`/`DELETE /api/features/:featureId/lock`
+- [X] T060 [P] `POST`/`DELETE /api/features/:featureId/lock`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/features/[featureId]/lock/route.ts`
@@ -779,7 +779,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T068.
   - **Dependencies**: T012, T029
 
-- [ ] T061 [P] `POST /api/projects/:projectId/presence/heartbeat`
+- [X] T061 [P] `POST /api/projects/:projectId/presence/heartbeat`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/projects/[projectId]/presence/heartbeat/route.ts`
@@ -789,7 +789,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T068.
   - **Dependencies**: T012, T030
 
-- [ ] T062 [P] `GET /api/projects/:projectId/presence`
+- [X] T062 [P] `GET /api/projects/:projectId/presence`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/projects/[projectId]/presence/route.ts`
@@ -800,7 +800,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: Covered by T068.
   - **Dependencies**: T030
 
-- [ ] T063 Extend `PATCH`/`DELETE /api/features/:featureId` (Conflict APIs)
+- [X] T063 Extend `PATCH`/`DELETE /api/features/:featureId` (Conflict APIs)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/features/[featureId]/route.ts`,
@@ -818,7 +818,7 @@ the additive extension to the two existing feature endpoints.
     unmodified.
   - **Dependencies**: T033
 
-- [ ] T064 `GET /api/projects/:projectId/stream` — placeholder
+- [X] T064 `GET /api/projects/:projectId/stream` — placeholder
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/projects/[projectId]/stream/route.ts`
@@ -832,7 +832,7 @@ the additive extension to the two existing feature endpoints.
     phase).
   - **Dependencies**: T013
 
-- [ ] T065 [P] API test suite: sharing/member/invitation endpoints
+- [X] T065 [P] API test suite: sharing/member/invitation endpoints
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/projects/[projectId]/__tests__/sharing.api.test.ts`
@@ -843,7 +843,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: `npm run test -- sharing.api` passes or skips cleanly.
   - **Dependencies**: T044–T049
 
-- [ ] T066 [P] API test suite: comment endpoints
+- [X] T066 [P] API test suite: comment endpoints
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/features/[featureId]/__tests__/comments.api.test.ts`
@@ -853,7 +853,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: `npm run test -- comments.api` passes or skips cleanly.
   - **Dependencies**: T050, T051
 
-- [ ] T067 [P] API test suite: activity/version endpoints
+- [X] T067 [P] API test suite: activity/version endpoints
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/projects/[projectId]/__tests__/activityVersion.api.test.ts`
@@ -864,7 +864,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: `npm run test -- activityVersion.api` passes or skips cleanly.
   - **Dependencies**: T052–T056
 
-- [ ] T068 [P] API test suite: notification/lock/presence endpoints
+- [X] T068 [P] API test suite: notification/lock/presence endpoints
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/__tests__/notificationLockPresence.api.test.ts`
@@ -874,7 +874,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: `npm run test -- notificationLockPresence.api` passes or skips cleanly.
   - **Dependencies**: T057–T062
 
-- [ ] T069 [P] API test suite: conflict extension + stream access check
+- [X] T069 [P] API test suite: conflict extension + stream access check
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/features/[featureId]/__tests__/conflict.api.test.ts`
@@ -886,7 +886,7 @@ the additive extension to the two existing feature endpoints.
     existing features API suite, both passing.
   - **Dependencies**: T063, T064
 
-- [ ] T070 Security spot-check: cross-member 404 + insufficient-role 403 sweep
+- [X] T070 Security spot-check: cross-member 404 + insufficient-role 403 sweep
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/__tests__/collaboration.security.test.ts`
@@ -899,7 +899,7 @@ the additive extension to the two existing feature endpoints.
   - **Verification**: `npm run test -- collaboration.security` passes or skips cleanly.
   - **Dependencies**: T044–T064
 
-- [ ] T071 **Checkpoint** — Route Handlers quality gate
+- [X] T071 **Checkpoint** — Route Handlers quality gate
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A
@@ -921,7 +921,7 @@ the additive extension to the two existing feature endpoints.
 client-side infrastructure pieces (realtime client, offline queue) every
 hook in Phase 6 depends on.
 
-- [ ] T072 [P] `src/features/collaboration/services/membershipService.ts`
+- [X] T072 [P] `src/features/collaboration/services/membershipService.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/services/membershipService.ts`
@@ -931,7 +931,7 @@ hook in Phase 6 depends on.
   - **Verification**: Covered by Phase 6's hook tests.
   - **Dependencies**: T044, T047, T048, T049
 
-- [ ] T073 [P] `src/features/collaboration/services/invitationService.ts`
+- [X] T073 [P] `src/features/collaboration/services/invitationService.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/services/invitationService.ts`
@@ -940,7 +940,7 @@ hook in Phase 6 depends on.
   - **Verification**: Covered by Phase 6.
   - **Dependencies**: T044, T045, T046
 
-- [ ] T074 [P] `src/features/collaboration/services/commentService.ts`
+- [X] T074 [P] `src/features/collaboration/services/commentService.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/services/commentService.ts`
@@ -950,7 +950,7 @@ hook in Phase 6 depends on.
   - **Verification**: Covered by Phase 6.
   - **Dependencies**: T050, T051
 
-- [ ] T075 [P] `src/features/collaboration/services/activityService.ts`
+- [X] T075 [P] `src/features/collaboration/services/activityService.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/services/activityService.ts`
@@ -959,7 +959,7 @@ hook in Phase 6 depends on.
   - **Verification**: Covered by Phase 6.
   - **Dependencies**: T052
 
-- [ ] T076 [P] `src/features/collaboration/services/versionService.ts`
+- [X] T076 [P] `src/features/collaboration/services/versionService.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/services/versionService.ts`
@@ -969,7 +969,7 @@ hook in Phase 6 depends on.
   - **Verification**: Covered by Phase 6.
   - **Dependencies**: T053, T054, T055, T056
 
-- [ ] T077 [P] `src/features/collaboration/services/notificationService.ts`
+- [X] T077 [P] `src/features/collaboration/services/notificationService.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/services/notificationService.ts`
@@ -978,7 +978,7 @@ hook in Phase 6 depends on.
   - **Verification**: Covered by Phase 6.
   - **Dependencies**: T057, T058, T059
 
-- [ ] T078 [P] `src/features/collaboration/services/lockService.ts`
+- [X] T078 [P] `src/features/collaboration/services/lockService.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/services/lockService.ts`
@@ -987,7 +987,7 @@ hook in Phase 6 depends on.
   - **Verification**: Covered by Phase 6.
   - **Dependencies**: T060
 
-- [ ] T079 [P] `src/features/collaboration/services/presenceService.ts`
+- [X] T079 [P] `src/features/collaboration/services/presenceService.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/services/presenceService.ts`
@@ -996,7 +996,7 @@ hook in Phase 6 depends on.
   - **Verification**: Covered by Phase 6.
   - **Dependencies**: T061, T062
 
-- [ ] T080 `src/features/collaboration/services/queryKeys.ts`
+- [X] T080 `src/features/collaboration/services/queryKeys.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/services/queryKeys.ts`
@@ -1010,7 +1010,7 @@ hook in Phase 6 depends on.
   - **Verification**: `npx tsc --noEmit`; grep-based guard in T199.
   - **Dependencies**: T072–T079
 
-- [ ] T081 `src/features/collaboration/services/realtimeClient.ts`
+- [X] T081 `src/features/collaboration/services/realtimeClient.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/services/realtimeClient.ts`
@@ -1025,7 +1025,7 @@ hook in Phase 6 depends on.
   - **Verification**: Covered by T117/T118.
   - **Dependencies**: T004
 
-- [ ] T082 `src/features/collaboration/services/offlineQueue.ts`
+- [X] T082 `src/features/collaboration/services/offlineQueue.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/services/offlineQueue.ts`
@@ -1039,7 +1039,7 @@ hook in Phase 6 depends on.
   - **Verification**: Covered by T096.
   - **Dependencies**: T004
 
-- [ ] T083 **Checkpoint** — Client Services quality gate
+- [X] T083 **Checkpoint** — Client Services quality gate
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A
@@ -1057,7 +1057,7 @@ hook in Phase 6 depends on.
 **Purpose**: Every hook `client-api.md` defines, plus the cache-
 invalidation wiring connecting realtime events to React Query.
 
-- [ ] T084 [P] `useMembers`/`useChangeRole`/`useRemoveMember`/`useTransferOwnership`
+- [X] T084 [P] `useMembers`/`useChangeRole`/`useRemoveMember`/`useTransferOwnership`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/hooks/useMembers.ts`
@@ -1067,7 +1067,7 @@ invalidation wiring connecting realtime events to React Query.
   - **Verification**: Covered by T094.
   - **Dependencies**: T072, T080
 
-- [ ] T085 [P] `useInvitations`/`useInvite`/`useAcceptInvitation`/`useDeclineInvitation`
+- [X] T085 [P] `useInvitations`/`useInvite`/`useAcceptInvitation`/`useDeclineInvitation`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/hooks/useInvitations.ts`
@@ -1078,7 +1078,7 @@ invalidation wiring connecting realtime events to React Query.
   - **Verification**: Covered by T094.
   - **Dependencies**: T073, T080
 
-- [ ] T086 [P] `useComments`/`useCreateComment`/`useUpdateComment`/`useResolveComment`/`useDeleteComment`
+- [X] T086 [P] `useComments`/`useCreateComment`/`useUpdateComment`/`useResolveComment`/`useDeleteComment`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/hooks/useComments.ts`
@@ -1088,7 +1088,7 @@ invalidation wiring connecting realtime events to React Query.
   - **Verification**: Covered by T095.
   - **Dependencies**: T074, T080
 
-- [ ] T087 [P] `useActivity`
+- [X] T087 [P] `useActivity`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/hooks/useActivity.ts`
@@ -1098,7 +1098,7 @@ invalidation wiring connecting realtime events to React Query.
   - **Verification**: Covered by T095.
   - **Dependencies**: T075, T080
 
-- [ ] T088 [P] `useVersions`/`useSaveVersion`/`useRestoreVersion`/`useCompareVersions`
+- [X] T088 [P] `useVersions`/`useSaveVersion`/`useRestoreVersion`/`useCompareVersions`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/hooks/useVersions.ts`
@@ -1111,7 +1111,7 @@ invalidation wiring connecting realtime events to React Query.
   - **Verification**: Covered by T095.
   - **Dependencies**: T076, T080
 
-- [ ] T089 [P] `useNotifications`/`useMarkNotificationRead`/`useMarkAllNotificationsRead`
+- [X] T089 [P] `useNotifications`/`useMarkNotificationRead`/`useMarkAllNotificationsRead`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/hooks/useNotifications.ts`
@@ -1120,7 +1120,7 @@ invalidation wiring connecting realtime events to React Query.
   - **Verification**: Covered by T096.
   - **Dependencies**: T077, T080
 
-- [ ] T090 [P] `useFeatureLock`
+- [X] T090 [P] `useFeatureLock`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/hooks/useFeatureLock.ts`
@@ -1134,7 +1134,7 @@ invalidation wiring connecting realtime events to React Query.
   - **Verification**: Covered by T096.
   - **Dependencies**: T078, T080
 
-- [ ] T091 [P] `usePresence`
+- [X] T091 [P] `usePresence`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/hooks/usePresence.ts`
@@ -1145,7 +1145,7 @@ invalidation wiring connecting realtime events to React Query.
   - **Verification**: Covered by T096.
   - **Dependencies**: T079, T080
 
-- [ ] T092 `useOfflineQueue`
+- [X] T092 `useOfflineQueue`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/hooks/useOfflineQueue.ts`
@@ -1158,7 +1158,7 @@ invalidation wiring connecting realtime events to React Query.
   - **Verification**: Covered by T096.
   - **Dependencies**: T082
 
-- [ ] T093 Cache-invalidation wiring: realtime events → React Query
+- [X] T093 Cache-invalidation wiring: realtime events → React Query
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/hooks/useRealtimeInvalidation.ts`
@@ -1173,7 +1173,7 @@ invalidation wiring connecting realtime events to React Query.
   - **Verification**: Covered by T118.
   - **Dependencies**: T081, T086, T089
 
-- [ ] T094 [P] Hook tests: sharing hooks (`useMembers`, `useInvitations`)
+- [X] T094 [P] Hook tests: sharing hooks (`useMembers`, `useInvitations`)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/__tests__/useMembers.test.tsx`, `useInvitations.test.tsx`
@@ -1182,7 +1182,7 @@ invalidation wiring connecting realtime events to React Query.
   - **Verification**: `npm run test -- useMembers useInvitations` passes.
   - **Dependencies**: T084, T085
 
-- [ ] T095 [P] Hook tests: comment/activity/version hooks
+- [X] T095 [P] Hook tests: comment/activity/version hooks
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/__tests__/useComments.test.tsx`, `useActivity.test.tsx`, `useVersions.test.tsx`
@@ -1193,7 +1193,7 @@ invalidation wiring connecting realtime events to React Query.
   - **Verification**: `npm run test -- useComments useActivity useVersions` passes.
   - **Dependencies**: T086, T087, T088
 
-- [ ] T096 [P] Hook tests: notification/lock/presence/offline hooks
+- [X] T096 [P] Hook tests: notification/lock/presence/offline hooks
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/__tests__/useNotifications.test.tsx`, `useFeatureLock.test.tsx`, `usePresence.test.tsx`, `useOfflineQueue.test.tsx`
@@ -1203,7 +1203,7 @@ invalidation wiring connecting realtime events to React Query.
   - **Verification**: `npm run test -- useNotifications useFeatureLock usePresence useOfflineQueue` passes.
   - **Dependencies**: T089, T090, T091, T092
 
-- [ ] T097 **Checkpoint** — React Query Hooks quality gate
+- [X] T097 **Checkpoint** — React Query Hooks quality gate
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A
@@ -1235,7 +1235,7 @@ below on why "Comment Store"/"Clipboard Store" are not built.
 > deliberately not built; T103 documents this as a verification task
 > rather than silently skipping it.
 
-- [ ] T098 [P] `collaborationStore.ts` — presence slice
+- [X] T098 [P] `collaborationStore.ts` — presence slice
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/store/collaborationStore.ts`
@@ -1247,7 +1247,7 @@ below on why "Comment Store"/"Clipboard Store" are not built.
   - **Verification**: Covered by T104.
   - **Dependencies**: T014
 
-- [ ] T099 [P] `collaborationStore.ts` — lock slice
+- [X] T099 [P] `collaborationStore.ts` — lock slice
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/store/collaborationStore.ts`
@@ -1258,7 +1258,7 @@ below on why "Comment Store"/"Clipboard Store" are not built.
   - **Verification**: Covered by T104.
   - **Dependencies**: T014
 
-- [ ] T100 [P] `collaborationStore.ts` — connection-status slice
+- [X] T100 [P] `collaborationStore.ts` — connection-status slice
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/store/collaborationStore.ts`
@@ -1269,7 +1269,7 @@ below on why "Comment Store"/"Clipboard Store" are not built.
   - **Verification**: Covered by T104.
   - **Dependencies**: T081
 
-- [ ] T101 [P] `collaborationStore.ts` — notification-count slice
+- [X] T101 [P] `collaborationStore.ts` — notification-count slice
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/store/collaborationStore.ts`
@@ -1282,7 +1282,7 @@ below on why "Comment Store"/"Clipboard Store" are not built.
   - **Verification**: Covered by T104.
   - **Dependencies**: T089
 
-- [ ] T102 Confirm no persistence middleware is applied
+- [X] T102 Confirm no persistence middleware is applied
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/store/collaborationStore.ts`
@@ -1295,7 +1295,7 @@ below on why "Comment Store"/"Clipboard Store" are not built.
   - **Verification**: Manual code review.
   - **Dependencies**: T098–T101
 
-- [ ] T103 Verify comment/clipboard state is reused, not duplicated
+- [X] T103 Verify comment/clipboard state is reused, not duplicated
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A (verification task)
@@ -1308,7 +1308,7 @@ below on why "Comment Store"/"Clipboard Store" are not built.
     guard test.
   - **Dependencies**: T086
 
-- [ ] T104 [P] Unit tests: `collaborationStore` actions
+- [X] T104 [P] Unit tests: `collaborationStore` actions
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/__tests__/collaborationStore.test.ts`
@@ -1319,7 +1319,7 @@ below on why "Comment Store"/"Clipboard Store" are not built.
   - **Verification**: `npm run test -- collaborationStore` passes.
   - **Dependencies**: T098–T101
 
-- [ ] T105 **Checkpoint** — Zustand Stores quality gate
+- [X] T105 **Checkpoint** — Zustand Stores quality gate
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A
@@ -1338,7 +1338,7 @@ below on why "Comment Store"/"Clipboard Store" are not built.
 every write path that must broadcast — the integration pass connecting
 Phases 3–7's pieces into one live system.
 
-- [ ] T106 Complete `channel.ts`'s reconnect-with-backoff logic
+- [X] T106 Complete `channel.ts`'s reconnect-with-backoff logic
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/realtime/channel.ts`
@@ -1351,7 +1351,7 @@ Phases 3–7's pieces into one live system.
   - **Verification**: Covered by T117.
   - **Dependencies**: T013
 
-- [ ] T107 Complete `GET /api/projects/:projectId/stream`
+- [X] T107 Complete `GET /api/projects/:projectId/stream`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/projects/[projectId]/stream/route.ts`
@@ -1364,7 +1364,7 @@ Phases 3–7's pieces into one live system.
   - **Verification**: Covered by T117.
   - **Dependencies**: T064, T106
 
-- [ ] T108 Wire `publish()` into `featureRepository.updateFeature`/`deleteFeature`
+- [X] T108 Wire `publish()` into `featureRepository.updateFeature`/`deleteFeature`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/featureRepository.ts`
@@ -1377,7 +1377,7 @@ Phases 3–7's pieces into one live system.
   - **Verification**: Covered by T119.
   - **Dependencies**: T033, T107
 
-- [ ] T109 Wire `publish()` into layer create/rename/reorder/delete
+- [X] T109 Wire `publish()` into layer create/rename/reorder/delete
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/layerRepository.ts`
@@ -1386,7 +1386,7 @@ Phases 3–7's pieces into one live system.
   - **Verification**: Covered by T119.
   - **Dependencies**: T032, T107
 
-- [ ] T110 Wire `publish()` into comment create/update/resolve/delete
+- [X] T110 Wire `publish()` into comment create/update/resolve/delete
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/commentRepository.ts`
@@ -1396,7 +1396,7 @@ Phases 3–7's pieces into one live system.
   - **Verification**: Covered by T119.
   - **Dependencies**: T025, T107
 
-- [ ] T111 Wire `publish()` into `createNotification`
+- [X] T111 Wire `publish()` into `createNotification`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/notificationRepository.ts`
@@ -1408,7 +1408,7 @@ Phases 3–7's pieces into one live system.
   - **Verification**: Covered by T119.
   - **Dependencies**: T028, T107
 
-- [ ] T112 Wire `publish()` into lock acquire/release + lock-conflict notification
+- [X] T112 Wire `publish()` into lock acquire/release + lock-conflict notification
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/featureLockRepository.ts`
@@ -1420,7 +1420,7 @@ Phases 3–7's pieces into one live system.
   - **Verification**: Covered by T119.
   - **Dependencies**: T029, T107, T111
 
-- [ ] T113 Wire `publish()` into `upsertPresence`
+- [X] T113 Wire `publish()` into `upsertPresence`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/presenceRepository.ts`
@@ -1431,7 +1431,7 @@ Phases 3–7's pieces into one live system.
   - **Verification**: Covered by T119.
   - **Dependencies**: T030, T107
 
-- [ ] T114 Mount `realtimeClient`'s `EventSource` connection at the map-editing shell
+- [X] T114 Mount `realtimeClient`'s `EventSource` connection at the map-editing shell
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/map/components/MapCore.tsx` (or
@@ -1445,7 +1445,7 @@ Phases 3–7's pieces into one live system.
   - **Verification**: Covered by T119.
   - **Dependencies**: T081
 
-- [ ] T115 Wire `collaborationStore` updates from incoming SSE events
+- [X] T115 Wire `collaborationStore` updates from incoming SSE events
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/hooks/useRealtimeInvalidation.ts` (extended)
@@ -1458,7 +1458,7 @@ Phases 3–7's pieces into one live system.
   - **Verification**: Covered by T118.
   - **Dependencies**: T093, T098–T101, T114
 
-- [ ] T116 Wire React Query cache invalidation from incoming SSE events
+- [X] T116 Wire React Query cache invalidation from incoming SSE events
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/hooks/useRealtimeInvalidation.ts` (extended)
@@ -1470,7 +1470,7 @@ Phases 3–7's pieces into one live system.
   - **Verification**: Covered by T118.
   - **Dependencies**: T093, T108–T111
 
-- [ ] T117 [P] WebSocket/SSE test tier: stream Route Handler
+- [X] T117 [P] WebSocket/SSE test tier: stream Route Handler
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `app/api/projects/[projectId]/__tests__/stream.api.test.ts`
@@ -1482,7 +1482,7 @@ Phases 3–7's pieces into one live system.
   - **Verification**: `npm run test -- stream.api` passes or skips cleanly.
   - **Dependencies**: T106, T107
 
-- [ ] T118 [P] WebSocket/SSE test tier: client event dispatch
+- [X] T118 [P] WebSocket/SSE test tier: client event dispatch
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/__tests__/realtimeClient.test.ts`
@@ -1494,7 +1494,7 @@ Phases 3–7's pieces into one live system.
   - **Verification**: `npm run test -- realtimeClient` passes.
   - **Dependencies**: T115, T116
 
-- [ ] T119 Integration test: two-session live update
+- [X] T119 Integration test: two-session live update
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/collaboration/__tests__/liveUpdate.integration.test.tsx`
@@ -1505,7 +1505,7 @@ Phases 3–7's pieces into one live system.
   - **Verification**: `npm run test -- liveUpdate.integration` passes or skips cleanly.
   - **Dependencies**: T108–T116
 
-- [ ] T120 **Checkpoint** — Real-Time Collaboration quality gate
+- [X] T120 **Checkpoint** — Real-Time Collaboration quality gate
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A

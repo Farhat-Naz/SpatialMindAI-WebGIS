@@ -7,6 +7,7 @@ import { useAnalysisStore, type SpatialQueryPredicate } from "../store/analysisS
 import { useRunAnalysis } from "../hooks/useAnalysis"
 import type { MeasurementDistanceUnit } from "../services/spatialMath"
 import type { AnalysisRunRecord } from "../types/analysis.types"
+import type { AnalysisRequestInput } from "@/shared/contracts/analysis.schema"
 
 /** Mirrors `analysisOperations.ts`'s server-side `AttributeFilterOperator` union (kept as a small client-local copy — that file is server-only and must not be imported client-side). */
 type AttributeFilterOperator = "eq" | "neq" | "contains" | "gt" | "lt" | "gte" | "lte"
@@ -44,6 +45,14 @@ export function OperationConfigForm({ projectId }: OperationConfigFormProps) {
       return <SpatialQueryForm projectId={projectId} />
     case "selectByAttribute":
       return <AttributeQueryForm projectId={projectId} />
+    case "union":
+    case "intersect":
+    case "difference":
+    case "clip":
+    case "erase":
+    case "identity":
+    case "symmetricalDifference":
+      return <OverlayForm projectId={projectId} operationType={operationType} />
     default:
       return (
         <p className="p-3 text-sm text-muted-foreground">
@@ -494,6 +503,76 @@ function AttributeQueryForm({ projectId }: { projectId: string }) {
 
       <Button type="submit" disabled={runAnalysis.isPending}>
         {runAnalysis.isPending ? "Running…" : "Run Select by Attribute"}
+      </Button>
+    </form>
+  )
+}
+
+type OverlayOperationType = "union" | "intersect" | "difference" | "clip" | "erase" | "identity" | "symmetricalDifference"
+
+const OVERLAY_LABELS: Record<OverlayOperationType, { title: string; first: string; second: string }> = {
+  union: { title: "Union", first: "Layer A", second: "Layer B" },
+  intersect: { title: "Intersection", first: "Layer A", second: "Layer B" },
+  difference: { title: "Difference", first: "Layer A", second: "Layer B (subtracted)" },
+  clip: { title: "Clip", first: "Target layer", second: "Clip boundary" },
+  erase: { title: "Erase", first: "Target layer", second: "Erase boundary" },
+  identity: { title: "Identity", first: "Target layer", second: "Reference layer" },
+  symmetricalDifference: { title: "Symmetrical Difference", first: "Layer A", second: "Layer B" },
+}
+
+/** Overlay Analysis (US4, FR-010) — Union/Intersection/Difference/Clip/Erase/Identity/Symmetrical Difference, all sharing this same two-layer form shape. */
+function OverlayForm({ projectId, operationType }: { projectId: string; operationType: OverlayOperationType }) {
+  const stagedInputLayerIds = useAnalysisStore((state) => state.stagedInputLayerIds)
+  const setLastError = useAnalysisStore((state) => state.setLastError)
+  const runAnalysis = useRunAnalysis(projectId)
+  const [validationError, setValidationError] = useState<string | null>(null)
+
+  const labels = OVERLAY_LABELS[operationType]
+  const [firstLayerId, secondLayerId] = stagedInputLayerIds
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (!firstLayerId || !secondLayerId) {
+      setValidationError(`Select two layers: ${labels.first} and ${labels.second}.`)
+      return
+    }
+    setValidationError(null)
+
+    // All 7 overlay variants share one request shape (a 2-tuple of layer ids,
+    // no parameters), but `operationType` is a union-typed *variable* here,
+    // so TypeScript cannot correlate it with a single arm of
+    // `AnalysisRequestInput`'s discriminated union. The cast asserts only
+    // what analysis.schema.ts already guarantees for these 7 keys.
+    const request = {
+      operationType,
+      inputLayerIds: [firstLayerId, secondLayerId],
+      parameters: undefined,
+    } as AnalysisRequestInput
+
+    runAnalysis.mutate(request, {
+      onError: (error) => setLastError(error instanceof Error ? error.message : `Failed to run ${labels.title}.`),
+    })
+  }
+
+  return (
+    <form onSubmit={handleSubmit} aria-label={`${labels.title} parameters`} className="flex flex-col gap-3 p-3">
+      <p className="text-sm text-muted-foreground">
+        {labels.first}: {firstLayerId ?? "not staged"} · {labels.second}: {secondLayerId ?? "not staged"}
+      </p>
+      <p className="text-xs text-muted-foreground">
+        Stage two layers from the Layers panel — the first becomes &ldquo;{labels.first}&rdquo;, the second
+        &ldquo;{labels.second}&rdquo;.
+      </p>
+
+      {validationError && (
+        <p role="alert" className="text-sm text-destructive">
+          {validationError}
+        </p>
+      )}
+
+      <Button type="submit" disabled={runAnalysis.isPending}>
+        {runAnalysis.isPending ? "Running…" : `Run ${labels.title}`}
       </Button>
     </form>
   )

@@ -14,6 +14,9 @@ vi.mock("../services/analysisService", () => ({
 
 vi.mock("@/features/database", () => ({
   queryKeys: { layers: (projectId: string) => ["projects", projectId, "layers"] },
+  // ResultPanel reads the result layer's features to report which input
+  // attributes survived the operation (T176); Buffer's result carries none.
+  useFeatures: () => ({ data: { features: [] } }),
 }))
 
 const mockedService = vi.mocked(analysisService)

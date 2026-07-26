@@ -55,13 +55,13 @@ export const ANALYSIS_OPERATION_CATALOG: readonly AnalysisOperationCatalogEntry[
   { key: "measureCoordinates", category: "measurement", label: "Coordinates", implemented: false },
 
   // --- Overlay Analysis (US4, FR-010) ---
-  { key: "union", operationType: "union", category: "overlay", label: "Union", implemented: false },
-  { key: "intersect", operationType: "intersect", category: "overlay", label: "Intersection", implemented: false },
-  { key: "difference", operationType: "difference", category: "overlay", label: "Difference", implemented: false },
-  { key: "clip", operationType: "clip", category: "overlay", label: "Clip", implemented: false },
-  { key: "erase", operationType: "erase", category: "overlay", label: "Erase", implemented: false },
-  { key: "identity", operationType: "identity", category: "overlay", label: "Identity", implemented: false },
-  { key: "symmetricalDifference", operationType: "symmetricalDifference", category: "overlay", label: "Symmetrical Difference", implemented: false },
+  { key: "union", operationType: "union", category: "overlay", label: "Union", implemented: true },
+  { key: "intersect", operationType: "intersect", category: "overlay", label: "Intersection", implemented: true },
+  { key: "difference", operationType: "difference", category: "overlay", label: "Difference", implemented: true },
+  { key: "clip", operationType: "clip", category: "overlay", label: "Clip", implemented: true },
+  { key: "erase", operationType: "erase", category: "overlay", label: "Erase", implemented: true },
+  { key: "identity", operationType: "identity", category: "overlay", label: "Identity", implemented: true },
+  { key: "symmetricalDifference", operationType: "symmetricalDifference", category: "overlay", label: "Symmetrical Difference", implemented: true },
 
   // --- Geometry Processing (US5, FR-011–015) ---
   { key: "simplify", operationType: "simplify", category: "geometry", label: "Simplify", implemented: false },

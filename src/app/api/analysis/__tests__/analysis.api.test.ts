@@ -426,3 +426,203 @@ describe.skipIf(!dbAvailable)("Analysis API — Spatial Query predicates (US2)",
     expect(copiedAttribute?.value).toBe("target")
   })
 })
+
+/**
+ * T180 (US4) — Overlay Analysis against seeded overlapping polygon
+ * fixtures with arithmetically known results, covering FR-010 for all 7
+ * operations and FR-033's CRS handling (T177).
+ *
+ * Fixture (all areas in square degrees; SRID 4326 planar math):
+ *
+ *   Target layer A          Overlay layer B
+ *   ─────────────────       ─────────────────
+ *   "left"     0..10 × 0..10  (100)   b1   5..15 × 0..10  (100)
+ *   "covered" 22..28 × 2..8   ( 36)   b2  20..30 × 0..10  (100)
+ *   "far"     40..50 × 0..10  (100)
+ *   total                     236     total              200
+ *
+ * A ∩ B = 50 ("left"'s right half) + 36 ("covered", wholly inside b2) = 86.
+ * So: Intersection 86, Union 350, Difference 150, SymDifference 264 —
+ * and Clip (86) + Erase (150) exactly partition A's 236.
+ */
+describe.skipIf(!dbAvailable)("Analysis API — Overlay Analysis (US4)", () => {
+  let projectId: string
+  let targetLayerId: string
+  let overlayLayerId: string
+
+  /** A closed axis-aligned rectangle as a GeoJSON polygon. */
+  function box(minX: number, minY: number, maxX: number, maxY: number) {
+    return {
+      type: "Polygon",
+      coordinates: [[[minX, minY], [minX, maxY], [maxX, maxY], [maxX, minY], [minX, minY]]],
+    }
+  }
+
+  async function insertPolygon(layerId: string, geometry: unknown, label?: string): Promise<void> {
+    const rows = await prismaClient.$queryRaw<{ id: string }[]>`
+      INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
+      VALUES (gen_random_uuid(), ${layerId}, ST_GeomFromGeoJSON(${JSON.stringify(geometry)}), NOW(), NOW())
+      RETURNING id
+    `
+    if (label) {
+      await prismaClient.featureAttribute.create({ data: { featureId: rows[0].id, key: "label", value: label } })
+    }
+  }
+
+  beforeAll(async () => {
+    process.env.DEV_USER_ID = TEST_OWNER_ID
+    await ensureTestOwner()
+    const project = await prismaClient.project.create({
+      data: { ownerId: TEST_OWNER_ID, name: `Overlay API Test ${Date.now()}` },
+    })
+    projectId = project.id
+
+    const target = await prismaClient.layer.create({ data: { projectId, name: "Target", order: 0 } })
+    const overlay = await prismaClient.layer.create({ data: { projectId, name: "Overlay", order: 1 } })
+    targetLayerId = target.id
+    overlayLayerId = overlay.id
+
+    await insertPolygon(targetLayerId, box(0, 0, 10, 10), "left")
+    await insertPolygon(targetLayerId, box(22, 2, 28, 8), "covered")
+    await insertPolygon(targetLayerId, box(40, 0, 50, 10), "far")
+
+    await insertPolygon(overlayLayerId, box(5, 0, 15, 10))
+    await insertPolygon(overlayLayerId, box(20, 0, 30, 10))
+  })
+
+  afterAll(async () => {
+    await prismaClient.project.deleteMany({ where: { ownerId: TEST_OWNER_ID } })
+  })
+
+  /** Runs an overlay operation and returns its result layer id. */
+  async function runOverlay(operationType: string, inputLayerIds: string[]): Promise<string> {
+    const response = await POST(
+      jsonRequest(`http://localhost/api/projects/${projectId}/analysis`, "POST", {
+        operationType,
+        inputLayerIds,
+        parameters: undefined,
+      }) as never,
+      { params: Promise.resolve({ projectId }) },
+    )
+    const { run } = await response.json()
+    expect(run.status).toBe("succeeded")
+    expect(run.resultLayerId).toBeTruthy()
+    return run.resultLayerId as string
+  }
+
+  /** Total area of a layer's combined footprint, in square degrees. */
+  async function layerArea(layerId: string): Promise<number> {
+    const rows = await prismaClient.$queryRaw<{ area: number }[]>`
+      SELECT COALESCE(ST_Area(ST_Union(geometry)), 0)::float8 AS area FROM "Feature" WHERE "layerId" = ${layerId}
+    `
+    return rows[0].area
+  }
+
+  /** The sorted "label" attribute values carried into a result layer. */
+  async function resultLabels(layerId: string): Promise<string[]> {
+    const attributes = await prismaClient.featureAttribute.findMany({
+      where: { key: "label", feature: { layerId } },
+    })
+    return attributes.map((a) => a.value).sort()
+  }
+
+  it("the fixture layers have the expected areas (guards every assertion below)", async () => {
+    expect(await layerArea(targetLayerId)).toBeCloseTo(236, 6)
+    expect(await layerArea(overlayLayerId)).toBeCloseTo(200, 6)
+  })
+
+  it("intersect: result is exactly the shared area (US4.1)", async () => {
+    const resultLayerId = await runOverlay("intersect", [targetLayerId, overlayLayerId])
+    expect(await layerArea(resultLayerId)).toBeCloseTo(86, 6)
+  })
+
+  it("union: result is the combined footprint of both layers (US4.2)", async () => {
+    const resultLayerId = await runOverlay("union", [targetLayerId, overlayLayerId])
+    expect(await layerArea(resultLayerId)).toBeCloseTo(350, 6)
+  })
+
+  it("difference: result is the target minus the overlay (US4.3)", async () => {
+    const resultLayerId = await runOverlay("difference", [targetLayerId, overlayLayerId])
+    expect(await layerArea(resultLayerId)).toBeCloseTo(150, 6)
+  })
+
+  it("clip: keeps only the parts of each target feature inside the boundary, with attributes (US4.4)", async () => {
+    const resultLayerId = await runOverlay("clip", [targetLayerId, overlayLayerId])
+
+    expect(await layerArea(resultLayerId)).toBeCloseTo(86, 6)
+    // "far" lies entirely outside the boundary and is omitted; the other
+    // two survive as their own features, carrying their own attributes
+    // (FR-010 — Clip preserves the input layer's attribute schema).
+    expect(await resultLabels(resultLayerId)).toEqual(["covered", "left"])
+    expect(await prismaClient.feature.count({ where: { layerId: resultLayerId } })).toBe(2)
+  })
+
+  it("erase: removes the overlay footprint from each target feature, with attributes (US4.5)", async () => {
+    const resultLayerId = await runOverlay("erase", [targetLayerId, overlayLayerId])
+
+    expect(await layerArea(resultLayerId)).toBeCloseTo(150, 6)
+    // "covered" lies entirely within the erase footprint, so it differences
+    // down to nothing and is dropped rather than stored as an empty row.
+    expect(await resultLabels(resultLayerId)).toEqual(["far", "left"])
+    expect(await prismaClient.feature.count({ where: { layerId: resultLayerId } })).toBe(2)
+  })
+
+  it("clip and erase exactly partition the target layer", async () => {
+    const clipLayerId = await runOverlay("clip", [targetLayerId, overlayLayerId])
+    const eraseLayerId = await runOverlay("erase", [targetLayerId, overlayLayerId])
+
+    const total = (await layerArea(clipLayerId)) + (await layerArea(eraseLayerId))
+    expect(total).toBeCloseTo(await layerArea(targetLayerId), 6)
+  })
+
+  it("erase against an empty overlay layer leaves the target unchanged", async () => {
+    const emptyLayer = await prismaClient.layer.create({ data: { projectId, name: "Empty", order: 2 } })
+    const resultLayerId = await runOverlay("erase", [targetLayerId, emptyLayer.id])
+
+    // ST_Union over no rows is NULL; erasing nothing must keep every
+    // feature rather than producing a NULL geometry.
+    expect(await layerArea(resultLayerId)).toBeCloseTo(236, 6)
+    expect(await resultLabels(resultLayerId)).toEqual(["covered", "far", "left"])
+  })
+
+  it("identity: preserves all of the target's geometry and attributes (US4.6)", async () => {
+    const resultLayerId = await runOverlay("identity", [targetLayerId, overlayLayerId])
+
+    expect(await layerArea(resultLayerId)).toBeCloseTo(236, 6)
+    expect(await resultLabels(resultLayerId)).toEqual(["covered", "far", "left"])
+    expect(await prismaClient.feature.count({ where: { layerId: resultLayerId } })).toBe(3)
+  })
+
+  it("symmetricalDifference: result is everything in exactly one of the two layers (US4.7)", async () => {
+    const resultLayerId = await runOverlay("symmetricalDifference", [targetLayerId, overlayLayerId])
+
+    // 236 + 200 - 2×86 = 264.
+    expect(await layerArea(resultLayerId)).toBeCloseTo(264, 6)
+  })
+
+  it("every overlay input is stored at SRID 4326, so there is no CRS to reconcile (FR-033, T177)", async () => {
+    // FR-033 requires mismatched-CRS inputs be reconciled automatically.
+    // `Feature.geometry` is declared `geometry(Geometry, 4326)`, so the
+    // column constraint makes a second CRS unrepresentable — this asserts
+    // that invariant directly rather than testing an ST_Transform step
+    // that would be unreachable.
+    const resultLayerId = await runOverlay("intersect", [targetLayerId, overlayLayerId])
+    const rows = await prismaClient.$queryRaw<{ srid: number }[]>`
+      SELECT DISTINCT ST_SRID(geometry)::int AS srid
+      FROM "Feature"
+      WHERE "layerId" IN (${targetLayerId}, ${overlayLayerId}, ${resultLayerId})
+    `
+    expect(rows.map((r) => r.srid)).toEqual([4326])
+  })
+
+  it("rejects an overlay given only one input layer (schema requires a 2-tuple)", async () => {
+    const response = await POST(
+      jsonRequest(`http://localhost/api/projects/${projectId}/analysis`, "POST", {
+        operationType: "clip",
+        inputLayerIds: [targetLayerId],
+      }) as never,
+      { params: Promise.resolve({ projectId }) },
+    )
+    expect(response.status).toBe(400)
+  })
+})

@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/shared/components/ui/button"
+import { useFeatures } from "@/features/database"
 import { useAnalysisStore } from "../store/analysisStore"
 import { useAnalysisRun, useDiscardAnalysisResult } from "../hooks/useAnalysis"
 
@@ -16,6 +17,14 @@ interface ResultPanelProps {
  * moment the run succeeds (`createAnalysisRun` creates it inline), and
  * `useRunAnalysis`'s own cache invalidation already makes it visible in the
  * Layers panel — the button simply acknowledges the result and closes it.
+ *
+ * T176 (US4): when the result layer's features carry attributes — Clip/
+ * Erase/Identity preserve the input layer's own attributes, Union/
+ * Intersection/Difference/Symmetrical Difference do not (they produce a
+ * genuinely new combined shape with no natural per-feature attribute
+ * mapping, a documented Phase 3 scope decision) — this surfaces the
+ * attribute keys found on the first result feature as a visible signal
+ * that they survived the operation, not just the geometry.
  */
 export function ResultPanel({ projectId }: ResultPanelProps) {
   const activeRunId = useAnalysisStore((state) => state.activeRunId)
@@ -23,11 +32,16 @@ export function ResultPanel({ projectId }: ResultPanelProps) {
   const setLastError = useAnalysisStore((state) => state.setLastError)
   const { data } = useAnalysisRun(activeRunId ?? "", { poll: false })
   const discardResult = useDiscardAnalysisResult(projectId)
-
   const run = data?.run
+  const { data: resultFeatures } = useFeatures(run?.resultLayerId ?? "")
+
   if (!activeRunId || !run || run.status !== "succeeded") {
     return null
   }
+
+  const attributeKeys = [
+    ...new Set(resultFeatures?.features.flatMap((feature) => feature.attributes.map((a) => a.key)) ?? []),
+  ]
 
   return (
     <section aria-label="Analysis result" className="flex flex-col gap-3 border-t p-3">
@@ -35,6 +49,9 @@ export function ResultPanel({ projectId }: ResultPanelProps) {
 
       {run.resultLayerId && (
         <p className="text-sm text-muted-foreground">A new layer was added to your project.</p>
+      )}
+      {run.resultLayerId && attributeKeys.length > 0 && (
+        <p className="text-sm text-muted-foreground">Attributes preserved: {attributeKeys.join(", ")}</p>
       )}
       {run.resultData != null && (
         <pre className="max-h-40 overflow-auto rounded-md bg-muted p-2 text-xs">

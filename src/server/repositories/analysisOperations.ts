@@ -187,47 +187,88 @@ export function buildSymmetricalDifferenceSql(newLayerId: string, layerAId: stri
   return buildWholeLayerBinaryOverlaySql("ST_SymDifference", newLayerId, layerAId, layerBId)
 }
 
-/** One chunk of Clip — each of layer A's own features (identity preserved), clipped to layer B's combined boundary (FR-010). Features entirely outside B are omitted. */
+/**
+ * One chunk of Clip — each of layer A's own features (identity *and
+ * attributes* preserved, FR-010/T171), clipped to layer B's combined
+ * boundary. Features entirely outside B are omitted. Uses the same
+ * old-id→new-id CTE pattern as `buildSpatialPredicateChunkSql` so Clip's
+ * result carries the input layer's own attribute schema, not B's.
+ */
 export function buildClipChunkSql(newLayerId: string, chunkFeatureIds: string[], clipBoundaryLayerId: string): Prisma.Sql {
   return Prisma.sql`
-    INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
-    SELECT gen_random_uuid()::text, ${newLayerId}, ST_Intersection(a.geometry, boundary.geom), NOW(), NOW()
-    FROM "Feature" a
-    CROSS JOIN LATERAL (
+    WITH boundary AS (
       SELECT ST_Union(geometry) AS geom FROM "Feature" WHERE "layerId" = ${clipBoundaryLayerId}
-    ) boundary
-    WHERE a.id IN (${Prisma.join(chunkFeatureIds)})
-      AND ST_Intersects(a.geometry, boundary.geom)
-  `
-}
-
-/** One chunk of Erase — each of layer A's own features (identity preserved), with layer B's combined footprint removed (FR-010) — the per-feature complement of Clip. */
-export function buildEraseChunkSql(newLayerId: string, chunkFeatureIds: string[], eraseLayerId: string): Prisma.Sql {
-  return Prisma.sql`
-    INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
-    SELECT gen_random_uuid()::text, ${newLayerId}, ST_Difference(a.geometry, boundary.geom), NOW(), NOW()
-    FROM "Feature" a
-    CROSS JOIN LATERAL (
-      SELECT ST_Union(geometry) AS geom FROM "Feature" WHERE "layerId" = ${eraseLayerId}
-    ) boundary
-    WHERE a.id IN (${Prisma.join(chunkFeatureIds)})
+    ), matched AS (
+      SELECT a.id AS old_id, ST_Intersection(a.geometry, boundary.geom) AS old_geometry, gen_random_uuid()::text AS new_id
+      FROM "Feature" a, boundary
+      WHERE a.id IN (${Prisma.join(chunkFeatureIds)})
+        AND ST_Intersects(a.geometry, boundary.geom)
+    ), ins_feature AS (
+      INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
+      SELECT new_id, ${newLayerId}, old_geometry, NOW(), NOW() FROM matched
+    )
+    INSERT INTO "FeatureAttribute" (id, "featureId", key, value)
+    SELECT gen_random_uuid()::text, matched.new_id, fa.key, fa.value
+    FROM matched JOIN "FeatureAttribute" fa ON fa."featureId" = matched.old_id
   `
 }
 
 /**
- * Identity (FR-010) — preserves all of layer A's geometry unchanged.
- * Simplified scope decision: this implementation does not append layer B's
- * attributes for overlapping areas (a full attributed-overlay topology is a
- * documented follow-up); output geometry is identical to Identity's formal
- * definition (nothing from A is ever removed), which is the part every
- * caller can rely on today.
+ * One chunk of Erase — each of layer A's own features (identity *and*
+ * attributes preserved), with layer B's combined footprint removed
+ * (FR-010) — the per-feature complement of Clip.
+ *
+ * Two degenerate cases are handled explicitly rather than left to the
+ * database: an *empty* erase layer makes `ST_Union` return NULL, and
+ * `ST_Difference(geom, NULL)` is NULL — which would violate `Feature.
+ * geometry`'s NOT NULL constraint, so erasing nothing correctly keeps the
+ * feature unchanged. A feature lying entirely *within* the erase footprint
+ * differences down to an empty geometry, which is dropped rather than
+ * stored as a zero-area row (Erase's defining behaviour).
+ */
+export function buildEraseChunkSql(newLayerId: string, chunkFeatureIds: string[], eraseLayerId: string): Prisma.Sql {
+  return Prisma.sql`
+    WITH boundary AS (
+      SELECT ST_Union(geometry) AS geom FROM "Feature" WHERE "layerId" = ${eraseLayerId}
+    ), computed AS (
+      SELECT a.id AS old_id,
+             CASE WHEN boundary.geom IS NULL THEN a.geometry ELSE ST_Difference(a.geometry, boundary.geom) END AS old_geometry,
+             gen_random_uuid()::text AS new_id
+      FROM "Feature" a, boundary
+      WHERE a.id IN (${Prisma.join(chunkFeatureIds)})
+    ), matched AS (
+      SELECT * FROM computed WHERE old_geometry IS NOT NULL AND NOT ST_IsEmpty(old_geometry)
+    ), ins_feature AS (
+      INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
+      SELECT new_id, ${newLayerId}, old_geometry, NOW(), NOW() FROM matched
+    )
+    INSERT INTO "FeatureAttribute" (id, "featureId", key, value)
+    SELECT gen_random_uuid()::text, matched.new_id, fa.key, fa.value
+    FROM matched JOIN "FeatureAttribute" fa ON fa."featureId" = matched.old_id
+  `
+}
+
+/**
+ * Identity (FR-010) — preserves all of layer A's geometry *and attributes*
+ * unchanged (T176). Simplified scope decision: this implementation does
+ * not append layer B's attributes for overlapping areas (a full
+ * attributed-overlay topology carrying both inputs' schemas is a
+ * documented follow-up); every one of A's own attributes survives, and
+ * nothing from A is ever removed, matching Identity's formal definition.
  */
 export function buildIdentitySql(newLayerId: string, sourceLayerId: string): Prisma.Sql {
   return Prisma.sql`
-    INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
-    SELECT gen_random_uuid()::text, ${newLayerId}, geometry, NOW(), NOW()
-    FROM "Feature"
-    WHERE "layerId" = ${sourceLayerId}
+    WITH matched AS (
+      SELECT id AS old_id, geometry AS old_geometry, gen_random_uuid()::text AS new_id
+      FROM "Feature"
+      WHERE "layerId" = ${sourceLayerId}
+    ), ins_feature AS (
+      INSERT INTO "Feature" (id, "layerId", geometry, "createdAt", "updatedAt")
+      SELECT new_id, ${newLayerId}, old_geometry, NOW(), NOW() FROM matched
+    )
+    INSERT INTO "FeatureAttribute" (id, "featureId", key, value)
+    SELECT gen_random_uuid()::text, matched.new_id, fa.key, fa.value
+    FROM matched JOIN "FeatureAttribute" fa ON fa."featureId" = matched.old_id
   `
 }
 
