@@ -35,15 +35,15 @@ export const ANALYSIS_OPERATION_CATALOG: readonly AnalysisOperationCatalogEntry[
   { key: "buffer", operationType: "buffer", category: "buffer", label: "Buffer", implemented: true },
 
   // --- Spatial Query & Selection (US2, FR-004–006) ---
-  { key: "spatialJoin", operationType: "spatialJoin", category: "query", label: "Spatial Join", implemented: false },
-  { key: "pointInPolygon", operationType: "pointInPolygon", category: "query", label: "Point in Polygon", implemented: false },
-  { key: "nearAnalysis", operationType: "nearAnalysis", category: "query", label: "Near / Nearest", implemented: false },
+  { key: "spatialJoin", operationType: "spatialJoin", category: "query", label: "Spatial Join", implemented: true },
+  { key: "pointInPolygon", operationType: "pointInPolygon", category: "query", label: "Point in Polygon", implemented: true },
+  { key: "nearAnalysis", operationType: "nearAnalysis", category: "query", label: "Near / Nearest", implemented: true },
   { key: "distanceMatrix", operationType: "distanceMatrix", category: "query", label: "Distance Matrix", implemented: false },
-  { key: "selectByLocation", operationType: "selectByLocation", category: "query", label: "Select by Location", implemented: false },
-  { key: "selectByAttribute", operationType: "selectByAttribute", category: "query", label: "Select by Attribute", implemented: false },
-  { key: "touches", operationType: "touches", category: "query", label: "Touches", implemented: false },
-  { key: "crosses", operationType: "crosses", category: "query", label: "Crosses", implemented: false },
-  { key: "overlaps", operationType: "overlaps", category: "query", label: "Overlaps", implemented: false },
+  { key: "selectByLocation", operationType: "selectByLocation", category: "query", label: "Select by Location", implemented: true },
+  { key: "selectByAttribute", operationType: "selectByAttribute", category: "query", label: "Select by Attribute", implemented: true },
+  { key: "touches", operationType: "touches", category: "query", label: "Touches", implemented: true },
+  { key: "crosses", operationType: "crosses", category: "query", label: "Crosses", implemented: true },
+  { key: "overlaps", operationType: "overlaps", category: "query", label: "Overlaps", implemented: true },
 
   // --- Measurement Tools (US3, FR-007–009) — no operationType (Decision 8) ---
   { key: "measureDistance", category: "measurement", label: "Distance", implemented: false },
