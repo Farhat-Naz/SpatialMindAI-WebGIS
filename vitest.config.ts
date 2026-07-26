@@ -28,18 +28,16 @@ export default defineConfig({
     // strategy fix only — no application/rate-limiter code changes — and
     // trades some suite wall-clock time for a suite that is reliably green.
     fileParallelism: false,
-    poolOptions: {
-      forks: {
-        // `fileParallelism: false` already serializes files, but Vitest
-        // still spawns a fresh fork per file — ~126 process spawns per
-        // run, and on Windows one of them intermittently fails with
-        // "Failed to start forks worker", aborting an otherwise green
-        // suite (seen on two different, unrelated files). Reusing one
-        // fork removes the spawn churn; `isolate` stays on its default,
-        // so each file still gets a fresh module registry and the
-        // per-file rate-limiter reset above keeps working.
-        singleFork: true,
-      },
-    },
+    // Note on the intermittent "Failed to start forks worker" abort seen
+    // on Windows: it is fork-spawn churn (~126 spawns per run, one file
+    // each), not any single test — it hit two different, unrelated files
+    // on separate runs and both passed in isolation. There is no supported
+    // config fix in Vitest 4: `poolOptions.forks.singleFork` was removed
+    // (top-level options now), `fileParallelism: false` already pins
+    // workers to 1, and `pool: "threads"` cannot load this project's
+    // native Prisma bindings. `isolate: false` would reuse one process but
+    // would also share module state across files, which the paragraph
+    // above explains this suite specifically cannot tolerate. Re-run on
+    // the rare occasion it fires.
   },
 })
