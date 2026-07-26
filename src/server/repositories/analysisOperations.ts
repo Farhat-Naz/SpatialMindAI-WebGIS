@@ -705,6 +705,88 @@ export function buildStatisticsSql(layerId: string, statType: StatisticType): Pr
 }
 
 /**
+ * Metres per degree of latitude. `Feature.geometry` is fixed at EPSG:4326,
+ * so a grid built with `ST_SquareGrid` is sized in degrees — this converts
+ * the caller's metric cell size into that unit. It is exact for latitude
+ * and an over-estimate for longitude away from the equator, which is why
+ * the density result reports the grid's *measured* cell area rather than
+ * assuming the requested size (see `buildDensityGridSql`).
+ */
+const METERS_PER_DEGREE_LATITUDE = 111_320
+
+/** Converts a metric cell size to the degree units `ST_SquareGrid` works in. */
+export function toDegrees(meters: number): number {
+  return meters / METERS_PER_DEGREE_LATITUDE
+}
+
+/** A grid finer than this over the layer's extent is refused rather than attempted (T205) — cell count grows with the *square* of the inverse cell size, so a small mistake turns into millions of cells. */
+export const MAX_DENSITY_GRID_CELLS = 250_000
+
+/** How many cells a density grid would contain over the layer's extent — the pre-run guard against an accidentally tiny cell size. */
+export function buildDensityGridSizeSql(layerId: string, cellSizeDegrees: number): Prisma.Sql {
+  return Prisma.sql`
+    SELECT COALESCE(
+      CEIL((ST_XMax(bounds) - ST_XMin(bounds)) / ${cellSizeDegrees} + 1)
+      * CEIL((ST_YMax(bounds) - ST_YMin(bounds)) / ${cellSizeDegrees} + 1),
+      0
+    )::float8 AS cells
+    FROM (SELECT ST_Extent(geometry)::geometry AS bounds FROM "Feature" WHERE "layerId" = ${layerId}) extent
+  `
+}
+
+/**
+ * Density Analysis (US6.4, FR-016) — features per unit area, measured over
+ * a real square grid laid across the layer's extent at the caller's cell
+ * size.
+ *
+ * US6.4 asks for "features-per-unit-area" against a reference area, not a
+ * raster surface, and US6 requires statistics to produce no layer — so the
+ * grid is computed and then *summarized* (occupied cells, peak and mean
+ * occupancy, overall density) rather than persisted as cells. That makes
+ * `cellSize` genuinely determine the result while keeping Density a
+ * read-only statistic.
+ *
+ * `meanCellAreaSquareMeters` is measured from the generated cells via a
+ * geography cast rather than derived from the requested size: a grid sized
+ * in degrees is not metrically square away from the equator, and reporting
+ * the size that was asked for instead of the one that was used would
+ * overstate the result's precision.
+ */
+export function buildDensityGridSql(layerId: string, cellSizeMeters: number): Prisma.Sql {
+  const cellSizeDegrees = toDegrees(cellSizeMeters)
+  return Prisma.sql`
+    WITH bounds AS (
+      SELECT ST_SetSRID(ST_Extent(geometry)::geometry, 4326) AS geom FROM "Feature" WHERE "layerId" = ${layerId}
+    ), total AS (
+      SELECT COUNT(*)::int AS feature_count FROM "Feature" WHERE "layerId" = ${layerId}
+    ), cells AS (
+      SELECT (ST_SquareGrid(${cellSizeDegrees}, bounds.geom)).geom AS cell
+      FROM bounds WHERE bounds.geom IS NOT NULL
+    ), counted AS (
+      SELECT
+        cells.cell,
+        ST_Area(cells.cell::geography) AS cell_area,
+        (SELECT COUNT(*) FROM "Feature" f WHERE f."layerId" = ${layerId} AND ST_Intersects(f.geometry, cells.cell)) AS n
+      FROM cells
+    )
+    SELECT jsonb_build_object(
+      'featureCount', (SELECT feature_count FROM total),
+      'cellSizeMeters', ${cellSizeMeters},
+      'cellCount', COUNT(*),
+      'occupiedCellCount', COUNT(*) FILTER (WHERE n > 0),
+      'maxFeaturesPerCell', COALESCE(MAX(n), 0),
+      'meanFeaturesPerOccupiedCell', COALESCE(AVG(n) FILTER (WHERE n > 0), 0),
+      'meanCellAreaSquareMeters', COALESCE(AVG(cell_area), 0),
+      'densityPerCell', CASE WHEN COUNT(*) > 0
+        THEN (SELECT feature_count FROM total)::float8 / COUNT(*) ELSE 0 END,
+      'densityPerSquareMeter', CASE WHEN COALESCE(SUM(cell_area), 0) > 0
+        THEN (SELECT feature_count FROM total)::float8 / SUM(cell_area) ELSE 0 END
+    ) AS result
+    FROM counted
+  `
+}
+
+/**
  * Summarize (US6, FR-016) — every statistic `buildStatisticsSql` exposes
  * individually, computed in one pass over the layer.
  *

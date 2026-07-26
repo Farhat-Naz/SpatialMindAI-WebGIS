@@ -103,13 +103,30 @@ describe("StatisticsCards", () => {
     expect(screen.getByText(/500 m²/)).toBeTruthy()
   })
 
-  it("renders densityAnalysis's own payload", () => {
+  it("renders densityAnalysis's grid summary", () => {
     render(
-      <StatisticsCards result={{ featureCount: 10, convexHullAreaSquareMeters: 2000, densityPerSquareMeter: 0.005 }} />,
+      <StatisticsCards
+        result={{
+          featureCount: 10,
+          cellSizeMeters: 100,
+          cellCount: 40,
+          occupiedCellCount: 7,
+          maxFeaturesPerCell: 3,
+          meanFeaturesPerOccupiedCell: 1.43,
+          meanCellAreaSquareMeters: 9987.2,
+          densityPerCell: 0.25,
+          densityPerSquareMeter: 0.005,
+        }}
+      />,
     )
 
     expect(screen.getByText(/density \(features\/m²\)/i)).toBeTruthy()
-    expect(screen.getByText(/convex hull area/i)).toBeTruthy()
+    expect(screen.getByText(/^cell size$/i)).toBeTruthy()
+    expect(screen.getByText(/grid cells/i)).toBeTruthy()
+    expect(screen.getByText(/occupied cells/i)).toBeTruthy()
+    expect(screen.getByText(/busiest cell/i)).toBeTruthy()
+    // The area actually measured from the grid, not the size requested.
+    expect(screen.getByText(/measured cell area/i)).toBeTruthy()
   })
 
   it("says so plainly when a run produced no statistics", () => {

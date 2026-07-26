@@ -967,11 +967,51 @@ describe.skipIf(!dbAvailable)("Analysis API — Spatial Statistics (US6)", () =>
     expect(average.averageLengthMeters as number).toBeCloseTo((total.totalLengthMeters as number) / 2, 0)
   })
 
-  it("densityAnalysis: features per square metre of the convex hull (US6.4)", async () => {
-    const result = await runStatistic("densityAnalysis", pointLayerId, { cellSize: 100, unit: "meters" })
+  it("densityAnalysis: measures features per unit area over a real grid (US6.4)", async () => {
+    const result = await runStatistic("densityAnalysis", pointLayerId, { cellSize: 50, unit: "kilometers" })
 
-    expect(result).toMatchObject({ featureCount: 3 })
-    expect(result.densityPerSquareMeter).toBeDefined()
+    expect(result).toMatchObject({ featureCount: 3, cellSizeMeters: 50_000 })
+    expect(result.cellCount as number).toBeGreaterThan(0)
+    // Each of the 3 points falls in its own cell in this fixture.
+    expect(result.occupiedCellCount).toBe(3)
+    expect(result.maxFeaturesPerCell).toBe(1)
+    expect(result.densityPerSquareMeter as number).toBeGreaterThan(0)
+    // Reported from the generated cells, not assumed from the request:
+    // a degree-sized grid is not metrically square away from the equator.
+    expect(result.meanCellAreaSquareMeters as number).toBeGreaterThan(0)
+  })
+
+  it("densityAnalysis: the cell size actually changes the grid (T205)", async () => {
+    const coarse = await runStatistic("densityAnalysis", pointLayerId, { cellSize: 200, unit: "kilometers" })
+    const fine = await runStatistic("densityAnalysis", pointLayerId, { cellSize: 25, unit: "kilometers" })
+
+    // A finer cell size means more, smaller cells over the same extent -
+    // the property that was missing while density ignored its parameters.
+    expect(fine.cellCount as number).toBeGreaterThan(coarse.cellCount as number)
+    expect(fine.meanCellAreaSquareMeters as number).toBeLessThan(coarse.meanCellAreaSquareMeters as number)
+    // Feature count is a property of the layer, not of the grid.
+    expect(fine.featureCount).toBe(coarse.featureCount)
+  })
+
+  it("densityAnalysis: refuses a cell size that would explode the grid (T205)", async () => {
+    const response = await POST(
+      jsonRequest(`http://localhost/api/projects/${projectId}/analysis`, "POST", {
+        operationType: "densityAnalysis",
+        inputLayerIds: [pointLayerId],
+        parameters: { cellSize: 1, unit: "meters" },
+      }) as never,
+      { params: Promise.resolve({ projectId }) },
+    )
+
+    expect(response.status).toBe(400)
+    const body = await response.json()
+    expect(JSON.stringify(body)).toMatch(/larger cell size/i)
+  })
+
+  it("densityAnalysis: an empty layer reports a zero-cell grid rather than failing", async () => {
+    const result = await runStatistic("densityAnalysis", emptyLayerId, { cellSize: 100, unit: "meters" })
+
+    expect(result).toMatchObject({ featureCount: 0, cellCount: 0, occupiedCellCount: 0 })
   })
 
   it("extent / boundingBox / centroid / convexHull: geometry statistics (US6.5)", async () => {

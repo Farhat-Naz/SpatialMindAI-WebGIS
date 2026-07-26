@@ -24,9 +24,15 @@ export interface StatisticsResult {
   centroid?: unknown
   convexHull?: unknown
   extent?: unknown
-  /** densityAnalysis's own payload. */
-  convexHullAreaSquareMeters?: number
+  /** densityAnalysis's own payload — a summary of the grid it measured over. */
   densityPerSquareMeter?: number
+  densityPerCell?: number
+  cellSizeMeters?: number
+  cellCount?: number
+  occupiedCellCount?: number
+  maxFeaturesPerCell?: number
+  meanFeaturesPerOccupiedCell?: number
+  meanCellAreaSquareMeters?: number
 }
 
 interface StatisticsCardsProps {
@@ -65,11 +71,17 @@ const CARD_SPECS: CardSpec[] = [
   { key: "totalLengthMeters", label: "Total length", appliesTo: "LINESTRING", format: numberFormatter(" m") },
   { key: "averageLengthMeters", label: "Average length", appliesTo: "LINESTRING", format: numberFormatter(" m") },
   { key: "densityPerSquareMeter", label: "Density (features/m²)", appliesTo: "always", format: numberFormatter() },
+  { key: "densityPerCell", label: "Mean features per cell", appliesTo: "always", format: numberFormatter() },
+  { key: "cellSizeMeters", label: "Cell size", appliesTo: "always", format: numberFormatter(" m") },
+  { key: "meanCellAreaSquareMeters", label: "Measured cell area", appliesTo: "always", format: numberFormatter(" m²") },
+  { key: "cellCount", label: "Grid cells", appliesTo: "always", format: numberFormatter() },
+  { key: "occupiedCellCount", label: "Occupied cells", appliesTo: "always", format: numberFormatter() },
+  { key: "maxFeaturesPerCell", label: "Busiest cell", appliesTo: "always", format: numberFormatter() },
   {
-    key: "convexHullAreaSquareMeters",
-    label: "Convex hull area",
+    key: "meanFeaturesPerOccupiedCell",
+    label: "Mean per occupied cell",
     appliesTo: "always",
-    format: numberFormatter(" m²"),
+    format: numberFormatter(),
   },
   { key: "boundingBox", label: "Bounding box", appliesTo: "always", format: formatGeometry },
   { key: "centroid", label: "Centroid", appliesTo: "always", format: formatGeometry },

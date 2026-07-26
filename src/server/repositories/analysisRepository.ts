@@ -623,11 +623,23 @@ async function executeOperation(run: RawAnalysisRunRow, input: AnalysisRequestIn
     case "lengthCalculation":
     case "centroid":
     case "convexHull":
-    case "boundingBox":
-    case "densityAnalysis": {
+    case "boundingBox": {
       const [layerId] = input.inputLayerIds
       const rows = await runWholeStatement(runId, (tx) =>
         tx.$queryRaw<{ result: unknown }[]>(ops.buildStatisticsSql(layerId, input.operationType as ops.StatisticType)),
+      )
+      return { resultData: rows[0]?.result ?? {} }
+    }
+
+    case "densityAnalysis": {
+      // US6.4 — features per unit area, measured over a real grid at the
+      // caller's cell size, then summarized (statistics create no layer).
+      // Split out from the statistics group above because it is the one
+      // statistic that takes parameters.
+      const [layerId] = input.inputLayerIds
+      const { cellSize, unit } = input.parameters
+      const rows = await runWholeStatement(runId, (tx) =>
+        tx.$queryRaw<{ result: unknown }[]>(ops.buildDensityGridSql(layerId, ops.toMeters(cellSize, unit))),
       )
       return { resultData: rows[0]?.result ?? {} }
     }
@@ -755,6 +767,25 @@ async function assertOperationPreconditions(input: AnalysisRequestInput): Promis
     if (bladeCount === 0) {
       throw new ValidationError(
         "Split needs a split line, but the second input layer has no features to cut with. Draw or select a line first.",
+      )
+    }
+    return
+  }
+
+  if (input.operationType === "densityAnalysis") {
+    // Cell count grows with the square of the inverse cell size, so a cell
+    // size that is merely a bit too small becomes millions of cells and a
+    // request that never returns. Refused up front with the number it
+    // would have produced, rather than after the run is queued.
+    const [layerId] = input.inputLayerIds
+    const cellSizeMeters = ops.toMeters(input.parameters.cellSize, input.parameters.unit)
+    const rows = await prismaClient.$queryRaw<{ cells: number }[]>(
+      ops.buildDensityGridSizeSql(layerId, ops.toDegrees(cellSizeMeters)),
+    )
+    const cells = rows[0]?.cells ?? 0
+    if (cells > ops.MAX_DENSITY_GRID_CELLS) {
+      throw new ValidationError(
+        `A cell size of ${input.parameters.cellSize} ${input.parameters.unit} would build ${Math.round(cells).toLocaleString()} grid cells over this layer (the limit is ${ops.MAX_DENSITY_GRID_CELLS.toLocaleString()}). Use a larger cell size.`,
       )
     }
     return

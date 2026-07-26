@@ -793,12 +793,9 @@ function SingleLayerForm({
 }
 
 /**
- * Density Analysis (US6, FR-016). The request contract requires a cell
- * size, but the current server implementation reports a single
- * convex-hull density rather than a grid surface, so the cell size does
- * not yet affect the result — a documented scope decision in
- * `buildStatisticsSql`. The field is labelled to say so rather than
- * implying a precision the result does not have.
+ * Density Analysis (US6.4, FR-016) — features per unit area, measured
+ * over a square grid at the chosen cell size. The grid is summarized
+ * rather than persisted, since US6 statistics create no layer.
  */
 function DensityForm({ projectId }: { projectId: string }) {
   const stagedInputLayerIds = useAnalysisStore((state) => state.stagedInputLayerIds)
@@ -870,8 +867,9 @@ function DensityForm({ projectId }: { projectId: string }) {
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Reports one density value over the layer&rsquo;s convex hull. Grid-cell density surfaces are not implemented
-        yet, so the cell size does not change the result.
+        Lays a grid of this cell size over the layer&rsquo;s extent and reports how densely features fall across it.
+        A smaller cell size gives a finer reading; one too small for the layer&rsquo;s extent is rejected rather
+        than run.
       </p>
 
       {validationError && (
