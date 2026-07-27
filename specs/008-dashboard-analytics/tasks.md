@@ -769,7 +769,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
 real logic (report/export generation) per Constitution Principle I,
 extending the new `src/features/dashboards/` module.
 
-- [ ] T076 Create `dashboardService.ts`
+- [X] T076 Create `dashboardService.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/dashboardService.ts` (new)
@@ -778,7 +778,7 @@ extending the new `src/features/dashboards/` module.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T051, T052, T053, T054, T070
 
-- [ ] T077 [P] Create `widgetService.ts`
+- [X] T077 [P] Create `widgetService.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/widgetService.ts` (new)
@@ -787,7 +787,7 @@ extending the new `src/features/dashboards/` module.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T055, T056, T057, T058
 
-- [ ] T078 [P] Create `analyticsService.ts`
+- [X] T078 [P] Create `analyticsService.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/analyticsService.ts` (new)
@@ -796,7 +796,7 @@ extending the new `src/features/dashboards/` module.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T063
 
-- [ ] T079 Create `captureUtils.ts` — full implementation
+- [X] T079 Create `captureUtils.ts` — full implementation
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/captureUtils.ts` (modify, from T013's shell)
@@ -805,7 +805,7 @@ extending the new `src/features/dashboards/` module.
   - **Verification**: `npx tsc --noEmit`; covered by T088
   - **Dependencies**: T013, T024
 
-- [ ] T080 [P] Create `reportService.ts`
+- [X] T080 [P] Create `reportService.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/reportService.ts` (new)
@@ -814,7 +814,7 @@ extending the new `src/features/dashboards/` module.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T064, T065, T066, T067, T068, T079
 
-- [ ] T081 [P] Create `dashboardExportService.ts`
+- [X] T081 [P] Create `dashboardExportService.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/dashboardExportService.ts` (new)
@@ -823,7 +823,7 @@ extending the new `src/features/dashboards/` module.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T079
 
-- [ ] T082 [P] Create `dashboardShareService.ts`
+- [X] T082 [P] Create `dashboardShareService.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/dashboardShareService.ts` (new)
@@ -832,7 +832,7 @@ extending the new `src/features/dashboards/` module.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T059, T060
 
-- [ ] T083 [P] Create `dashboardFilterService.ts`
+- [X] T083 [P] Create `dashboardFilterService.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/dashboardFilterService.ts` (new)
@@ -841,7 +841,7 @@ extending the new `src/features/dashboards/` module.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T061, T062
 
-- [ ] T084 Fill in `queryKeys.ts` factories
+- [X] T084 Fill in `queryKeys.ts` factories
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/queryKeys.ts` (modify, from T009)
@@ -850,7 +850,7 @@ extending the new `src/features/dashboards/` module.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T009
 
-- [ ] T085 "TemplateService"/"FavoriteService" confirmation
+- [X] T085 "TemplateService"/"FavoriteService" confirmation
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/dashboardService.ts` (verification, from T076)
@@ -859,7 +859,7 @@ extending the new `src/features/dashboards/` module.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T076
 
-- [ ] T086 "Retry policy" — disable retry for report/job-creating mutations
+- [X] T086 "Retry policy" — disable retry for report/job-creating mutations
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useReports.ts` (documented here, configured in Phase 6)
@@ -868,7 +868,7 @@ extending the new `src/features/dashboards/` module.
   - **Verification**: Covered by T104
   - **Dependencies**: T076, T080
 
-- [ ] T087 "Retry policy" cont'd — bounded retry/backoff for polling
+- [X] T087 "Retry policy" cont'd — bounded retry/backoff for polling
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useWidgets.ts` (documented here, configured in Phase 6)
@@ -877,7 +877,7 @@ extending the new `src/features/dashboards/` module.
   - **Verification**: Covered by T104
   - **Dependencies**: T077
 
-- [ ] T088 [P] Service unit tests — `captureUtils`/`reportService`/`dashboardExportService`
+- [X] T088 [P] Service unit tests — `captureUtils`/`reportService`/`dashboardExportService`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/__tests__/captureUtils.test.ts` (new), `src/features/dashboards/services/__tests__/reportService.test.ts` (new), `src/features/dashboards/services/__tests__/dashboardExportService.test.ts` (new)
@@ -886,7 +886,7 @@ extending the new `src/features/dashboards/` module.
   - **Verification**: `npm run test -- captureUtils reportService dashboardExportService`
   - **Dependencies**: T079, T080, T081
 
-- [ ] T089 [P] Service unit tests — dashboard/widget/share/filter services
+- [X] T089 [P] Service unit tests — dashboard/widget/share/filter services
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/__tests__/dashboardService.test.ts` (new), `src/features/dashboards/services/__tests__/widgetService.test.ts` (new)
@@ -895,7 +895,7 @@ extending the new `src/features/dashboards/` module.
   - **Verification**: `npm run test -- dashboardService widgetService`
   - **Dependencies**: T076, T077, T078, T082, T083
 
-- [ ] T090 Checkpoint (Phase 5)
+- [X] T090 Checkpoint (Phase 5)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)

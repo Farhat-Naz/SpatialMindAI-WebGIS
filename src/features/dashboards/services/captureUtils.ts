@@ -49,3 +49,23 @@ export async function buildXlsxWorkbook(sheets: XlsxSheet[]): Promise<Blob> {
   const buffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" }) as ArrayBuffer
   return new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })
 }
+
+/**
+ * Browser download helper — the anchor-click + `URL.revokeObjectURL` pattern
+ * every export path in this feature shares (mirrors 005-import-export's
+ * `downloadBlob.ts`, not cross-imported since that module lives inside a
+ * different feature's internals, Constitution Principle I).
+ */
+export function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob)
+  try {
+    const anchor = document.createElement("a")
+    anchor.href = url
+    anchor.download = filename
+    document.body.appendChild(anchor)
+    anchor.click()
+    anchor.remove()
+  } finally {
+    setTimeout(() => URL.revokeObjectURL(url), 0)
+  }
+}
