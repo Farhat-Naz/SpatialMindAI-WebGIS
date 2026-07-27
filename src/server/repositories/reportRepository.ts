@@ -245,6 +245,16 @@ export async function getReportFileForDownload(
   return { fileContent: Buffer.from(row.fileContent), format: row.format }
 }
 
+/** Lists a dashboard's schedules, newest first (US5/FR-017). */
+export async function listScheduledReportsForDashboard(
+  dashboardId: string,
+  userId: string,
+): Promise<ScheduledReportRecord[]> {
+  await assertDashboardPermission(dashboardId, userId, "view")
+  const rows = await prismaClient.scheduledReport.findMany({ where: { dashboardId }, orderBy: { createdAt: "desc" } })
+  return rows.map(toScheduledRecord)
+}
+
 export interface CreateScheduledReportInput {
   format: "excel" | "csv" | "html"
   recurrence: "daily" | "weekly" | "monthly"

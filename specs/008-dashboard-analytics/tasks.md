@@ -536,7 +536,7 @@ dedicated server route — per research.md Decision 9, ad-hoc export is
 client-side only; this phase covers only the "log the export/report"
 persistence endpoints, not export execution itself (that's Phase 15).
 
-- [ ] T051 `GET`/`POST /api/projects/:projectId/dashboards`
+- [X] T051 `GET`/`POST /api/projects/:projectId/dashboards`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/projects/[projectId]/dashboards/route.ts` (new)
@@ -545,7 +545,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T004, T033, T034
 
-- [ ] T052 `PATCH`/`DELETE /api/dashboards/:dashboardId`
+- [X] T052 `PATCH`/`DELETE /api/dashboards/:dashboardId`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/dashboards/[dashboardId]/route.ts` (new)
@@ -554,7 +554,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T034
 
-- [ ] T053 [P] `POST /api/dashboards/:dashboardId/duplicate`
+- [X] T053 [P] `POST /api/dashboards/:dashboardId/duplicate`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/dashboards/[dashboardId]/duplicate/route.ts` (new)
@@ -563,7 +563,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T035
 
-- [ ] T054 [P] `POST`/`DELETE /api/dashboards/:dashboardId/favorite`
+- [X] T054 [P] `POST`/`DELETE /api/dashboards/:dashboardId/favorite`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/dashboards/[dashboardId]/favorite/route.ts` (new)
@@ -572,7 +572,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T035
 
-- [ ] T055 `POST /api/dashboards/:dashboardId/widgets`
+- [X] T055 `POST /api/dashboards/:dashboardId/widgets`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/dashboards/[dashboardId]/widgets/route.ts` (new)
@@ -581,7 +581,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T036
 
-- [ ] T056 [P] `PATCH`/`DELETE /api/widgets/:widgetId`
+- [X] T056 [P] `PATCH`/`DELETE /api/widgets/:widgetId`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/widgets/[widgetId]/route.ts` (new)
@@ -590,7 +590,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T036
 
-- [ ] T057 [P] `GET /api/dashboards/:dashboardId/widgets/:widgetId/data`
+- [X] T057 [P] `GET /api/dashboards/:dashboardId/widgets/:widgetId/data`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/dashboards/[dashboardId]/widgets/[widgetId]/data/route.ts` (new)
@@ -599,7 +599,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T038
 
-- [ ] T058 `PUT /api/dashboards/:dashboardId/layout`
+- [X] T058 `PUT /api/dashboards/:dashboardId/layout`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/dashboards/[dashboardId]/layout/route.ts` (new)
@@ -608,7 +608,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T037
 
-- [ ] T059 [P] `GET`/`POST /api/dashboards/:dashboardId/shares`
+- [X] T059 [P] `GET`/`POST /api/dashboards/:dashboardId/shares`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/dashboards/[dashboardId]/shares/route.ts` (new)
@@ -617,7 +617,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T042
 
-- [ ] T060 [P] `DELETE /api/dashboards/:dashboardId/shares/:userId`
+- [X] T060 [P] `DELETE /api/dashboards/:dashboardId/shares/:userId`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/dashboards/[dashboardId]/shares/[userId]/route.ts` (new)
@@ -626,7 +626,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T042
 
-- [ ] T061 [P] `GET`/`POST /api/dashboards/:dashboardId/filters`
+- [X] T061 [P] `GET`/`POST /api/dashboards/:dashboardId/filters`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/dashboards/[dashboardId]/filters/route.ts` (new)
@@ -635,7 +635,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T044
 
-- [ ] T062 [P] `DELETE /api/filters/:filterId`
+- [X] T062 [P] `DELETE /api/filters/:filterId`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/filters/[filterId]/route.ts` (new)
@@ -644,7 +644,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T044
 
-- [ ] T063 [P] `GET /api/projects/:projectId/analytics/:snapshotType`
+- [X] T063 [P] `GET /api/projects/:projectId/analytics/:snapshotType`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/projects/[projectId]/analytics/[snapshotType]/route.ts` (new)
@@ -653,7 +653,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T039, T040, T041
 
-- [ ] T064 `POST /api/dashboards/:dashboardId/reports`
+- [X] T064 `POST /api/dashboards/:dashboardId/reports`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/dashboards/[dashboardId]/reports/route.ts` (new)
@@ -662,7 +662,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T045
 
-- [ ] T065 [P] `GET /api/projects/:projectId/reports`
+- [X] T065 [P] `GET /api/projects/:projectId/reports`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/projects/[projectId]/reports/route.ts` (new)
@@ -671,7 +671,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T045
 
-- [ ] T066 [P] `GET /api/reports/:reportId/download`
+- [X] T066 [P] `GET /api/reports/:reportId/download`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/reports/[reportId]/download/route.ts` (new)
@@ -680,7 +680,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T045
 
-- [ ] T067 [P] `GET`/`POST /api/dashboards/:dashboardId/scheduled-reports`
+- [X] T067 [P] `GET`/`POST /api/dashboards/:dashboardId/scheduled-reports`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/dashboards/[dashboardId]/scheduled-reports/route.ts` (new)
@@ -689,7 +689,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T046
 
-- [ ] T068 [P] `PATCH`/`DELETE /api/scheduled-reports/:scheduledReportId`
+- [X] T068 [P] `PATCH`/`DELETE /api/scheduled-reports/:scheduledReportId`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/scheduled-reports/[scheduledReportId]/route.ts` (new)
@@ -698,7 +698,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T046
 
-- [ ] T069 `POST /api/reports/scheduled/run-due`
+- [X] T069 `POST /api/reports/scheduled/run-due`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/reports/scheduled/run-due/route.ts` (new)
@@ -707,7 +707,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T047
 
-- [ ] T070 [P] `GET /api/dashboard-templates`
+- [X] T070 [P] `GET /api/dashboard-templates`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/dashboard-templates/route.ts` (new)
@@ -716,7 +716,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`; covered by T074
   - **Dependencies**: T030, T035
 
-- [ ] T071 [P] Fill in full `widget.schema.ts` per-type validation
+- [X] T071 [P] Fill in full `widget.schema.ts` per-type validation
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/widget.schema.ts` (modify, from T004)
@@ -725,7 +725,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T004
 
-- [ ] T072 [P] Fill in `dashboardFilter.schema.ts`/`report.schema.ts`/`dashboard.schema.ts` validation
+- [X] T072 [P] Fill in `dashboardFilter.schema.ts`/`report.schema.ts`/`dashboard.schema.ts` validation
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/dashboardFilter.schema.ts`, `src/shared/contracts/report.schema.ts`, `src/shared/contracts/dashboard.schema.ts` (all modify, from T004)
@@ -734,7 +734,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T004
 
-- [ ] T073 Extend structured logging across all new routes
+- [X] T073 Extend structured logging across all new routes
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: All route files touched in T051–T070
@@ -743,7 +743,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npx eslint src/app/api --max-warnings 0`
   - **Dependencies**: T051–T070
 
-- [ ] T074 [P] API tests — every new endpoint
+- [X] T074 [P] API tests — every new endpoint
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/dashboards/__tests__/dashboards.api.test.ts` (new), `src/app/api/dashboards/__tests__/widgets.api.test.ts` (new), `src/app/api/dashboards/__tests__/sharing.api.test.ts` (new), `src/app/api/dashboards/__tests__/filters.api.test.ts` (new), `src/app/api/reports/__tests__/reports.api.test.ts` (new)
@@ -752,7 +752,7 @@ persistence endpoints, not export execution itself (that's Phase 15).
   - **Verification**: `npm run test:db -- dashboards.api widgets.api sharing.api filters.api reports.api`
   - **Dependencies**: T051–T073
 
-- [ ] T075 Checkpoint (Phase 4)
+- [X] T075 Checkpoint (Phase 4)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)
