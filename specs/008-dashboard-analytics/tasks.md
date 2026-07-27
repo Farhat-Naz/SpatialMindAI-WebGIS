@@ -58,7 +58,7 @@ schema shells, shared utilities, error vocabulary, query keys,
 permissions helpers, and responsive-breakpoint helpers every later phase
 depends on.
 
-- [ ] T001 Add dashboard/widget configuration constants
+- [X] T001 Add dashboard/widget configuration constants
   - **Priority**: Must-have
   - **User Story**: None (cross-cutting)
   - **Files**: `src/features/dashboards/types/dashboardConfig.constants.ts` (new)
@@ -67,7 +67,7 @@ depends on.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: None
 
-- [ ] T002 [P] Create shared dashboard/widget types
+- [X] T002 [P] Create shared dashboard/widget types
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/types/dashboard.types.ts` (new)
@@ -76,7 +76,7 @@ depends on.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: None
 
-- [ ] T003 [P] Define the shared widget interface / discriminated `WidgetType` union
+- [X] T003 [P] Define the shared widget interface / discriminated `WidgetType` union
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/types/widget.types.ts` (new)
@@ -85,7 +85,7 @@ depends on.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T002
 
-- [ ] T004 Create Zod validation schema shells
+- [X] T004 Create Zod validation schema shells
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/contracts/dashboard.schema.ts` (new), `src/shared/contracts/widget.schema.ts` (new), `src/shared/contracts/dashboardFilter.schema.ts` (new), `src/shared/contracts/report.schema.ts` (new)
@@ -94,7 +94,7 @@ depends on.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T003
 
-- [ ] T005 [P] Add shared widget-content sanitization utility
+- [X] T005 [P] Add shared widget-content sanitization utility
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/lib/sanitizeHtml.ts` (new, or extend an existing shared lib file if one already exists — verified during implementation, not assumed)
@@ -103,7 +103,7 @@ depends on.
   - **Verification**: `npx tsc --noEmit`; unit test in T014
   - **Dependencies**: None
 
-- [ ] T006 [P] Add responsive-breakpoint helper
+- [X] T006 [P] Add responsive-breakpoint helper
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/breakpoint.ts` (new)
@@ -112,7 +112,7 @@ depends on.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T001
 
-- [ ] T007 [P] Add `ForbiddenError`/`FORBIDDEN` confirmation (shared, no-op if already present)
+- [X] T007 [P] Add `ForbiddenError`/`FORBIDDEN` confirmation (shared, no-op if already present)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/errors/apiError.ts` (verify/modify)
@@ -121,7 +121,7 @@ depends on.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: None
 
-- [ ] T008 [P] Add dashboard-specific error mapping notes
+- [X] T008 [P] Add dashboard-specific error mapping notes
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/shared/errors/apiError.ts` (verify — no new code expected)
@@ -130,7 +130,7 @@ depends on.
   - **Verification**: Manual cross-reference, documented in the PR
   - **Dependencies**: T007
 
-- [ ] T009 Create `queryKeys.ts` factory shell
+- [X] T009 Create `queryKeys.ts` factory shell
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/queryKeys.ts` (new)
@@ -139,7 +139,7 @@ depends on.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: None
 
-- [ ] T010 Add `resolveEffectivePermission` client-side type contract
+- [X] T010 Add `resolveEffectivePermission` client-side type contract
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/types/dashboard.types.ts` (modify, from T002)
@@ -148,7 +148,7 @@ depends on.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T002
 
-- [ ] T011 Add server-side permissions helper shell
+- [X] T011 Add server-side permissions helper shell
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/auth/assertProjectRole.ts` (reuse if 006 has landed; otherwise implement here first per 006's already-designed contract, as the shared prerequisite plan.md's Complexity Tracking flags — identical dependency 007 already carries)
@@ -157,7 +157,7 @@ depends on.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: None
 
-- [ ] T012 [P] Add `AnalyticsSnapshot` staleness-check helper
+- [X] T012 [P] Add `AnalyticsSnapshot` staleness-check helper
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/dashboardAnalyticsRepository.ts` (new — shell only; full aggregation logic lands in Phase 3)
@@ -166,7 +166,7 @@ depends on.
   - **Verification**: `npx tsc --noEmit`; unit test in T014
   - **Dependencies**: T001
 
-- [ ] T013 [P] Add shared capture/export utility shell
+- [X] T013 [P] Add shared capture/export utility shell
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/captureUtils.ts` (new — shell; full `html2canvas`/`jsPDF`/`xlsx` wiring lands with the new-dependency install in T024 and is used starting Phase 11)
@@ -175,7 +175,7 @@ depends on.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: None
 
-- [ ] T014 [P] Unit tests for Phase 1 utilities
+- [X] T014 [P] Unit tests for Phase 1 utilities
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/shared/lib/__tests__/sanitizeHtml.test.ts` (new), `src/server/repositories/__tests__/dashboardAnalyticsRepository.staleness.test.ts` (new), `src/features/dashboards/services/__tests__/breakpoint.test.ts` (new)
@@ -184,7 +184,7 @@ depends on.
   - **Verification**: `npm run test -- sanitizeHtml dashboardAnalyticsRepository.staleness breakpoint`
   - **Dependencies**: T005, T006, T012
 
-- [ ] T015 Checkpoint (Phase 1)
+- [X] T015 Checkpoint (Phase 1)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)
