@@ -7,6 +7,7 @@ import { useDashboardBuilderStore } from "../store/dashboardBuilderStore"
 import { resolveBreakpoint } from "../services/breakpoint"
 import { DashboardGrid } from "./DashboardGrid"
 import { DashboardSettingsPanel } from "./DashboardSettingsPanel"
+import { DashboardShareDialog } from "./DashboardShareDialog"
 import { WidgetConfigPanel } from "./WidgetConfigPanel"
 
 interface DashboardViewProps {
@@ -51,31 +52,48 @@ export function DashboardView({ projectId, dashboardId }: DashboardViewProps) {
   }
 
   if (!data) {
+    // Deliberately the same message a truly-nonexistent dashboard would show
+    // (non-disclosure, T225) — a non-member with no share must not be able
+    // to tell "doesn't exist" apart from "exists but I can't see it."
     return (
-      <div className="p-4">
-        <p className="text-sm text-muted-foreground">This dashboard could not be found.</p>
+      <div className="flex flex-col items-center gap-2 p-8 text-center">
+        <h1 className="text-lg font-semibold">Dashboard not found</h1>
+        <p className="text-sm text-muted-foreground">
+          This dashboard could not be found. It may not exist, or you may not have access to it.
+        </p>
       </div>
     )
   }
 
   const canEdit = data.dashboard.effectivePermission === "edit" || data.dashboard.effectivePermission === "owner"
+  const isReadOnly = data.dashboard.effectivePermission === "view"
 
   return (
     <div className="flex h-full flex-col" data-active-breakpoint={activeBreakpoint}>
+      {isReadOnly && (
+        <div role="status" className="flex items-center gap-2 border-b bg-muted px-4 py-2 text-sm">
+          <span aria-hidden="true">🔒</span>
+          <span>Read-only — you can view this dashboard, but not make changes.</span>
+        </div>
+      )}
+
       <header className="flex items-center justify-between border-b px-4 py-3">
         <h1 className="text-lg font-semibold">{data.dashboard.name}</h1>
-        {canEdit && (
-          <div className="flex items-center gap-2">
-            {isEditMode && (
-              <Button type="button" size="sm" onClick={() => setIsAddWidgetOpen(true)}>
-                Add widget
+        <div className="flex items-center gap-2">
+          <DashboardShareDialog projectId={projectId} dashboard={data.dashboard} />
+          {canEdit && (
+            <>
+              {isEditMode && (
+                <Button type="button" size="sm" onClick={() => setIsAddWidgetOpen(true)}>
+                  Add widget
+                </Button>
+              )}
+              <Button type="button" variant={isEditMode ? "default" : "outline"} size="sm" onClick={toggleEditMode}>
+                {isEditMode ? "Done editing" : "Edit dashboard"}
               </Button>
-            )}
-            <Button type="button" variant={isEditMode ? "default" : "outline"} size="sm" onClick={toggleEditMode}>
-              {isEditMode ? "Done editing" : "Edit dashboard"}
-            </Button>
-          </div>
-        )}
+            </>
+          )}
+        </div>
       </header>
 
       <div className="flex-1 overflow-auto p-4">

@@ -2101,7 +2101,7 @@ writes, server-side, per spec.md US7.
 permission and confirm that user can view but not modify it —
 independent of reporting or export.
 
-- [ ] T215 [US7] `DashboardShareDialog` shell
+- [X] T215 [US7] `DashboardShareDialog` shell
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/features/dashboards/components/DashboardShareDialog.tsx` (new)
@@ -2110,7 +2110,7 @@ independent of reporting or export.
   - **Verification**: `npx tsc --noEmit`; covered by T227
   - **Dependencies**: T101
 
-- [ ] T216 [US7] Grant view/edit share
+- [X] T216 [US7] Grant view/edit share
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/features/dashboards/components/DashboardShareDialog.tsx` (modify, same file as T215)
@@ -2119,7 +2119,7 @@ independent of reporting or export.
   - **Verification**: Covered by T227
   - **Dependencies**: T215
 
-- [ ] T217 [US7] List current shares + revoke
+- [X] T217 [US7] List current shares + revoke
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/features/dashboards/components/DashboardShareDialog.tsx` (modify, same file as T215)
@@ -2128,7 +2128,7 @@ independent of reporting or export.
   - **Verification**: Covered by T227
   - **Dependencies**: T215
 
-- [ ] T218 [US7] Public/private visibility toggle
+- [X] T218 [US7] Public/private visibility toggle
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/features/dashboards/components/DashboardShareDialog.tsx` (modify, same file as T215)
@@ -2137,7 +2137,7 @@ independent of reporting or export.
   - **Verification**: Covered by T227
   - **Dependencies**: T133, T215
 
-- [ ] T219 [US7] Authenticated-only public access confirmation
+- [X] T219 [US7] Authenticated-only public access confirmation
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/app/api/dashboards/[dashboardId]/route.ts` (verification, from T052)
@@ -2146,7 +2146,7 @@ independent of reporting or export.
   - **Verification**: Covered by T229
   - **Dependencies**: T052, T218
 
-- [ ] T220 [US7] Private-by-default confirmation
+- [X] T220 [US7] Private-by-default confirmation
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/server/repositories/dashboardRepository.ts` (verification, from T034)
@@ -2155,7 +2155,7 @@ independent of reporting or export.
   - **Verification**: Covered by T229
   - **Dependencies**: T034
 
-- [ ] T221 [US7] `effectivePermission`-driven UI gating
+- [X] T221 [US7] `effectivePermission`-driven UI gating
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/features/dashboards/components/WidgetRenderer.tsx`, `DashboardGrid.tsx` (both modify, from T154/T148)
@@ -2164,7 +2164,7 @@ independent of reporting or export.
   - **Verification**: Covered by T228
   - **Dependencies**: T010, T148, T154
 
-- [ ] T222 [US7] Server-side write rejection confirmation
+- [X] T222 [US7] Server-side write rejection confirmation
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/server/repositories/widgetRepository.ts` (verification, from T043)
@@ -2173,7 +2173,7 @@ independent of reporting or export.
   - **Verification**: Covered by T229
   - **Dependencies**: T043, T221
 
-- [ ] T223 [US7] Read-only mode banner
+- [X] T223 [US7] Read-only mode banner
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (modify, from T135)
@@ -2182,7 +2182,7 @@ independent of reporting or export.
   - **Verification**: Covered by T228
   - **Dependencies**: T010, T135
 
-- [ ] T224 [US7] Disable drag/resize/add/edit when read-only
+- [X] T224 [US7] Disable drag/resize/add/edit when read-only
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/features/dashboards/components/DashboardGrid.tsx` (modify, from T221)
@@ -2191,7 +2191,7 @@ independent of reporting or export.
   - **Verification**: Covered by T228
   - **Dependencies**: T221
 
-- [ ] T225 [US7] Non-member/insufficient-role denial UX
+- [X] T225 [US7] Non-member/insufficient-role denial UX
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (modify, same file as T223)
@@ -2200,7 +2200,7 @@ independent of reporting or export.
   - **Verification**: Covered by T228
   - **Dependencies**: T091, T223
 
-- [ ] T226 [US7] Revoked-share next-access denial
+- [X] T226 [US7] Revoked-share next-access denial
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (verification, same file as T223)
@@ -2209,7 +2209,7 @@ independent of reporting or export.
   - **Verification**: Covered by T229
   - **Dependencies**: T217
 
-- [ ] T227 [P] [US7] Component tests — `DashboardShareDialog`
+- [X] T227 [P] [US7] Component tests — `DashboardShareDialog`
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/features/dashboards/components/__tests__/DashboardShareDialog.test.tsx` (new)
@@ -2218,7 +2218,7 @@ independent of reporting or export.
   - **Verification**: `npm run test -- DashboardShareDialog`
   - **Dependencies**: T216, T217, T218
 
-- [ ] T228 [P] [US7] Component tests — read-only mode UI gating
+- [X] T228 [P] [US7] Component tests — read-only mode UI gating
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/features/dashboards/components/__tests__/DashboardView.readonly.test.tsx` (new)
@@ -2227,7 +2227,7 @@ independent of reporting or export.
   - **Verification**: `npm run test -- DashboardView.readonly`
   - **Dependencies**: T221, T223, T224, T225
 
-- [ ] T229 [P] [US7] Integration test — full Sharing flow
+- [X] T229 [P] [US7] Integration test — full Sharing flow
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/features/dashboards/__tests__/sharing.integration.test.tsx` (new)
@@ -2236,7 +2236,7 @@ independent of reporting or export.
   - **Verification**: `npm run test -- sharing.integration`
   - **Dependencies**: T219, T220, T222, T226
 
-- [ ] T230 [US7] Checkpoint (Phase 12)
+- [X] T230 [US7] Checkpoint (Phase 12)
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: None (verification-only task)

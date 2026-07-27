@@ -46,6 +46,7 @@ export {
 export { DashboardListPage } from "./components/DashboardListPage"
 export { CreateDashboardDialog } from "./components/CreateDashboardDialog"
 export { DashboardSettingsPanel } from "./components/DashboardSettingsPanel"
+export { DashboardShareDialog } from "./components/DashboardShareDialog"
 export { DashboardView } from "./components/DashboardView"
 export { ReportGenerationDialog } from "./components/ReportGenerationDialog"
 export { ReportHistoryPanel } from "./components/ReportHistoryPanel"
