@@ -47,6 +47,14 @@ model User {
 
   // specs/005-import-export — additive back-relation only.
   importJobs ImportJob[]
+
+  // specs/008-dashboard-analytics — additive back-relations only.
+  dashboards             Dashboard[]         @relation("DashboardOwner")
+  dashboardShares        DashboardShare[]    @relation("DashboardShareRecipient")
+  dashboardSharesGranted DashboardShare[]    @relation("DashboardShareGranter")
+  dashboardFavorites     DashboardFavorite[]
+  reports                Report[]
+  scheduledReports       ScheduledReport[]
 }
 
 /// Root data-hierarchy container (User 1──* Project 1──* Layer 1──* Feature).
@@ -77,6 +85,10 @@ model Project {
 
   // specs/005-import-export — additive back-relation only.
   importJobs ImportJob[]
+
+  // specs/008-dashboard-analytics — additive back-relations only.
+  dashboards         Dashboard[]
+  analyticsSnapshots AnalyticsSnapshot[]
 
   @@unique([ownerId, name])
   @@index([ownerId])
@@ -832,4 +844,207 @@ model SystemNotification {
 
   @@index([severity, createdAt])
   @@index([resolvedAt])
+}
+
+// ---------------------------------------------------------------------------
+// specs/008-dashboard-analytics
+// ---------------------------------------------------------------------------
+
+/// A user-built dashboard of widgets within a project (US1). `ownerId` is
+/// independent of `Project.ownerId` (research.md Decision 7) — a Project
+/// Owner can administer any dashboard in their project without being its
+/// creator.
+model Dashboard {
+  id         String             @id @default(cuid())
+  projectId  String
+  project    Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ownerId    String
+  owner      User               @relation("DashboardOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  name       String
+  templateId String?
+  template   DashboardTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  visibility String             @default("private")
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  widgets          DashboardWidget[]
+  shares           DashboardShare[]
+  favorites        DashboardFavorite[]
+  filters          DashboardFilter[]
+  reports          Report[]
+  scheduledReports ScheduledReport[]
+
+  @@unique([projectId, name])
+  @@index([projectId, updatedAt])
+  @@index([ownerId])
+}
+
+/// One widget on a dashboard — discriminated by `type`, configured via
+/// `config` JSON (research.md Decision 1; "WidgetConfiguration" is this
+/// column, not a separate table).
+model DashboardWidget {
+  id             String            @id @default(cuid())
+  dashboardId    String
+  dashboard      Dashboard         @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  type           String
+  title          String?
+  dataSourceType String?
+  dataSourceId   String?
+  config         Json
+  groupId        String?
+  group          DashboardWidget?  @relation("WidgetGrouping", fields: [groupId], references: [id], onDelete: SetNull)
+  groupMembers   DashboardWidget[] @relation("WidgetGrouping")
+  isCollapsed    Boolean           @default(false)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  layouts WidgetLayout[]
+  filters DashboardFilter[]
+
+  @@index([dashboardId])
+  @@index([dashboardId, groupId])
+}
+
+/// One breakpoint-scoped position/size row per widget per tier
+/// (research.md Decision 2) — never a single fixed position.
+model WidgetLayout {
+  id         String          @id @default(cuid())
+  widgetId   String
+  widget     DashboardWidget @relation(fields: [widgetId], references: [id], onDelete: Cascade)
+  breakpoint String
+  x          Int
+  y          Int
+  w          Int
+  h          Int
+
+  @@unique([widgetId, breakpoint])
+  @@index([widgetId])
+}
+
+/// One of the five platform-wide, seeded dashboard blueprints (US8) —
+/// not project-scoped.
+model DashboardTemplate {
+  id               String   @id @default(cuid())
+  key              String   @unique
+  name             String
+  description      String?
+  widgetsBlueprint Json
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  dashboards Dashboard[]
+}
+
+/// A per-user access grant on one dashboard (US7/FR-023) — can only
+/// broaden a user's access beyond their base project role, never narrow it
+/// (research.md Decision 7).
+model DashboardShare {
+  id              String    @id @default(cuid())
+  dashboardId     String
+  dashboard       Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User      @relation("DashboardShareRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  permission      String
+  grantedByUserId String
+  grantedByUser   User      @relation("DashboardShareGranter", fields: [grantedByUserId], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+
+  @@unique([dashboardId, userId])
+  @@index([userId])
+}
+
+/// A user's favorited dashboard (US1/FR-003) — favoriting twice is a no-op,
+/// not a duplicate row.
+model DashboardFavorite {
+  id          String    @id @default(cuid())
+  dashboardId String
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([dashboardId, userId])
+  @@index([userId])
+}
+
+/// A global (widgetId null) or widget-scoped filter (US6). A spatial
+/// filter's geometry is stored as GeoJSON here, not a PostGIS column — it
+/// is always the *input* to an `ST_Intersects`/`ST_Within` call against
+/// already-indexed `Feature.geometry`, never itself the subject of a
+/// spatial index lookup (data-model.md Migration notes).
+model DashboardFilter {
+  id          String           @id @default(cuid())
+  dashboardId String
+  dashboard   Dashboard        @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  widgetId    String?
+  widget      DashboardWidget? @relation(fields: [widgetId], references: [id], onDelete: Cascade)
+  filterType  String
+  config      Json
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([dashboardId])
+  @@index([widgetId])
+}
+
+/// A generated, persisted report file (US5; research.md Decision 17 — the
+/// one entity in this feature that stores file bytes server-side, because a
+/// report must remain downloadable across sessions and a scheduled report
+/// generates with no browser present).
+model Report {
+  id                String           @id @default(cuid())
+  dashboardId       String
+  dashboard         Dashboard        @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  userId            String
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scheduledReportId String?
+  scheduledReport   ScheduledReport? @relation(fields: [scheduledReportId], references: [id], onDelete: SetNull)
+  format            String
+  status            String
+  fileContent       Bytes?
+  sizeBytes         Int?
+  errorMessage      String?
+  createdAt         DateTime         @default(now())
+
+  @@index([userId, createdAt])
+  @@index([dashboardId])
+  @@index([scheduledReportId])
+}
+
+/// A recurring report generation schedule (US5). `format` excludes `"pdf"`
+/// at the Zod layer (research.md Decision 10 — no browser is present when a
+/// schedule fires to run `html2canvas`).
+model ScheduledReport {
+  id          String    @id @default(cuid())
+  dashboardId String
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  format      String
+  recurrence  String
+  nextRunAt   DateTime
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  reports Report[]
+
+  @@index([nextRunAt, isActive])
+}
+
+/// A short-TTL aggregate cache (research.md Decision 12) — not user-facing;
+/// read/written only through `dashboardAnalyticsRepository.ts`'s
+/// compute-if-stale-else-serve function. An upsert target, not an
+/// append-only log (unlike `Activity`).
+model AnalyticsSnapshot {
+  id           String   @id @default(cuid())
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  snapshotType String
+  scopeId      String?
+  data         Json
+  computedAt   DateTime
+
+  @@unique([projectId, snapshotType, scopeId])
+  @@index([projectId, snapshotType])
 }

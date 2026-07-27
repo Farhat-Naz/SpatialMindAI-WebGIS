@@ -200,7 +200,7 @@ depends on.
 **Purpose**: Ten new Prisma models, the migration, indexes, relations,
 and seed data, per data-model.md.
 
-- [ ] T016 Add `Dashboard` model
+- [X] T016 Add `Dashboard` model
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify)
@@ -209,7 +209,7 @@ and seed data, per data-model.md.
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T002
 
-- [ ] T017 [P] Add `DashboardWidget` model
+- [X] T017 [P] Add `DashboardWidget` model
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify, same file as T016)
@@ -218,7 +218,7 @@ and seed data, per data-model.md.
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T016
 
-- [ ] T018 [P] Add `WidgetLayout` model
+- [X] T018 [P] Add `WidgetLayout` model
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify, same file as T016)
@@ -227,7 +227,7 @@ and seed data, per data-model.md.
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T017
 
-- [ ] T019 [P] Add `DashboardTemplate` model
+- [X] T019 [P] Add `DashboardTemplate` model
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify, same file as T016)
@@ -236,7 +236,7 @@ and seed data, per data-model.md.
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T016
 
-- [ ] T020 [P] Add `DashboardShare` model
+- [X] T020 [P] Add `DashboardShare` model
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify, same file as T016)
@@ -245,7 +245,7 @@ and seed data, per data-model.md.
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T016
 
-- [ ] T021 [P] Add `DashboardFavorite` model
+- [X] T021 [P] Add `DashboardFavorite` model
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify, same file as T016)
@@ -254,7 +254,7 @@ and seed data, per data-model.md.
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T016
 
-- [ ] T022 [P] Add `DashboardFilter` model
+- [X] T022 [P] Add `DashboardFilter` model
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify, same file as T016)
@@ -263,7 +263,7 @@ and seed data, per data-model.md.
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T017
 
-- [ ] T023 [P] Add `Report` model
+- [X] T023 [P] Add `Report` model
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify, same file as T016)
@@ -272,7 +272,7 @@ and seed data, per data-model.md.
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T016
 
-- [ ] T024 Add the four new npm dependencies
+- [X] T024 Add the four new npm dependencies
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `package.json`, `package-lock.json` (modify)
@@ -281,7 +281,7 @@ and seed data, per data-model.md.
   - **Verification**: `npm install && npm run build`
   - **Dependencies**: None
 
-- [ ] T025 [P] Add `ScheduledReport` model
+- [X] T025 [P] Add `ScheduledReport` model
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify, same file as T016)
@@ -290,7 +290,7 @@ and seed data, per data-model.md.
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T023
 
-- [ ] T026 [P] Add `AnalyticsSnapshot` model
+- [X] T026 [P] Add `AnalyticsSnapshot` model
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify, same file as T016)
@@ -299,7 +299,7 @@ and seed data, per data-model.md.
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T016
 
-- [ ] T027 Add indexes audit
+- [X] T027 Add indexes audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (verify, same file as T016)
@@ -308,7 +308,7 @@ and seed data, per data-model.md.
   - **Verification**: Manual review, documented in the PR
   - **Dependencies**: T016–T023, T025, T026
 
-- [ ] T028 Add back-relations to `Project` and `User`
+- [X] T028 Add back-relations to `Project` and `User`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/schema.prisma` (modify, same file as T016)
@@ -317,7 +317,7 @@ and seed data, per data-model.md.
   - **Verification**: `npx prisma validate`
   - **Dependencies**: T016, T020, T021, T023, T025, T026
 
-- [ ] T029 Generate and apply the migration
+- [X] T029 Generate and apply the migration
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/migrations/<timestamp>_dashboard_analytics/migration.sql` (generated)
@@ -326,7 +326,7 @@ and seed data, per data-model.md.
   - **Verification**: `npx prisma migrate status`
   - **Dependencies**: T027, T028
 
-- [ ] T030 [P] Update `prisma/seed.ts` — five built-in `DashboardTemplate` rows
+- [X] T030 [P] Update `prisma/seed.ts` — five built-in `DashboardTemplate` rows
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `prisma/seed.ts` (modify)
@@ -335,7 +335,7 @@ and seed data, per data-model.md.
   - **Verification**: Run the project's seed command against the test database
   - **Dependencies**: T029
 
-- [ ] T031 [P] Update `prisma/seed.ts` — sample dashboard/widget/report fixtures
+- [X] T031 [P] Update `prisma/seed.ts` — sample dashboard/widget/report fixtures
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `prisma/seed.ts` (modify, same file as T030)
@@ -344,7 +344,7 @@ and seed data, per data-model.md.
   - **Verification**: Run the project's seed command against the test database
   - **Dependencies**: T030
 
-- [ ] T032 Checkpoint (Phase 2)
+- [X] T032 Checkpoint (Phase 2)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)
