@@ -1087,7 +1087,7 @@ client UI state, per Constitution's Additional Standards ("Server state
 MUST be fetched via React Query — it MUST NOT be copied into a Zustand
 store as a shadow cache").
 
-- [ ] T109 Create `dashboardBuilderStore.ts` — base fields
+- [X] T109 Create `dashboardBuilderStore.ts` — base fields
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/store/dashboardBuilderStore.ts` (new)
@@ -1096,7 +1096,7 @@ store as a shadow cache").
   - **Verification**: `npx tsc --noEmit`; covered by T117
   - **Dependencies**: T006
 
-- [ ] T110 [P] "AnalyticsStore" confirmation — no separate store
+- [X] T110 [P] "AnalyticsStore" confirmation — no separate store
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useAnalytics.ts` (verification, from T097)
@@ -1105,7 +1105,7 @@ store as a shadow cache").
   - **Verification**: Manual review, documented in the PR
   - **Dependencies**: T097
 
-- [ ] T111 Create `dashboardFilterStore.ts` — base fields
+- [X] T111 Create `dashboardFilterStore.ts` — base fields
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/store/dashboardFilterStore.ts` (new)
@@ -1114,7 +1114,7 @@ store as a shadow cache").
   - **Verification**: `npx tsc --noEmit`; covered by T118
   - **Dependencies**: None
 
-- [ ] T112 [P] "ReportStore"/"ExportStore" confirmation — no separate store
+- [X] T112 [P] "ReportStore"/"ExportStore" confirmation — no separate store
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useReports.ts` (verification, from T098)
@@ -1123,7 +1123,7 @@ store as a shadow cache").
   - **Verification**: Manual review, documented in the PR
   - **Dependencies**: T098
 
-- [ ] T113 `dashboardBuilderStore.ts` — wire into widget selection flow
+- [X] T113 `dashboardBuilderStore.ts` — wire into widget selection flow
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/store/dashboardBuilderStore.ts` (modify, same file as T109)
@@ -1132,7 +1132,7 @@ store as a shadow cache").
   - **Verification**: `npx tsc --noEmit`; covered by T117
   - **Dependencies**: T094, T109
 
-- [ ] T114 `dashboardBuilderStore.ts` — breakpoint sync with `WidgetLayout`
+- [X] T114 `dashboardBuilderStore.ts` — breakpoint sync with `WidgetLayout`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/store/dashboardBuilderStore.ts` (modify, same file as T109)
@@ -1141,7 +1141,7 @@ store as a shadow cache").
   - **Verification**: `npx tsc --noEmit`; covered by T117
   - **Dependencies**: T006, T109
 
-- [ ] T115 "Persistence" — confirm both stores are session-only
+- [X] T115 "Persistence" — confirm both stores are session-only
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/store/dashboardBuilderStore.ts`, `src/features/dashboards/store/dashboardFilterStore.ts` (both verify)
@@ -1150,7 +1150,7 @@ store as a shadow cache").
   - **Verification**: Covered by T119
   - **Dependencies**: T109, T111
 
-- [ ] T116 `dashboardFilterStore.ts` — reset-to-saved wiring
+- [X] T116 `dashboardFilterStore.ts` — reset-to-saved wiring
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/store/dashboardFilterStore.ts` (modify, same file as T111)
@@ -1159,7 +1159,7 @@ store as a shadow cache").
   - **Verification**: `npx tsc --noEmit`; covered by T118
   - **Dependencies**: T103, T111
 
-- [ ] T117 [P] Store tests — `dashboardBuilderStore`
+- [X] T117 [P] Store tests — `dashboardBuilderStore`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/store/__tests__/dashboardBuilderStore.test.ts` (new)
@@ -1168,7 +1168,7 @@ store as a shadow cache").
   - **Verification**: `npm run test -- dashboardBuilderStore`
   - **Dependencies**: T109, T113, T114
 
-- [ ] T118 [P] Store tests — `dashboardFilterStore`
+- [X] T118 [P] Store tests — `dashboardFilterStore`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/store/__tests__/dashboardFilterStore.test.ts` (new)
@@ -1177,7 +1177,7 @@ store as a shadow cache").
   - **Verification**: `npm run test -- dashboardFilterStore`
   - **Dependencies**: T111, T116
 
-- [ ] T119 [P] Store tests — session-only confirmation
+- [X] T119 [P] Store tests — session-only confirmation
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/store/__tests__/dashboardBuilderStore.test.ts`, `src/features/dashboards/store/__tests__/dashboardFilterStore.test.ts` (both modify, same files as T117/T118)
@@ -1186,7 +1186,7 @@ store as a shadow cache").
   - **Verification**: `npm run test -- dashboardBuilderStore dashboardFilterStore`
   - **Dependencies**: T115
 
-- [ ] T120 [P] "WidgetStore" resize/drag transient-state confirmation
+- [X] T120 [P] "WidgetStore" resize/drag transient-state confirmation
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/store/dashboardBuilderStore.ts` (verification, from T109)
@@ -1195,7 +1195,7 @@ store as a shadow cache").
   - **Verification**: Manual review, documented in the PR
   - **Dependencies**: T109
 
-- [ ] T121 [P] "LayoutStore" grouping/collapse state placement confirmation
+- [X] T121 [P] "LayoutStore" grouping/collapse state placement confirmation
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/store/dashboardBuilderStore.ts` (verification, from T109)
@@ -1204,7 +1204,7 @@ store as a shadow cache").
   - **Verification**: Manual review, documented in the PR
   - **Dependencies**: T036, T109
 
-- [ ] T122 Store barrel export audit
+- [X] T122 Store barrel export audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/index.ts` (new — public barrel)
@@ -1213,7 +1213,7 @@ store as a shadow cache").
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T109, T111
 
-- [ ] T123 [P] Selector narrowness audit
+- [X] T123 [P] Selector narrowness audit
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/store/dashboardBuilderStore.ts`, `src/features/dashboards/store/dashboardFilterStore.ts` (both verify)
@@ -1222,7 +1222,7 @@ store as a shadow cache").
   - **Verification**: Manual review, documented in the PR
   - **Dependencies**: T109, T111
 
-- [ ] T124 [P] Store JSDoc audit
+- [X] T124 [P] Store JSDoc audit
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/store/dashboardBuilderStore.ts`, `src/features/dashboards/store/dashboardFilterStore.ts` (both verify)
@@ -1231,7 +1231,7 @@ store as a shadow cache").
   - **Verification**: Manual review, documented in the PR
   - **Dependencies**: T109, T111
 
-- [ ] T125 Checkpoint (Phase 7)
+- [X] T125 Checkpoint (Phase 7)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)
