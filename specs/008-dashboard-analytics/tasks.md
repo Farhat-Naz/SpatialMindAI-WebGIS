@@ -1682,7 +1682,7 @@ confirm each renders correctly with its bound data; change underlying
 data and confirm a data-driven widget updates within the refresh bound —
 independent of layout arrangement.
 
-- [ ] T171 [US2] Map Widget component
+- [X] T171 [US2] Map Widget component
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/MapWidget.tsx` (new)
@@ -1691,7 +1691,7 @@ independent of layout arrangement.
   - **Verification**: `npx tsc --noEmit`; covered by T191
   - **Dependencies**: T146, T160
 
-- [ ] T172 [US2] Map Widget — data binding
+- [X] T172 [US2] Map Widget — data binding
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/MapWidget.tsx` (modify, same file as T171)
@@ -1700,7 +1700,7 @@ independent of layout arrangement.
   - **Verification**: Covered by T191
   - **Dependencies**: T107, T171
 
-- [ ] T173 [US2] Metric Card widget
+- [X] T173 [US2] Metric Card widget
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/MetricCardWidget.tsx` (new)
@@ -1709,7 +1709,7 @@ independent of layout arrangement.
   - **Verification**: `npx tsc --noEmit`; covered by T191
   - **Dependencies**: T146
 
-- [ ] T174 [US4] Metric Card — live refresh
+- [X] T174 [US4] Metric Card — live refresh
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/features/dashboards/components/widgets/MetricCardWidget.tsx` (modify, same file as T173)
@@ -1718,7 +1718,7 @@ independent of layout arrangement.
   - **Verification**: Covered by T194
   - **Dependencies**: T162, T173
 
-- [ ] T175 [US2] Statistics Widget
+- [X] T175 [US2] Statistics Widget
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/StatisticsWidget.tsx` (new)
@@ -1727,7 +1727,7 @@ independent of layout arrangement.
   - **Verification**: `npx tsc --noEmit`; covered by T191
   - **Dependencies**: T146
 
-- [ ] T176 [US4] Statistics Widget — project/layer/feature stats binding
+- [X] T176 [US4] Statistics Widget — project/layer/feature stats binding
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/features/dashboards/components/widgets/StatisticsWidget.tsx` (modify, same file as T175)
@@ -1736,7 +1736,7 @@ independent of layout arrangement.
   - **Verification**: Covered by T194
   - **Dependencies**: T097, T175
 
-- [ ] T177 [US2] Table Widget
+- [X] T177 [US2] Table Widget
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/TableWidget.tsx` (new)
@@ -1745,7 +1745,7 @@ independent of layout arrangement.
   - **Verification**: `npx tsc --noEmit`; covered by T191
   - **Dependencies**: T146
 
-- [ ] T178 [US2] Table Widget — server-side pagination
+- [X] T178 [US2] Table Widget — server-side pagination
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/TableWidget.tsx` (modify, same file as T177)
@@ -1754,7 +1754,7 @@ independent of layout arrangement.
   - **Verification**: Covered by T191
   - **Dependencies**: T177
 
-- [ ] T179 [US2] Chart Widget — shared Recharts wrapper
+- [X] T179 [US2] Chart Widget — shared Recharts wrapper
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/ChartWidgetBase.tsx` (new)
@@ -1763,7 +1763,7 @@ independent of layout arrangement.
   - **Verification**: `npx tsc --noEmit`; covered by T192
   - **Dependencies**: T146
 
-- [ ] T180 [US2] Pie Chart variant
+- [X] T180 [US2] Pie Chart variant
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/PieChartWidget.tsx` (new)
@@ -1772,7 +1772,7 @@ independent of layout arrangement.
   - **Verification**: `npx tsc --noEmit`; covered by T192
   - **Dependencies**: T179
 
-- [ ] T181 [US2] Bar Chart variant
+- [X] T181 [US2] Bar Chart variant
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/BarChartWidget.tsx` (new)
@@ -1781,7 +1781,7 @@ independent of layout arrangement.
   - **Verification**: `npx tsc --noEmit`; covered by T192
   - **Dependencies**: T179
 
-- [ ] T182 [US2] Line Chart variant
+- [X] T182 [US2] Line Chart variant
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/LineChartWidget.tsx` (new)
@@ -1790,7 +1790,7 @@ independent of layout arrangement.
   - **Verification**: `npx tsc --noEmit`; covered by T192
   - **Dependencies**: T179
 
-- [ ] T183 [US2] Area Chart variant
+- [X] T183 [US2] Area Chart variant
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/AreaChartWidget.tsx` (new)
@@ -1799,7 +1799,7 @@ independent of layout arrangement.
   - **Verification**: `npx tsc --noEmit`; covered by T192
   - **Dependencies**: T179
 
-- [ ] T184 [US2] Gauge Widget
+- [X] T184 [US2] Gauge Widget
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/GaugeWidget.tsx` (new)
@@ -1808,7 +1808,7 @@ independent of layout arrangement.
   - **Verification**: `npx tsc --noEmit`; covered by T192
   - **Dependencies**: T146
 
-- [ ] T185 [US4] Gauge Widget — threshold/live-value binding
+- [X] T185 [US4] Gauge Widget — threshold/live-value binding
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/features/dashboards/components/widgets/GaugeWidget.tsx` (modify, same file as T184)
@@ -1817,7 +1817,7 @@ independent of layout arrangement.
   - **Verification**: Covered by T194
   - **Dependencies**: T095, T184
 
-- [ ] T186 [US2] Text Widget
+- [X] T186 [US2] Text Widget
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/TextWidget.tsx` (new)
@@ -1826,7 +1826,7 @@ independent of layout arrangement.
   - **Verification**: `npx tsc --noEmit`; covered by T193
   - **Dependencies**: T146
 
-- [ ] T187 [US2] Image Widget
+- [X] T187 [US2] Image Widget
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/ImageWidget.tsx` (new)
@@ -1835,7 +1835,7 @@ independent of layout arrangement.
   - **Verification**: `npx tsc --noEmit`; covered by T193
   - **Dependencies**: T146
 
-- [ ] T188 [US2] HTML Widget — sanitized rendering
+- [X] T188 [US2] HTML Widget — sanitized rendering
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/HtmlWidget.tsx` (new)
@@ -1844,7 +1844,7 @@ independent of layout arrangement.
   - **Verification**: `npx tsc --noEmit`; covered by T193
   - **Dependencies**: T005, T146
 
-- [ ] T189 [US4] User Activity widget
+- [X] T189 [US4] User Activity widget
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/features/dashboards/components/widgets/ActivityWidget.tsx` (new)
@@ -1853,7 +1853,7 @@ independent of layout arrangement.
   - **Verification**: `npx tsc --noEmit`; covered by T194
   - **Dependencies**: T107, T146
 
-- [ ] T190 [US4] System Activity / Storage Usage widget
+- [X] T190 [US4] System Activity / Storage Usage widget
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/features/dashboards/components/widgets/SystemStatsWidget.tsx` (new)
@@ -1862,7 +1862,7 @@ independent of layout arrangement.
   - **Verification**: `npx tsc --noEmit`; covered by T194
   - **Dependencies**: T041, T097, T146
 
-- [ ] T191 [P] [US2] Component tests — Map/Metric/Statistics/Table widgets
+- [X] T191 [P] [US2] Component tests — Map/Metric/Statistics/Table widgets
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/__tests__/MapWidget.test.tsx` (new), `src/features/dashboards/components/widgets/__tests__/MetricCardWidget.test.tsx` (new), `src/features/dashboards/components/widgets/__tests__/StatisticsWidget.test.tsx` (new), `src/features/dashboards/components/widgets/__tests__/TableWidget.test.tsx` (new)
@@ -1871,7 +1871,7 @@ independent of layout arrangement.
   - **Verification**: `npm run test -- MapWidget MetricCardWidget StatisticsWidget TableWidget`
   - **Dependencies**: T172, T176, T178
 
-- [ ] T192 [P] [US2] Component tests — all 4 chart variants + Gauge
+- [X] T192 [P] [US2] Component tests — all 4 chart variants + Gauge
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/__tests__/ChartWidgets.test.tsx` (new)
@@ -1880,7 +1880,7 @@ independent of layout arrangement.
   - **Verification**: `npm run test -- ChartWidgets`
   - **Dependencies**: T180, T181, T182, T183, T185
 
-- [ ] T193 [P] [US2] Component tests — Text/Image/HTML widgets
+- [X] T193 [P] [US2] Component tests — Text/Image/HTML widgets
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/widgets/__tests__/ContentWidgets.test.tsx` (new)
@@ -1889,7 +1889,7 @@ independent of layout arrangement.
   - **Verification**: `npm run test -- ContentWidgets`
   - **Dependencies**: T186, T187, T188
 
-- [ ] T194 [P] [US4] Integration test — full Live Analytics flow
+- [X] T194 [P] [US4] Integration test — full Live Analytics flow
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/features/dashboards/__tests__/liveAnalytics.integration.test.tsx` (new)
@@ -1898,7 +1898,7 @@ independent of layout arrangement.
   - **Verification**: `npm run test -- liveAnalytics.integration`
   - **Dependencies**: T174, T176, T185, T189, T190
 
-- [ ] T195 [US2] Checkpoint (Phase 10)
+- [X] T195 [US2] Checkpoint (Phase 10)
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: None (verification-only task)

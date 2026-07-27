@@ -8,36 +8,56 @@ import { queryKeys } from "../services/queryKeys"
 import { useDashboardBuilderStore } from "../store/dashboardBuilderStore"
 import type { DashboardWidgetRecord } from "../types/dashboard.types"
 import type { WidgetProps, WidgetType } from "../types/widget.types"
+import { ActivityWidget } from "./widgets/ActivityWidget"
+import { AreaChartWidget } from "./widgets/AreaChartWidget"
+import { BarChartWidget } from "./widgets/BarChartWidget"
+import { GaugeWidget } from "./widgets/GaugeWidget"
+import { HtmlWidget } from "./widgets/HtmlWidget"
+import { ImageWidget } from "./widgets/ImageWidget"
+import { LineChartWidget } from "./widgets/LineChartWidget"
+import { MapWidget } from "./widgets/MapWidget"
+import { MetricCardWidget } from "./widgets/MetricCardWidget"
+import { PieChartWidget } from "./widgets/PieChartWidget"
+import { StatisticsWidget } from "./widgets/StatisticsWidget"
+import { SystemStatsWidget } from "./widgets/SystemStatsWidget"
+import { TableWidget } from "./widgets/TableWidget"
+import { TextWidget } from "./widgets/TextWidget"
 import { WidgetErrorFallback } from "./WidgetErrorFallback"
 import { WidgetUnavailableState } from "./WidgetUnavailableState"
 
 /**
  * The one place `DashboardWidget.type` dispatches to a concrete component
  * (research.md Decision 1). Adding a 13th widget type requires touching only
- * this map plus one new component file (T146). Phase 10 replaces each
- * placeholder below with its real renderer, one file at a time.
+ * this map plus one new component file (T146).
+ *
+ * `dataSourceType: "systemStats" | "storageStats"` both dispatch through
+ * `statistics`'s `SystemStatsWidget` when the widget's own `type` is
+ * `statistics`/`metricCard` and the data source is platform-scoped — the
+ * registry key is `DashboardWidget.type` (visual shape), not
+ * `dataSourceType` (data origin), so System/Storage widgets are ordinary
+ * `statistics`-typed widgets pointed at a platform-scoped source, not a
+ * 13th visual type.
  */
-function PlaceholderWidget({ widget }: WidgetProps) {
-  return (
-    <div className="flex h-full items-center justify-center p-4 text-center text-sm text-muted-foreground">
-      {widget.type} widget — renderer not yet implemented
-    </div>
-  )
+export const WIDGET_REGISTRY: Record<WidgetType, (props: WidgetProps) => React.ReactNode> = {
+  map: MapWidget,
+  statistics: StatisticsWidget,
+  table: TableWidget,
+  chartBar: BarChartWidget,
+  chartLine: LineChartWidget,
+  chartArea: AreaChartWidget,
+  chartPie: PieChartWidget,
+  gauge: GaugeWidget,
+  metricCard: MetricCardWidget,
+  text: TextWidget,
+  image: ImageWidget,
+  html: HtmlWidget,
 }
 
-export const WIDGET_REGISTRY: Record<WidgetType, (props: WidgetProps) => React.ReactElement> = {
-  map: PlaceholderWidget,
-  statistics: PlaceholderWidget,
-  table: PlaceholderWidget,
-  chartBar: PlaceholderWidget,
-  chartLine: PlaceholderWidget,
-  chartArea: PlaceholderWidget,
-  chartPie: PlaceholderWidget,
-  gauge: PlaceholderWidget,
-  metricCard: PlaceholderWidget,
-  text: PlaceholderWidget,
-  image: PlaceholderWidget,
-  html: PlaceholderWidget,
+/** Widgets bound to `dataSourceType: "activity" | "systemStats" | "storageStats"` render via these dedicated components regardless of `WIDGET_REGISTRY`'s type-based entry, since those data sources need a distinctly-shaped display no single visual `type` naturally covers. */
+export function resolveWidgetComponent(widget: DashboardWidgetRecord): (props: WidgetProps) => React.ReactNode {
+  if (widget.dataSourceType === "activity") return ActivityWidget
+  if (widget.dataSourceType === "systemStats" || widget.dataSourceType === "storageStats") return SystemStatsWidget
+  return WIDGET_REGISTRY[widget.type as WidgetType] ?? TextWidget
 }
 
 interface WidgetRendererProps {
@@ -65,7 +85,7 @@ export function WidgetRenderer({ dashboardId, widget, isInView = true, canEdit }
     enabled: isInView && !widget.isCollapsed,
   })
 
-  const Component = WIDGET_REGISTRY[widget.type as WidgetType] ?? PlaceholderWidget
+  const Component = resolveWidgetComponent(widget)
   const showToolbar = isEditMode && canEdit
 
   function handleRefresh() {
