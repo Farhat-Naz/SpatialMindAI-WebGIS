@@ -911,7 +911,7 @@ extending the new `src/features/dashboards/` module.
 **Purpose**: Data-fetching/mutation hooks over Phase 5's services, per
 contracts/client-api.md.
 
-- [ ] T091 Create `useDashboards.ts` — list/detail
+- [X] T091 Create `useDashboards.ts` — list/detail
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useDashboards.ts` (new)
@@ -920,7 +920,7 @@ contracts/client-api.md.
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T076, T084
 
-- [ ] T092 [P] `useDashboards.ts` — create/rename/visibility mutations
+- [X] T092 [P] `useDashboards.ts` — create/rename/visibility mutations
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useDashboards.ts` (modify, same file as T091)
@@ -929,7 +929,7 @@ contracts/client-api.md.
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T091
 
-- [ ] T093 [P] `useDashboards.ts` — delete/duplicate/favorite/templates
+- [X] T093 [P] `useDashboards.ts` — delete/duplicate/favorite/templates
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useDashboards.ts` (modify, same file as T091)
@@ -938,7 +938,7 @@ contracts/client-api.md.
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T091
 
-- [ ] T094 Create `useWidgets.ts` — CRUD mutations
+- [X] T094 Create `useWidgets.ts` — CRUD mutations
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useWidgets.ts` (new)
@@ -947,7 +947,7 @@ contracts/client-api.md.
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T077, T084
 
-- [ ] T095 [P] `useWidgets.ts` — `useWidgetData` polling
+- [X] T095 [P] `useWidgets.ts` — `useWidgetData` polling
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useWidgets.ts` (modify, same file as T094)
@@ -956,7 +956,7 @@ contracts/client-api.md.
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T001, T087, T094
 
-- [ ] T096 [P] `useWidgets.ts` — `useSaveLayout`
+- [X] T096 [P] `useWidgets.ts` — `useSaveLayout`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useWidgets.ts` (modify, same file as T094)
@@ -965,7 +965,7 @@ contracts/client-api.md.
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T094
 
-- [ ] T097 Create `useAnalytics.ts`
+- [X] T097 Create `useAnalytics.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useAnalytics.ts` (new)
@@ -974,7 +974,7 @@ contracts/client-api.md.
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T078, T084
 
-- [ ] T098 Create `useReports.ts`
+- [X] T098 Create `useReports.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useReports.ts` (new)
@@ -983,7 +983,7 @@ contracts/client-api.md.
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T080, T084, T086
 
-- [ ] T099 [P] Create `useScheduledReports.ts`
+- [X] T099 [P] Create `useScheduledReports.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useScheduledReports.ts` (new)
@@ -992,7 +992,7 @@ contracts/client-api.md.
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T080, T084
 
-- [ ] T100 [P] "useTemplates" confirmation
+- [X] T100 [P] "useTemplates" confirmation
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useDashboards.ts` (verification, from T093)
@@ -1001,7 +1001,7 @@ contracts/client-api.md.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T093
 
-- [ ] T101 Create `useDashboardShares.ts` ("useSharing")
+- [X] T101 Create `useDashboardShares.ts` ("useSharing")
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useDashboardShares.ts` (new)
@@ -1010,7 +1010,7 @@ contracts/client-api.md.
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T082, T084
 
-- [ ] T102 [P] "useFavorites" confirmation
+- [X] T102 [P] "useFavorites" confirmation
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useDashboards.ts` (verification, from T093)
@@ -1019,7 +1019,7 @@ contracts/client-api.md.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T093
 
-- [ ] T103 Create `useDashboardFilters.ts`
+- [X] T103 Create `useDashboardFilters.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useDashboardFilters.ts` (new)
@@ -1028,7 +1028,7 @@ contracts/client-api.md.
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T083, T084
 
-- [ ] T104 [P] Hook tests
+- [X] T104 [P] Hook tests
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/__tests__/useDashboards.test.ts` (new), `src/features/dashboards/hooks/__tests__/useWidgets.test.ts` (new), `src/features/dashboards/hooks/__tests__/useAnalytics.test.ts` (new), `src/features/dashboards/hooks/__tests__/useReports.test.ts` (new), `src/features/dashboards/hooks/__tests__/useDashboardShares.test.ts` (new), `src/features/dashboards/hooks/__tests__/useDashboardFilters.test.ts` (new)
@@ -1037,7 +1037,7 @@ contracts/client-api.md.
   - **Verification**: `npm run test -- useDashboards useWidgets useAnalytics useReports useDashboardShares useDashboardFilters`
   - **Dependencies**: T091–T103
 
-- [ ] T105 Cache invalidation audit — cross-feature
+- [X] T105 Cache invalidation audit — cross-feature
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useWidgets.ts` (verification, from T094)
@@ -1046,7 +1046,7 @@ contracts/client-api.md.
   - **Verification**: Manual review, documented in the PR
   - **Dependencies**: T091–T103
 
-- [ ] T106 Cache invalidation audit — scoped invalidation
+- [X] T106 Cache invalidation audit — scoped invalidation
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/*.ts` (verification)
@@ -1055,7 +1055,7 @@ contracts/client-api.md.
   - **Verification**: Covered by T104
   - **Dependencies**: T091–T103
 
-- [ ] T107 Wire `useWidgetData` into T038's `dataSourceUnavailable` shape
+- [X] T107 Wire `useWidgetData` into T038's `dataSourceUnavailable` shape
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useWidgets.ts` (modify, same file as T094)
@@ -1064,7 +1064,7 @@ contracts/client-api.md.
   - **Verification**: `npx tsc --noEmit`; covered by T104
   - **Dependencies**: T038, T095
 
-- [ ] T108 Checkpoint (Phase 6)
+- [X] T108 Checkpoint (Phase 6)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)
