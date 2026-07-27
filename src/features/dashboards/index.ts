@@ -41,3 +41,9 @@ export {
   useUpdateWidget,
   useWidgetData,
 } from "./hooks"
+
+// Components
+export { DashboardListPage } from "./components/DashboardListPage"
+export { CreateDashboardDialog } from "./components/CreateDashboardDialog"
+export { DashboardSettingsPanel } from "./components/DashboardSettingsPanel"
+export { DashboardView } from "./components/DashboardView"

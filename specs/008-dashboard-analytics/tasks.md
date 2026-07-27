@@ -1253,7 +1253,7 @@ dashboard-shell-level, not per-widget-level, concerns.
 favorite it, delete it — independent of any widget or analytics content
 existing yet.
 
-- [ ] T126 [US1] `DashboardListPage` shell
+- [X] T126 [US1] `DashboardListPage` shell
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/DashboardListPage.tsx` (new)
@@ -1262,7 +1262,7 @@ existing yet.
   - **Verification**: `npx tsc --noEmit`; covered by T141
   - **Dependencies**: T091
 
-- [ ] T127 [US1] Create-dashboard dialog + template entry point
+- [X] T127 [US1] Create-dashboard dialog + template entry point
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/CreateDashboardDialog.tsx` (new)
@@ -1271,7 +1271,7 @@ existing yet.
   - **Verification**: `npx tsc --noEmit`; covered by T142
   - **Dependencies**: T092, T126
 
-- [ ] T128 [US1] Create dashboard — validation and empty-name rejection
+- [X] T128 [US1] Create dashboard — validation and empty-name rejection
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/CreateDashboardDialog.tsx` (modify, same file as T127)
@@ -1280,7 +1280,7 @@ existing yet.
   - **Verification**: Covered by T142
   - **Dependencies**: T127
 
-- [ ] T129 [US1] Rename dashboard UI
+- [X] T129 [US1] Rename dashboard UI
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/DashboardSettingsPanel.tsx` (new — this task creates the shell + rename field)
@@ -1289,7 +1289,7 @@ existing yet.
   - **Verification**: `npx tsc --noEmit`; covered by T142
   - **Dependencies**: T092, T126
 
-- [ ] T130 [US1] Delete dashboard UI + confirmation
+- [X] T130 [US1] Delete dashboard UI + confirmation
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/DashboardListPage.tsx` (modify, same file as T126)
@@ -1298,7 +1298,7 @@ existing yet.
   - **Verification**: `npx tsc --noEmit`; covered by T142
   - **Dependencies**: T093, T126
 
-- [ ] T131 [US1] Duplicate dashboard UI
+- [X] T131 [US1] Duplicate dashboard UI
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/DashboardListPage.tsx` (modify, same file as T126)
@@ -1307,7 +1307,7 @@ existing yet.
   - **Verification**: `npx tsc --noEmit`; covered by T142
   - **Dependencies**: T093, T126
 
-- [ ] T132 [US1] Favorite dashboard UI
+- [X] T132 [US1] Favorite dashboard UI
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/DashboardListPage.tsx` (modify, same file as T126)
@@ -1316,7 +1316,7 @@ existing yet.
   - **Verification**: `npx tsc --noEmit`; covered by T142
   - **Dependencies**: T093, T126
 
-- [ ] T133 [US1] Dashboard settings panel — visibility entry point
+- [X] T133 [US1] Dashboard settings panel — visibility entry point
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/DashboardSettingsPanel.tsx` (modify, same file as T129)
@@ -1325,7 +1325,7 @@ existing yet.
   - **Verification**: Covered by T142
   - **Dependencies**: T092, T129
 
-- [ ] T134 [US1] Dashboard settings panel — metadata display
+- [X] T134 [US1] Dashboard settings panel — metadata display
   - **Priority**: Should-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/DashboardSettingsPanel.tsx` (modify, same file as T129)
@@ -1334,7 +1334,7 @@ existing yet.
   - **Verification**: Covered by T142
   - **Dependencies**: T129
 
-- [ ] T135 [US3] Responsive layout — breakpoint-aware `DashboardView` shell
+- [X] T135 [US3] Responsive layout — breakpoint-aware `DashboardView` shell
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (new — this task creates the shell)
@@ -1343,7 +1343,7 @@ existing yet.
   - **Verification**: `npx tsc --noEmit`; covered by T144
   - **Dependencies**: T006, T091, T135 self
 
-- [ ] T136 [US3] Responsive layout — reflow verification across all three tiers
+- [X] T136 [US3] Responsive layout — reflow verification across all three tiers
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (modify, same file as T135)
@@ -1352,7 +1352,7 @@ existing yet.
   - **Verification**: Covered by T144
   - **Dependencies**: T135
 
-- [ ] T137 [US3] Auto save — layout autosave wiring
+- [X] T137 [US3] Auto save — layout autosave wiring
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (modify, same file as T135)
@@ -1361,7 +1361,7 @@ existing yet.
   - **Verification**: Covered by T144
   - **Dependencies**: T096, T135
 
-- [ ] T138 [US1] Auto save — dashboard rename/settings save-on-blur vs explicit-save decision
+- [X] T138 [US1] Auto save — dashboard rename/settings save-on-blur vs explicit-save decision
   - **Priority**: Should-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/DashboardSettingsPanel.tsx` (modify, same file as T129)
@@ -1370,7 +1370,7 @@ existing yet.
   - **Verification**: Covered by T142
   - **Dependencies**: T129
 
-- [ ] T139 [US1] `DashboardListPage` — search
+- [X] T139 [US1] `DashboardListPage` — search
   - **Priority**: Should-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/DashboardListPage.tsx` (modify, same file as T126)
@@ -1379,7 +1379,7 @@ existing yet.
   - **Verification**: Covered by T141
   - **Dependencies**: T126
 
-- [ ] T140 [US1] Empty state — no dashboards yet
+- [X] T140 [US1] Empty state — no dashboards yet
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/DashboardListPage.tsx` (modify, same file as T126)
@@ -1388,7 +1388,7 @@ existing yet.
   - **Verification**: Covered by T141
   - **Dependencies**: T126
 
-- [ ] T141 [P] [US1] Component tests — `DashboardListPage`
+- [X] T141 [P] [US1] Component tests — `DashboardListPage`
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/__tests__/DashboardListPage.test.tsx` (new)
@@ -1397,7 +1397,7 @@ existing yet.
   - **Verification**: `npm run test -- DashboardListPage`
   - **Dependencies**: T126, T139, T140
 
-- [ ] T142 [P] [US1] Component tests — create/rename/delete/duplicate/favorite/settings
+- [X] T142 [P] [US1] Component tests — create/rename/delete/duplicate/favorite/settings
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/__tests__/CreateDashboardDialog.test.tsx` (new), `src/features/dashboards/components/__tests__/DashboardSettingsPanel.test.tsx` (new)
@@ -1406,7 +1406,7 @@ existing yet.
   - **Verification**: `npm run test -- CreateDashboardDialog DashboardSettingsPanel`
   - **Dependencies**: T127–T134, T138
 
-- [ ] T143 [P] [US1] Integration test — full Dashboard Builder flow
+- [X] T143 [P] [US1] Integration test — full Dashboard Builder flow
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/__tests__/dashboardBuilder.integration.test.tsx` (new)
@@ -1415,7 +1415,7 @@ existing yet.
   - **Verification**: `npm run test -- dashboardBuilder.integration`
   - **Dependencies**: T130, T131, T132
 
-- [ ] T144 [P] [US3] Integration test — responsive layout + autosave
+- [X] T144 [P] [US3] Integration test — responsive layout + autosave
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/__tests__/dashboardResponsive.integration.test.tsx` (new)
@@ -1424,7 +1424,7 @@ existing yet.
   - **Verification**: `npm run test -- dashboardResponsive.integration`
   - **Dependencies**: T136, T137
 
-- [ ] T145 [US1] Checkpoint (Phase 8) — MVP validation
+- [X] T145 [US1] Checkpoint (Phase 8) — MVP validation
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: None (verification-only task)
