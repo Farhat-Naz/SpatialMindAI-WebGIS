@@ -27,3 +27,19 @@ export const ANALYTICS_SNAPSHOT_TTL_MS = 30_000
  * oldest report(s) beyond this count are pruned when a new one is created.
  */
 export const REPORT_RETENTION_LIMIT_PER_USER = 50
+
+/**
+ * `react-grid-layout` column count per breakpoint tier — shared by
+ * `widgetRepository.addWidget`'s default (bottom-of-grid) placement and
+ * `DashboardGrid`'s (Phase 9) `cols` prop, so a server-assigned default
+ * layout is never wider than the grid the client actually renders.
+ */
+export const GRID_COLUMNS: Record<"desktop" | "tablet" | "mobile", number> = {
+  desktop: 12,
+  tablet: 8,
+  mobile: 4,
+}
+
+/** A new widget's default size before the user resizes it — one third of the desktop grid width. */
+export const DEFAULT_WIDGET_SIZE = { w: 4, h: 4 }
+

@@ -11,7 +11,17 @@ export type ActivityAction =
   | "permission_change"
   | "version_restore"
 
-export type ActivityTargetType = "layer" | "feature" | "member" | "version" | "comment" | "invitation"
+export type ActivityTargetType =
+  | "layer"
+  | "feature"
+  | "member"
+  | "version"
+  | "comment"
+  | "invitation"
+  // specs/008-dashboard-analytics — additive (research.md Decision 11).
+  | "dashboard"
+  | "widget"
+  | "report"
 
 export interface RecordActivityInput {
   projectId: string

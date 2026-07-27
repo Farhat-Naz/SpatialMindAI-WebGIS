@@ -364,7 +364,7 @@ each owning one primary table-group. "TemplateRepository"/
 simple list, `DashboardFavorite` is owned alongside `Dashboard` itself,
 per repository-api.md's actual file grouping) — see per-task notes.
 
-- [ ] T033 Create `dashboardRepository.ts` — list/get
+- [X] T033 Create `dashboardRepository.ts` — list/get
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/dashboardRepository.ts` (new)
@@ -373,7 +373,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T011, T016, T029
 
-- [ ] T034 [P] `dashboardRepository.ts` — create/rename/visibility/delete
+- [X] T034 [P] `dashboardRepository.ts` — create/rename/visibility/delete
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/dashboardRepository.ts` (modify, same file as T033)
@@ -382,7 +382,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T033
 
-- [ ] T035 [P] `dashboardRepository.ts` — duplicate + favorite (covers "TemplateRepository" read, "FavoriteRepository")
+- [X] T035 [P] `dashboardRepository.ts` — duplicate + favorite (covers "TemplateRepository" read, "FavoriteRepository")
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/dashboardRepository.ts` (modify, same file as T033), `src/server/repositories/dashboardTemplateRepository.ts` (new, small — `listTemplates` only, per repository-api.md's note that templates have no dedicated large repository)
@@ -391,7 +391,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T019, T033
 
-- [ ] T036 Create `widgetRepository.ts` — widget CRUD
+- [X] T036 Create `widgetRepository.ts` — widget CRUD
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/widgetRepository.ts` (new)
@@ -400,7 +400,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T017, T018, T005, T033
 
-- [ ] T037 [P] `widgetRepository.ts` — layout save
+- [X] T037 [P] `widgetRepository.ts` — layout save
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/widgetRepository.ts` (modify, same file as T036)
@@ -409,7 +409,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T036
 
-- [ ] T038 [P] `widgetRepository.ts` — `resolveWidgetData` dispatch
+- [X] T038 [P] `widgetRepository.ts` — `resolveWidgetData` dispatch
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/widgetRepository.ts` (modify, same file as T036)
@@ -418,7 +418,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T036
 
-- [ ] T039 Create `dashboardAnalyticsRepository.ts` — `getSnapshot`
+- [X] T039 Create `dashboardAnalyticsRepository.ts` — `getSnapshot`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/dashboardAnalyticsRepository.ts` (modify, from T012's shell)
@@ -427,7 +427,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T012, T026
 
-- [ ] T040 [P] `dashboardAnalyticsRepository.ts` — spatial aggregate delegation
+- [X] T040 [P] `dashboardAnalyticsRepository.ts` — spatial aggregate delegation
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/dashboardAnalyticsRepository.ts` (modify, same file as T039)
@@ -436,7 +436,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T039
 
-- [ ] T041 [P] `dashboardAnalyticsRepository.ts` — new platform-count queries
+- [X] T041 [P] `dashboardAnalyticsRepository.ts` — new platform-count queries
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/dashboardAnalyticsRepository.ts` (modify, same file as T039)
@@ -445,7 +445,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T039
 
-- [ ] T042 Create `dashboardShareRepository.ts`
+- [X] T042 Create `dashboardShareRepository.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/dashboardShareRepository.ts` (new)
@@ -454,7 +454,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T011, T020
 
-- [ ] T043 [P] Wire `resolveEffectivePermission` into `dashboardRepository.ts`/`widgetRepository.ts`
+- [X] T043 [P] Wire `resolveEffectivePermission` into `dashboardRepository.ts`/`widgetRepository.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/dashboardRepository.ts`, `src/server/repositories/widgetRepository.ts` (both modify)
@@ -463,7 +463,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npx tsc --noEmit`; covered by T048
   - **Dependencies**: T036, T037, T038, T042
 
-- [ ] T044 Create `dashboardFilterRepository.ts`
+- [X] T044 Create `dashboardFilterRepository.ts`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/dashboardFilterRepository.ts` (new)
@@ -472,7 +472,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npx tsc --noEmit`; covered by T049
   - **Dependencies**: T022, T042
 
-- [ ] T045 Create `reportRepository.ts` — `Report` CRUD
+- [X] T045 Create `reportRepository.ts` — `Report` CRUD
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/reportRepository.ts` (new)
@@ -481,7 +481,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npx tsc --noEmit`; covered by T049
   - **Dependencies**: T013, T023, T042
 
-- [ ] T046 [P] `reportRepository.ts` — `ScheduledReport` CRUD
+- [X] T046 [P] `reportRepository.ts` — `ScheduledReport` CRUD
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/reportRepository.ts` (modify, same file as T045)
@@ -490,7 +490,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npx tsc --noEmit`; covered by T049
   - **Dependencies**: T025, T045
 
-- [ ] T047 [P] `reportRepository.ts` — `runDueScheduledReports`
+- [X] T047 [P] `reportRepository.ts` — `runDueScheduledReports`
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/reportRepository.ts` (modify, same file as T045)
@@ -499,7 +499,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npx tsc --noEmit`; covered by T049
   - **Dependencies**: T046
 
-- [ ] T048 [P] Repository tests — dashboard/widget/analytics/share
+- [X] T048 [P] Repository tests — dashboard/widget/analytics/share
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/dashboardRepository.test.ts` (new), `src/server/repositories/__tests__/widgetRepository.test.ts` (new), `src/server/repositories/__tests__/dashboardAnalyticsRepository.test.ts` (new), `src/server/repositories/__tests__/dashboardShareRepository.test.ts` (new)
@@ -508,7 +508,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npm run test:db -- dashboardRepository widgetRepository dashboardAnalyticsRepository dashboardShareRepository`
   - **Dependencies**: T033–T043
 
-- [ ] T049 [P] Repository tests — filter/report/scheduled-report
+- [X] T049 [P] Repository tests — filter/report/scheduled-report
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/dashboardFilterRepository.test.ts` (new), `src/server/repositories/__tests__/reportRepository.test.ts` (new)
@@ -517,7 +517,7 @@ per repository-api.md's actual file grouping) — see per-task notes.
   - **Verification**: `npm run test:db -- dashboardFilterRepository reportRepository`
   - **Dependencies**: T044, T045, T046, T047
 
-- [ ] T050 Checkpoint (Phase 3)
+- [X] T050 Checkpoint (Phase 3)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)
