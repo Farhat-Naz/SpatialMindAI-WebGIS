@@ -1918,7 +1918,7 @@ recurring schedule, per spec.md US5.
 each format and confirm each opens correctly in a standard external
 tool — independent of scheduling.
 
-- [ ] T196 [US5] `ReportGenerationDialog` — PDF path
+- [X] T196 [US5] `ReportGenerationDialog` — PDF path
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/components/ReportGenerationDialog.tsx` (new)
@@ -1927,7 +1927,7 @@ tool — independent of scheduling.
   - **Verification**: `npx tsc --noEmit`; covered by T208
   - **Dependencies**: T080, T098, T135
 
-- [ ] T197 [US5] `ReportGenerationDialog` — persist after client generation
+- [X] T197 [US5] `ReportGenerationDialog` — persist after client generation
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/components/ReportGenerationDialog.tsx` (modify, same file as T196)
@@ -1936,7 +1936,7 @@ tool — independent of scheduling.
   - **Verification**: Covered by T208
   - **Dependencies**: T196
 
-- [ ] T198 [US5] `ReportGenerationDialog` — Excel path
+- [X] T198 [US5] `ReportGenerationDialog` — Excel path
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/components/ReportGenerationDialog.tsx` (modify, same file as T196)
@@ -1945,7 +1945,7 @@ tool — independent of scheduling.
   - **Verification**: Covered by T208
   - **Dependencies**: T196
 
-- [ ] T199 [US5] `ReportGenerationDialog` — CSV path
+- [X] T199 [US5] `ReportGenerationDialog` — CSV path
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/components/ReportGenerationDialog.tsx` (modify, same file as T196)
@@ -1954,7 +1954,7 @@ tool — independent of scheduling.
   - **Verification**: Covered by T208
   - **Dependencies**: T196
 
-- [ ] T200 [US5] `ReportGenerationDialog` — HTML path
+- [X] T200 [US5] `ReportGenerationDialog` — HTML path
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/components/ReportGenerationDialog.tsx` (modify, same file as T196)
@@ -1963,7 +1963,7 @@ tool — independent of scheduling.
   - **Verification**: Covered by T208
   - **Dependencies**: T196
 
-- [ ] T201 [US5] Generated Reports list UI
+- [X] T201 [US5] Generated Reports list UI
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/components/ReportHistoryPanel.tsx` (new)
@@ -1972,7 +1972,7 @@ tool — independent of scheduling.
   - **Verification**: `npx tsc --noEmit`; covered by T208
   - **Dependencies**: T098
 
-- [ ] T202 [US5] Generated Reports list — pagination/filtering
+- [X] T202 [US5] Generated Reports list — pagination/filtering
   - **Priority**: Should-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/components/ReportHistoryPanel.tsx` (modify, same file as T201)
@@ -1981,7 +1981,7 @@ tool — independent of scheduling.
   - **Verification**: Covered by T208
   - **Dependencies**: T201
 
-- [ ] T203 [US5] `ScheduledReportsPanel` — create form
+- [X] T203 [US5] `ScheduledReportsPanel` — create form
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/components/ScheduledReportsPanel.tsx` (new)
@@ -1990,7 +1990,7 @@ tool — independent of scheduling.
   - **Verification**: `npx tsc --noEmit`; covered by T209
   - **Dependencies**: T099
 
-- [ ] T204 [US5] `ScheduledReportsPanel` — pause/resume/delete
+- [X] T204 [US5] `ScheduledReportsPanel` — pause/resume/delete
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/components/ScheduledReportsPanel.tsx` (modify, same file as T203)
@@ -1999,7 +1999,7 @@ tool — independent of scheduling.
   - **Verification**: Covered by T209
   - **Dependencies**: T203
 
-- [ ] T205 [US5] `ScheduledReportsPanel` — next-run display
+- [X] T205 [US5] `ScheduledReportsPanel` — next-run display
   - **Priority**: Should-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/components/ScheduledReportsPanel.tsx` (modify, same file as T203)
@@ -2008,7 +2008,7 @@ tool — independent of scheduling.
   - **Verification**: Covered by T209
   - **Dependencies**: T203
 
-- [ ] T206 [US5] Report download wiring
+- [X] T206 [US5] Report download wiring
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/components/ReportHistoryPanel.tsx` (modify, same file as T201)
@@ -2017,7 +2017,7 @@ tool — independent of scheduling.
   - **Verification**: Covered by T208
   - **Dependencies**: T098, T201
 
-- [ ] T207 [US5] Failed-report error display
+- [X] T207 [US5] Failed-report error display
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/components/ReportHistoryPanel.tsx` (modify, same file as T201)
@@ -2026,7 +2026,7 @@ tool — independent of scheduling.
   - **Verification**: Covered by T208
   - **Dependencies**: T201
 
-- [ ] T208 [P] [US5] Component tests — `ReportGenerationDialog` all 4 formats
+- [X] T208 [P] [US5] Component tests — `ReportGenerationDialog` all 4 formats
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/components/__tests__/ReportGenerationDialog.test.tsx` (new), `src/features/dashboards/components/__tests__/ReportHistoryPanel.test.tsx` (new)
@@ -2035,7 +2035,7 @@ tool — independent of scheduling.
   - **Verification**: `npm run test -- ReportGenerationDialog ReportHistoryPanel`
   - **Dependencies**: T197, T198, T199, T200, T206, T207
 
-- [ ] T209 [P] [US5] Component tests — `ScheduledReportsPanel`
+- [X] T209 [P] [US5] Component tests — `ScheduledReportsPanel`
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/components/__tests__/ScheduledReportsPanel.test.tsx` (new)
@@ -2044,7 +2044,7 @@ tool — independent of scheduling.
   - **Verification**: `npm run test -- ScheduledReportsPanel`
   - **Dependencies**: T203, T204, T205
 
-- [ ] T210 [P] [US5] Service tests — full per-format structural validity
+- [X] T210 [P] [US5] Service tests — full per-format structural validity
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/services/__tests__/reportService.test.ts` (modify, extends T088)
@@ -2053,7 +2053,7 @@ tool — independent of scheduling.
   - **Verification**: `npm run test -- reportService`
   - **Dependencies**: T197, T198, T199, T200
 
-- [ ] T211 [P] [US5] Integration test — full Reporting flow
+- [X] T211 [P] [US5] Integration test — full Reporting flow
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/__tests__/reporting.integration.test.tsx` (new)
@@ -2062,7 +2062,7 @@ tool — independent of scheduling.
   - **Verification**: `npm run test -- reporting.integration`
   - **Dependencies**: T202, T206, T209
 
-- [ ] T212 [P] [US5] API test — `run-due` endpoint end-to-end
+- [X] T212 [P] [US5] API test — `run-due` endpoint end-to-end
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/app/api/reports/__tests__/reports.api.test.ts` (modify, extends T074)
@@ -2071,7 +2071,7 @@ tool — independent of scheduling.
   - **Verification**: `npm run test:db -- reports.api`
   - **Dependencies**: T069, T211
 
-- [ ] T213 [US5] Accessibility check — Report dialogs
+- [X] T213 [US5] Accessibility check — Report dialogs
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/components/__tests__/ReportGenerationDialog.a11y.test.tsx` (new)
@@ -2080,7 +2080,7 @@ tool — independent of scheduling.
   - **Verification**: `npm run test -- ReportGenerationDialog.a11y`
   - **Dependencies**: T196, T203
 
-- [ ] T214 [US5] Checkpoint (Phase 11)
+- [X] T214 [US5] Checkpoint (Phase 11)
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: None (verification-only task)

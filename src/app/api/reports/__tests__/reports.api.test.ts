@@ -143,6 +143,51 @@ describe.skipIf(!dbAvailable)("Reports/Analytics/Templates API", () => {
     }
   })
 
+  it("run-due (T212): full trigger -> generate -> persist -> advance-nextRunAt flow, and isolates one schedule's outcome from another's in the same batch", async () => {
+    process.env.CRON_SECRET = "test-secret"
+    try {
+      const dueSchedule = await prismaClient.scheduledReport.create({
+        data: { dashboardId, userId: TEST_OWNER_ID, format: "csv", recurrence: "daily", nextRunAt: new Date(Date.now() - 1000) },
+      })
+      const secondDashboard = await CREATE_DASHBOARD(
+        jsonRequest(`http://localhost/api/projects/${projectId}/dashboards`, "POST", { name: "Second" }) as never,
+        { params: Promise.resolve({ projectId }) },
+      )
+      const secondDashboardId = (await secondDashboard.json()).dashboard.id
+      const secondSchedule = await prismaClient.scheduledReport.create({
+        data: {
+          dashboardId: secondDashboardId,
+          userId: TEST_OWNER_ID,
+          format: "html",
+          recurrence: "weekly",
+          nextRunAt: new Date(Date.now() - 1000),
+        },
+      })
+
+      const response = await RUN_DUE(
+        jsonRequest("http://localhost/api/reports/scheduled/run-due", "POST", undefined, {
+          "x-cron-secret": "test-secret",
+        }) as never,
+      )
+      expect(response.status).toBe(200)
+      const summary = await response.json()
+      expect(summary.processed).toBeGreaterThanOrEqual(2)
+      expect(summary.failed).toBe(0)
+
+      const reportOne = await prismaClient.report.findFirst({ where: { scheduledReportId: dueSchedule.id } })
+      const reportTwo = await prismaClient.report.findFirst({ where: { scheduledReportId: secondSchedule.id } })
+      expect(reportOne?.status).toBe("succeeded")
+      expect(reportTwo?.status).toBe("succeeded")
+
+      const updatedOne = await prismaClient.scheduledReport.findUnique({ where: { id: dueSchedule.id } })
+      const updatedTwo = await prismaClient.scheduledReport.findUnique({ where: { id: secondSchedule.id } })
+      expect(updatedOne!.nextRunAt.getTime()).toBeGreaterThan(dueSchedule.nextRunAt.getTime())
+      expect(updatedTwo!.nextRunAt.getTime()).toBeGreaterThan(secondSchedule.nextRunAt.getTime())
+    } finally {
+      delete process.env.CRON_SECRET
+    }
+  })
+
   it("GET analytics returns a snapshot with isCached reflecting the staleness check", async () => {
     const first = await GET_ANALYTICS(
       new Request(`http://localhost/api/projects/${projectId}/analytics/systemStats`) as never,

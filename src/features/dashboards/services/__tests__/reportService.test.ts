@@ -45,6 +45,15 @@ describe("reportService", () => {
     expect(body.fileContent.length).toBeGreaterThan(0)
   })
 
+  it("generatePdfReport (T210): the base64 fileContent decodes to a structurally valid PDF (starts with the %PDF magic bytes)", async () => {
+    const node = document.createElement("div")
+    await reportService.generatePdfReport("dash-1", node)
+
+    const body = JSON.parse(lastCall().init.body as string)
+    const decoded = Buffer.from(body.fileContent, "base64").toString("latin1")
+    expect(decoded.startsWith("%PDF-")).toBe(true)
+  })
+
   it("generateExcelReport/generateCsvReport/generateHtmlReport: log with no fileContent, letting the server generate it", async () => {
     await reportService.generateCsvReport("dash-1")
     expect(JSON.parse(lastCall().init.body as string)).toEqual({ format: "csv", fileContent: undefined })

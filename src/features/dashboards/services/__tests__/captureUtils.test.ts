@@ -46,4 +46,21 @@ describe("buildXlsxWorkbook", () => {
     const longName = "a".repeat(50)
     await expect(buildXlsxWorkbook([{ name: longName, rows: [{ a: 1 }] }])).resolves.toBeInstanceOf(Blob)
   })
+
+  it("T210: round-trips through a real xlsx parse — sheet names and row/column values match exactly", async () => {
+    const XLSX = await import("xlsx")
+    const blob = await buildXlsxWorkbook([
+      { name: "Widgets", rows: [{ name: "Ops", count: 3 }, { name: "Executive", count: 7 }] },
+    ])
+
+    const buffer = await blob.arrayBuffer()
+    const workbook = XLSX.read(new Uint8Array(buffer), { type: "array" })
+
+    expect(workbook.SheetNames).toEqual(["Widgets"])
+    const rows = XLSX.utils.sheet_to_json(workbook.Sheets.Widgets)
+    expect(rows).toEqual([
+      { name: "Ops", count: 3 },
+      { name: "Executive", count: 7 },
+    ])
+  })
 })
