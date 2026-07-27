@@ -2256,7 +2256,7 @@ pre-populated with a sensible starting widget set, per spec.md US8.
 it is pre-populated with that template's expected widget set —
 independent of any manual customization.
 
-- [ ] T231 [US8] Blank template confirmation
+- [X] T231 [US8] Blank template confirmation
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `prisma/seed.ts` (verification, from T030)
@@ -2265,7 +2265,7 @@ independent of any manual customization.
   - **Verification**: Covered by T243
   - **Dependencies**: T030
 
-- [ ] T232 [US8] Executive template blueprint
+- [X] T232 [US8] Executive template blueprint
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `prisma/seed.ts` (modify, same file as T030)
@@ -2274,7 +2274,7 @@ independent of any manual customization.
   - **Verification**: Covered by T243
   - **Dependencies**: T173, T175, T231
 
-- [ ] T233 [US8] Operations template blueprint
+- [X] T233 [US8] Operations template blueprint
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `prisma/seed.ts` (modify, same file as T030)
@@ -2283,7 +2283,7 @@ independent of any manual customization.
   - **Verification**: Covered by T243
   - **Dependencies**: T175, T189, T231
 
-- [ ] T234 [US8] Environmental template blueprint
+- [X] T234 [US8] Environmental template blueprint
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `prisma/seed.ts` (modify, same file as T030)
@@ -2292,7 +2292,7 @@ independent of any manual customization.
   - **Verification**: Covered by T243
   - **Dependencies**: T171, T175, T180, T231
 
-- [ ] T235 [US8] Asset template blueprint
+- [X] T235 [US8] Asset template blueprint
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `prisma/seed.ts` (modify, same file as T030)
@@ -2301,7 +2301,7 @@ independent of any manual customization.
   - **Verification**: Covered by T243
   - **Dependencies**: T171, T177, T231
 
-- [ ] T236 [US8] Template picker UI — full grid
+- [X] T236 [US8] Template picker UI — full grid
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/features/dashboards/components/TemplatePicker.tsx` (new)
@@ -2310,7 +2310,7 @@ independent of any manual customization.
   - **Verification**: `npx tsc --noEmit`; covered by T242
   - **Dependencies**: T093, T127
 
-- [ ] T237 [US8] Template picker — instantiation wiring
+- [X] T237 [US8] Template picker — instantiation wiring
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/features/dashboards/components/TemplatePicker.tsx` (modify, same file as T236)
@@ -2319,7 +2319,7 @@ independent of any manual customization.
   - **Verification**: Covered by T242
   - **Dependencies**: T034, T236
 
-- [ ] T238 [US8] "Import template" — confirm scope (template-list fetch, not file upload)
+- [X] T238 [US8] "Import template" — confirm scope (template-list fetch, not file upload)
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/features/dashboards/components/TemplatePicker.tsx` (verification, same file as T236)
@@ -2328,7 +2328,7 @@ independent of any manual customization.
   - **Verification**: Manual review, documented in the PR
   - **Dependencies**: T236
 
-- [ ] T239 [US8] "Export template" — confirm out of scope
+- [X] T239 [US8] "Export template" — confirm out of scope
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: None (documentation-only task)
@@ -2337,7 +2337,7 @@ independent of any manual customization.
   - **Verification**: Manual review, documented in the PR
   - **Dependencies**: None
 
-- [ ] T240 [US8] Template-created dashboard behaves identically to manual
+- [X] T240 [US8] Template-created dashboard behaves identically to manual
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (verification, from T135)
@@ -2346,7 +2346,7 @@ independent of any manual customization.
   - **Verification**: Covered by T244
   - **Dependencies**: T135, T237
 
-- [ ] T241 [US8] Template picker accessibility
+- [X] T241 [US8] Template picker accessibility
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/features/dashboards/components/TemplatePicker.tsx` (modify, same file as T236)
@@ -2355,7 +2355,7 @@ independent of any manual customization.
   - **Verification**: Covered by T242
   - **Dependencies**: T236
 
-- [ ] T242 [P] [US8] Component tests — `TemplatePicker`
+- [X] T242 [P] [US8] Component tests — `TemplatePicker`
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/features/dashboards/components/__tests__/TemplatePicker.test.tsx` (new)
@@ -2364,7 +2364,7 @@ independent of any manual customization.
   - **Verification**: `npm run test -- TemplatePicker`
   - **Dependencies**: T236, T237, T241
 
-- [ ] T243 [P] [US8] Component/integration tests — each template's blueprint
+- [X] T243 [P] [US8] Component/integration tests — each template's blueprint
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/features/dashboards/__tests__/dashboardTemplates.test.tsx` (new)
@@ -2373,7 +2373,7 @@ independent of any manual customization.
   - **Verification**: `npm run test -- dashboardTemplates`
   - **Dependencies**: T232, T233, T234, T235
 
-- [ ] T244 [P] [US8] Integration test — full Templates flow
+- [X] T244 [P] [US8] Integration test — full Templates flow
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: `src/features/dashboards/__tests__/templates.integration.test.tsx` (new)
@@ -2382,7 +2382,7 @@ independent of any manual customization.
   - **Verification**: `npm run test -- templates.integration`
   - **Dependencies**: T240, T243
 
-- [ ] T245 [US8] Checkpoint (Phase 13)
+- [X] T245 [US8] Checkpoint (Phase 13)
   - **Priority**: Must-have
   - **User Story**: US8
   - **Files**: None (verification-only task)

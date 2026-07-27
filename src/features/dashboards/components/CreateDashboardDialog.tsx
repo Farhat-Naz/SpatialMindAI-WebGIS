@@ -13,23 +13,24 @@ import {
 import { Button } from "@/shared/components/ui/button"
 import { useCreateDashboard } from "../hooks/useDashboards"
 import { ApiRequestError } from "@/shared/errors/apiRequestError"
+import { TemplatePicker } from "./TemplatePicker"
 
 interface CreateDashboardDialogProps {
   projectId: string
   onCreated: (dashboardId: string) => void
-  /** Preselected template — the full template grid picker lands in Phase 13; this dialog defaults to "Blank" (`undefined` templateId). */
-  templateId?: string
 }
 
-/** Name + (for now, implicit Blank) template create flow (FR-001), wired to `useCreateDashboard`. */
-export function CreateDashboardDialog({ projectId, onCreated, templateId }: CreateDashboardDialogProps) {
+/** Name + template picker create flow (FR-001/FR-028), wired to `useCreateDashboard`. Defaults to Blank (`undefined` templateId). */
+export function CreateDashboardDialog({ projectId, onCreated }: CreateDashboardDialogProps) {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
+  const [templateId, setTemplateId] = useState<string | undefined>(undefined)
   const [error, setError] = useState<string | null>(null)
   const createDashboard = useCreateDashboard(projectId)
 
   function reset() {
     setName("")
+    setTemplateId(undefined)
     setError(null)
   }
 
@@ -98,6 +99,11 @@ export function CreateDashboardDialog({ projectId, onCreated, templateId }: Crea
               {error}
             </p>
           )}
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <span className="text-sm font-medium">Template</span>
+          <TemplatePicker selectedTemplateId={templateId} onSelect={setTemplateId} />
         </div>
 
         <DialogFooter>

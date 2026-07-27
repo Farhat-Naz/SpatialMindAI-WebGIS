@@ -6,6 +6,7 @@ import { assertDashboardPermission, resolveEffectivePermission } from "@/server/
 import { recordActivity } from "@/server/repositories/activityRepository"
 import { DuplicateNameError, NotFoundError } from "@/shared/errors/apiError"
 import type { DashboardRecord } from "@/features/dashboards/types/dashboard.types"
+import { GRID_COLUMNS } from "@/features/dashboards/types/dashboardConfig.constants"
 
 const DEFAULT_LIMIT = 20
 const MAX_LIMIT = 100
@@ -171,6 +172,7 @@ export async function createDashboard(
         data: { projectId, ownerId: userId, name: input.name, templateId: input.templateId ?? null },
       })
 
+      let mobileStackY = 0
       for (const widget of blueprint) {
         const createdWidget = await tx.dashboardWidget.create({
           data: {
@@ -181,16 +183,32 @@ export async function createDashboard(
             config: widget.config as Prisma.InputJsonValue,
           },
         })
-        await tx.widgetLayout.create({
-          data: {
-            widgetId: createdWidget.id,
-            breakpoint: "desktop",
-            x: widget.layout.desktop.x,
-            y: widget.layout.desktop.y,
-            w: widget.layout.desktop.w,
-            h: widget.layout.desktop.h,
-          },
+
+        const desktop = widget.layout.desktop
+        // Tablet/mobile rows aren't authored per template (data-model.md's
+        // blueprint shape only carries a desktop layout) — derived here so
+        // a template-created dashboard has a placement on every breakpoint
+        // tier from the start, matching `addWidget`'s own default-layout
+        // behavior for a manually-added widget. Tablet keeps the desktop
+        // position, clamped to the narrower grid; mobile stacks every
+        // widget full-width, one after another.
+        const tabletWidth = Math.min(desktop.w, GRID_COLUMNS.tablet)
+        const mobileHeight = desktop.h
+        await tx.widgetLayout.createMany({
+          data: [
+            { widgetId: createdWidget.id, breakpoint: "desktop", ...desktop },
+            {
+              widgetId: createdWidget.id,
+              breakpoint: "tablet",
+              x: Math.min(desktop.x, GRID_COLUMNS.tablet - tabletWidth),
+              y: desktop.y,
+              w: tabletWidth,
+              h: desktop.h,
+            },
+            { widgetId: createdWidget.id, breakpoint: "mobile", x: 0, y: mobileStackY, w: GRID_COLUMNS.mobile, h: mobileHeight },
+          ],
         })
+        mobileStackY += mobileHeight
       }
 
       return dashboard
