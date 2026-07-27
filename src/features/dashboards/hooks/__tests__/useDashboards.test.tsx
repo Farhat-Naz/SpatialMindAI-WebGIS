@@ -49,6 +49,7 @@ const dashboard = {
   effectivePermission: "owner" as const,
   isFavorite: false,
   sharedWithMe: false,
+      widgets: [],
   createdAt: "t",
   updatedAt: "t",
 }

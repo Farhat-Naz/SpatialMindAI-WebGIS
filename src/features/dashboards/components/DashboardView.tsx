@@ -1,10 +1,13 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { Button } from "@/shared/components/ui/button"
 import { useDashboard } from "../hooks/useDashboards"
 import { useDashboardBuilderStore } from "../store/dashboardBuilderStore"
 import { resolveBreakpoint } from "../services/breakpoint"
+import { DashboardGrid } from "./DashboardGrid"
 import { DashboardSettingsPanel } from "./DashboardSettingsPanel"
+import { WidgetConfigPanel } from "./WidgetConfigPanel"
 
 interface DashboardViewProps {
   projectId: string
@@ -24,6 +27,11 @@ export function DashboardView({ projectId, dashboardId }: DashboardViewProps) {
   const { data, isLoading } = useDashboard(dashboardId)
   const activeBreakpoint = useDashboardBuilderStore((state) => state.activeBreakpoint)
   const setActiveBreakpoint = useDashboardBuilderStore((state) => state.setActiveBreakpoint)
+  const isEditMode = useDashboardBuilderStore((state) => state.isEditMode)
+  const toggleEditMode = useDashboardBuilderStore((state) => state.toggleEditMode)
+  const selectedWidgetId = useDashboardBuilderStore((state) => state.selectedWidgetId)
+  const clearSelectedWidget = useDashboardBuilderStore((state) => state.clearSelectedWidget)
+  const [isAddWidgetOpen, setIsAddWidgetOpen] = useState(false)
 
   useEffect(() => {
     function handleResize() {
@@ -50,17 +58,47 @@ export function DashboardView({ projectId, dashboardId }: DashboardViewProps) {
     )
   }
 
+  const canEdit = data.dashboard.effectivePermission === "edit" || data.dashboard.effectivePermission === "owner"
+
   return (
     <div className="flex h-full flex-col" data-active-breakpoint={activeBreakpoint}>
       <header className="flex items-center justify-between border-b px-4 py-3">
         <h1 className="text-lg font-semibold">{data.dashboard.name}</h1>
+        {canEdit && (
+          <div className="flex items-center gap-2">
+            {isEditMode && (
+              <Button type="button" size="sm" onClick={() => setIsAddWidgetOpen(true)}>
+                Add widget
+              </Button>
+            )}
+            <Button type="button" variant={isEditMode ? "default" : "outline"} size="sm" onClick={toggleEditMode}>
+              {isEditMode ? "Done editing" : "Edit dashboard"}
+            </Button>
+          </div>
+        )}
       </header>
 
-      {/* DashboardGrid (Phase 9) mounts here, rendering WidgetRenderer per
-          widget for the current activeBreakpoint tier. */}
-      <div className="flex-1 overflow-auto p-4" />
+      <div className="flex-1 overflow-auto p-4">
+        <DashboardGrid
+          dashboardId={dashboardId}
+          widgets={data.dashboard.widgets}
+          layouts={data.dashboard.widgets.flatMap((widget) => widget.layouts)}
+          activeBreakpoint={activeBreakpoint}
+          canEdit={canEdit}
+        />
+      </div>
 
       <DashboardSettingsPanel projectId={projectId} dashboard={data.dashboard} />
+
+      <WidgetConfigPanel
+        projectId={projectId}
+        dashboardId={dashboardId}
+        open={isAddWidgetOpen || selectedWidgetId !== null}
+        onOpenChange={(open) => {
+          setIsAddWidgetOpen(open)
+          if (!open) clearSelectedWidget()
+        }}
+      />
     </div>
   )
 }

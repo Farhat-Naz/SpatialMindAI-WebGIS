@@ -31,6 +31,7 @@ function dashboard(overrides: Partial<DashboardRecord> = {}): DashboardRecord {
     effectivePermission: "owner",
     isFavorite: false,
     sharedWithMe: false,
+      widgets: [],
     createdAt: "t",
     updatedAt: "t",
     ...overrides,

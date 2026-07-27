@@ -1445,7 +1445,7 @@ requirements and US3's grid/drag/resize/grouping requirements.
 confirm the mechanics work — independent of which specific widget types
 exist yet (Phase 10 supplies the twelve concrete renderers).
 
-- [ ] T146 [US2] Widget registry
+- [X] T146 [US2] Widget registry
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/WidgetRenderer.tsx` (new)
@@ -1454,7 +1454,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: `npx tsc --noEmit`; covered by T165
   - **Dependencies**: T003
 
-- [ ] T147 [US2] Widget container shell — per-widget error boundary
+- [X] T147 [US2] Widget container shell — per-widget error boundary
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/WidgetRenderer.tsx` (modify, same file as T146)
@@ -1463,7 +1463,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: `npx tsc --noEmit`; covered by T165
   - **Dependencies**: T146
 
-- [ ] T148 [US3] `DashboardGrid` — `react-grid-layout` integration base
+- [X] T148 [US3] `DashboardGrid` — `react-grid-layout` integration base
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/components/DashboardGrid.tsx` (new)
@@ -1472,7 +1472,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: `npx tsc --noEmit`; covered by T166
   - **Dependencies**: T135, T146
 
-- [ ] T149 [US3] Resize support
+- [X] T149 [US3] Resize support
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/components/DashboardGrid.tsx` (modify, same file as T148)
@@ -1481,7 +1481,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: Covered by T166
   - **Dependencies**: T096, T148
 
-- [ ] T150 [US3] Resize support — snap-to-grid confirmation
+- [X] T150 [US3] Resize support — snap-to-grid confirmation
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/components/DashboardGrid.tsx` (verification, same file as T148)
@@ -1490,7 +1490,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: Covered by T166
   - **Dependencies**: T149
 
-- [ ] T151 [US3] Drag support
+- [X] T151 [US3] Drag support
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/components/DashboardGrid.tsx` (modify, same file as T148)
@@ -1499,7 +1499,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: Covered by T166
   - **Dependencies**: T149
 
-- [ ] T152 [US3] Drag support — collision/reflow confirmation
+- [X] T152 [US3] Drag support — collision/reflow confirmation
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/components/DashboardGrid.tsx` (verification, same file as T148)
@@ -1508,7 +1508,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: Covered by T166
   - **Dependencies**: T151
 
-- [ ] T153 [US3] Keyboard-operable move/resize alternative
+- [X] T153 [US3] Keyboard-operable move/resize alternative
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/components/DashboardGrid.tsx` (modify, same file as T148)
@@ -1517,7 +1517,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: Covered by T166
   - **Dependencies**: T148
 
-- [ ] T154 [US2] Widget toolbar
+- [X] T154 [US2] Widget toolbar
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/WidgetRenderer.tsx` (modify, same file as T146)
@@ -1526,7 +1526,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: Covered by T165
   - **Dependencies**: T109, T146
 
-- [ ] T155 [US3] Widget grouping — group creation
+- [X] T155 [US3] Widget grouping — group creation
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/components/DashboardGrid.tsx` (modify, same file as T148)
@@ -1535,7 +1535,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: Covered by T167
   - **Dependencies**: T094, T148
 
-- [ ] T156 [US3] Widget collapse/expand UI + persistence
+- [X] T156 [US3] Widget collapse/expand UI + persistence
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/components/WidgetRenderer.tsx` (modify, same file as T146)
@@ -1544,7 +1544,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: Covered by T167
   - **Dependencies**: T094, T146
 
-- [ ] T157 [US2] `WidgetConfigPanel` shell
+- [X] T157 [US2] `WidgetConfigPanel` shell
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/WidgetConfigPanel.tsx` (new)
@@ -1553,7 +1553,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: `npx tsc --noEmit`; covered by T168
   - **Dependencies**: T109, T113
 
-- [ ] T158 [US2] `WidgetConfigPanel` — add-widget flow
+- [X] T158 [US2] `WidgetConfigPanel` — add-widget flow
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/WidgetConfigPanel.tsx` (modify, same file as T157)
@@ -1562,7 +1562,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: Covered by T168
   - **Dependencies**: T094, T157
 
-- [ ] T159 [US2] `WidgetConfigPanel` — edit-widget flow
+- [X] T159 [US2] `WidgetConfigPanel` — edit-widget flow
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/WidgetConfigPanel.tsx` (modify, same file as T157)
@@ -1571,7 +1571,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: Covered by T168
   - **Dependencies**: T094, T113, T157
 
-- [ ] T160 [US2] `WidgetConfigPanel` — data source picker
+- [X] T160 [US2] `WidgetConfigPanel` — data source picker
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/WidgetConfigPanel.tsx` (modify, same file as T157)
@@ -1580,7 +1580,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: Covered by T168
   - **Dependencies**: T157
 
-- [ ] T161 [US2] Widget refresh — manual refresh action
+- [X] T161 [US2] Widget refresh — manual refresh action
   - **Priority**: Should-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/WidgetRenderer.tsx` (modify, same file as T146)
@@ -1589,7 +1589,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: Covered by T165
   - **Dependencies**: T095, T146
 
-- [ ] T162 [US4] Widget refresh — automatic refresh indicator
+- [X] T162 [US4] Widget refresh — automatic refresh indicator
   - **Priority**: Should-have
   - **User Story**: US4
   - **Files**: `src/features/dashboards/components/WidgetRenderer.tsx` (modify, same file as T146)
@@ -1598,7 +1598,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: Covered by T165
   - **Dependencies**: T095, T146
 
-- [ ] T163 [US2] Widget lifecycle — add/remove/error-recovery end-to-end
+- [X] T163 [US2] Widget lifecycle — add/remove/error-recovery end-to-end
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/WidgetRenderer.tsx` (verification, same file as T146)
@@ -1607,7 +1607,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: Covered by T165
   - **Dependencies**: T146, T147, T161
 
-- [ ] T164 [US2] `WidgetUnavailableState` / `WidgetErrorFallback` components
+- [X] T164 [US2] `WidgetUnavailableState` / `WidgetErrorFallback` components
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/WidgetUnavailableState.tsx` (new), `src/features/dashboards/components/WidgetErrorFallback.tsx` (new)
@@ -1616,7 +1616,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: `npx tsc --noEmit`; covered by T165
   - **Dependencies**: T107, T147
 
-- [ ] T165 [P] [US2] Component tests — widget registry, container, lifecycle
+- [X] T165 [P] [US2] Component tests — widget registry, container, lifecycle
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/__tests__/WidgetRenderer.test.tsx` (new)
@@ -1625,7 +1625,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: `npm run test -- WidgetRenderer`
   - **Dependencies**: T146, T147, T154, T161, T162, T163, T164
 
-- [ ] T166 [P] [US3] Component tests — `DashboardGrid` drag/resize/collision/keyboard
+- [X] T166 [P] [US3] Component tests — `DashboardGrid` drag/resize/collision/keyboard
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/components/__tests__/DashboardGrid.test.tsx` (new)
@@ -1634,7 +1634,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: `npm run test -- DashboardGrid`
   - **Dependencies**: T148, T149, T151, T153
 
-- [ ] T167 [P] [US3] Component tests — grouping/collapse
+- [X] T167 [P] [US3] Component tests — grouping/collapse
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/components/__tests__/DashboardGrid.grouping.test.tsx` (new)
@@ -1643,7 +1643,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: `npm run test -- DashboardGrid.grouping`
   - **Dependencies**: T155, T156
 
-- [ ] T168 [P] [US2] Component tests — `WidgetConfigPanel`
+- [X] T168 [P] [US2] Component tests — `WidgetConfigPanel`
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/__tests__/WidgetConfigPanel.test.tsx` (new)
@@ -1652,7 +1652,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: `npm run test -- WidgetConfigPanel`
   - **Dependencies**: T157, T158, T159, T160
 
-- [ ] T169 [P] [US3] Integration test — remaining Dashboard Layout flow (drag/resize/group)
+- [X] T169 [P] [US3] Integration test — remaining Dashboard Layout flow (drag/resize/group)
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/__tests__/dashboardLayout.integration.test.tsx` (new)
@@ -1661,7 +1661,7 @@ exist yet (Phase 10 supplies the twelve concrete renderers).
   - **Verification**: `npm run test -- dashboardLayout.integration`
   - **Dependencies**: T152, T155, T156
 
-- [ ] T170 [US2] Checkpoint (Phase 9)
+- [X] T170 [US2] Checkpoint (Phase 9)
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: None (verification-only task)

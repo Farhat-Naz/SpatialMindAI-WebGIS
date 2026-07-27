@@ -18,7 +18,40 @@ async function hasProjectAccess(projectId: string, userId: string): Promise<bool
   return role !== null
 }
 
-async function toRecord(row: Dashboard, userId: string): Promise<DashboardRecord> {
+type WidgetWithLayouts = Prisma.DashboardWidgetGetPayload<{ include: { layouts: true } }>
+
+function toWidgetRecord(widget: WidgetWithLayouts): DashboardRecord["widgets"][number] {
+  return {
+    id: widget.id,
+    dashboardId: widget.dashboardId,
+    type: widget.type,
+    title: widget.title,
+    dataSourceType: widget.dataSourceType,
+    dataSourceId: widget.dataSourceId,
+    config: widget.config,
+    groupId: widget.groupId,
+    isCollapsed: widget.isCollapsed,
+    createdAt: widget.createdAt.toISOString(),
+    updatedAt: widget.updatedAt.toISOString(),
+    layouts: widget.layouts.map((layout) => ({
+      id: layout.id,
+      widgetId: layout.widgetId,
+      breakpoint: layout.breakpoint as "desktop" | "tablet" | "mobile",
+      x: layout.x,
+      y: layout.y,
+      w: layout.w,
+      h: layout.h,
+    })),
+  }
+}
+
+/**
+ * `widgets` is embedded only when `includeWidgets` is set (`getDashboardById`,
+ * a detail fetch) — never on `listDashboardsForProject`'s rows, which would
+ * eagerly load every dashboard's full widget set for a list view (T134 note
+ * in dashboard.types.ts).
+ */
+async function toRecord(row: Dashboard, userId: string, widgets: WidgetWithLayouts[] = []): Promise<DashboardRecord> {
   const [permission, favorite, share] = await Promise.all([
     resolveEffectivePermission(row.id, userId),
     prismaClient.dashboardFavorite.findUnique({
@@ -41,6 +74,7 @@ async function toRecord(row: Dashboard, userId: string): Promise<DashboardRecord
     effectivePermission: permission ?? "view",
     isFavorite: Boolean(favorite),
     sharedWithMe: Boolean(share),
+    widgets: widgets.map(toWidgetRecord),
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   }
@@ -87,14 +121,23 @@ export async function listDashboardsForProject(
   return { dashboards, nextCursor }
 }
 
-/** Gets one dashboard, union-scoped identically to `listDashboardsForProject` (via `resolveEffectivePermission`). */
+/**
+ * Gets one dashboard, union-scoped identically to `listDashboardsForProject`
+ * (via `resolveEffectivePermission`) — embeds every widget and its
+ * per-breakpoint layout rows (client-api.md: "widgets are returned embedded
+ * in dashboard detail, matching `AnalysisRun`'s one-query precedent").
+ */
 export async function getDashboardById(dashboardId: string, userId: string): Promise<DashboardRecord> {
   await assertDashboardPermission(dashboardId, userId, "view")
-  const row = await prismaClient.dashboard.findUnique({ where: { id: dashboardId } })
+  const row = await prismaClient.dashboard.findUnique({
+    where: { id: dashboardId },
+    include: { widgets: { include: { layouts: true } } },
+  })
   if (!row) {
     throw new NotFoundError(`No dashboard found with id "${dashboardId}".`)
   }
-  return toRecord(row, userId)
+  const { widgets, ...dashboard } = row
+  return toRecord(dashboard, userId, widgets)
 }
 
 interface WidgetsBlueprintEntry {

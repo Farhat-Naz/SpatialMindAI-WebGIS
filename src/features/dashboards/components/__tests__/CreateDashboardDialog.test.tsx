@@ -25,6 +25,7 @@ beforeEach(() => {
       effectivePermission: "owner",
       isFavorite: false,
       sharedWithMe: false,
+      widgets: [],
       createdAt: "t",
       updatedAt: "t",
     },

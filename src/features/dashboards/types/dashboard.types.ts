@@ -22,6 +22,13 @@ export interface DashboardRecord {
   effectivePermission: DashboardEffectivePermission
   isFavorite: boolean
   sharedWithMe: boolean
+  /**
+   * Embedded on `getDashboardById` only (single-dashboard detail) — empty
+   * on `listDashboardsForProject` rows, matching `AnalysisRun`'s "one
+   * query, embedded relations" precedent for a *detail* fetch; a list
+   * fetch never eagerly loads every dashboard's full widget set.
+   */
+  widgets: (DashboardWidgetRecord & { layouts: WidgetLayoutRecord[] })[]
   createdAt: string
   updatedAt: string
 }
