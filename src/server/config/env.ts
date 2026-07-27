@@ -42,8 +42,24 @@ const fullEnvSchema = z.object({
   // stricter refinement below has a real variable to enforce against.
   DEBUG_MODE: z.string().optional(),
 
+  // specs/005-import-export (T014) — maximum accepted import file size in
+  // bytes (FR-081). Optional; `getImportMaxFileBytes()` applies the 50 MB
+  // default when unset. Validated here so a malformed value fails at startup
+  // rather than at a user's first import. Server-side only — it must never be
+  // exposed via a `NEXT_PUBLIC_*` variable (Constitution Principle VI); the
+  // client mirrors it with its own constant purely for fast UX rejection.
+  IMPORT_MAX_FILE_BYTES: z
+    .string()
+    .trim()
+    .regex(/^\d+$/, "IMPORT_MAX_FILE_BYTES must be a positive integer number of bytes")
+    .refine((value) => Number(value) > 0, "IMPORT_MAX_FILE_BYTES must be greater than zero")
+    .optional(),
+
   NODE_ENV: z.enum(["development", "test", "production"]).optional(),
 })
+
+/** Default maximum import file size when `IMPORT_MAX_FILE_BYTES` is unset (spec.md Assumptions). */
+export const DEFAULT_IMPORT_MAX_FILE_BYTES = 50 * 1024 * 1024
 
 /** Production tier additionally forbids `DEBUG_MODE=true` (FR-003). */
 const productionRefinement = (data: z.infer<typeof fullEnvSchema>, ctx: z.RefinementCtx) => {
@@ -98,6 +114,19 @@ export function getAllowedOrigins(): string[] {
     .split(",")
     .map((origin) => origin.trim())
     .filter((origin) => origin.length > 0)
+}
+
+/**
+ * Maximum accepted import file size in bytes (specs/005-import-export,
+ * FR-081). Read lazily per call rather than at module load, matching this
+ * module's established convention (see the top-of-file note on why eager
+ * environment reads break the existing test suites).
+ */
+export function getImportMaxFileBytes(): number {
+  const raw = process.env.IMPORT_MAX_FILE_BYTES
+  if (!raw) return DEFAULT_IMPORT_MAX_FILE_BYTES
+  const parsed = Number(raw)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_IMPORT_MAX_FILE_BYTES
 }
 
 /** Whether the Redis-backed cache/rate-limiter mode is configured (research.md §9/§12). */

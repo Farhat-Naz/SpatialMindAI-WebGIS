@@ -48,3 +48,6 @@ Thumbs.db
 
 # Misc
 *.pem
+
+# Generated test fixtures (specs/005-import-export T264 — generated, never committed)
+src/features/import-export/__tests__/fixtures/large.geojson

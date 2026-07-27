@@ -86,7 +86,11 @@ export function LayerTree({ projectId }: LayerTreeProps) {
       </ul>
       {selectedLayer && (
         <div className="px-2 pt-1">
-          <ImportExportControls layerId={selectedLayer.id} layerName={selectedLayer.name} />
+          <ImportExportControls
+            layerId={selectedLayer.id}
+            layerName={selectedLayer.name}
+            projectId={projectId}
+          />
         </div>
       )}
     </div>

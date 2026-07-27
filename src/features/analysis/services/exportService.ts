@@ -1,266 +1,97 @@
 export { exportLayerAsGeoJson, type ExportedFeatureCollection } from "@/features/database/services/exportLayer"
 
-// Imported from their own modules rather than the `@/features/database`
-// barrel: the barrel re-exports map components, which pull in Leaflet and
-// leaflet-geoman, and a plain data service must not drag a map runtime
-// into every consumer that only wanted to page features.
-import { featureService } from "@/features/database/services/featureService"
+// Imported from their own modules rather than the `@/features/database` or
+// `@/features/import-export` barrels: a barrel re-exports map components, which
+// pull in Leaflet and leaflet-geoman, and a plain data service must not drag a
+// map runtime into every consumer that only wanted to page features.
 import { exportLayerAsGeoJson, type ExportedFeatureCollection } from "@/features/database/services/exportLayer"
+import {
+  EXPORT_FILE_EXTENSIONS as ALL_FILE_EXTENSIONS,
+  EXPORT_MIME_TYPES as ALL_MIME_TYPES,
+  LARGE_EXPORT_FEATURE_THRESHOLD as SHARED_LARGE_EXPORT_THRESHOLD,
+} from "@/features/import-export/types/exportConstants"
+import {
+  escapeXml,
+  toCsvField,
+  toKmlGeometry,
+  writeCsv,
+  writeKml,
+  writeShapefile,
+  type ExportProgressCallback,
+} from "@/features/import-export/services/exportWriters"
+
+/**
+ * Analysis-result export (007-spatial-analysis, US9).
+ *
+ * **The format writers no longer live here.** specs/005-import-export (T072)
+ * moved `buildCsv` / `buildKml` / `buildShapefile`, the page-streaming reader,
+ * and the KML/CSV serializers into
+ * `features/import-export/services/exportWriters.ts`, because 005 needs the
+ * same writers for layer, selection, and project scopes and two copies would
+ * inevitably drift (research.md Decision 21).
+ *
+ * This module is now a **re-export shim plus `exportAnalysisResult`**. Its
+ * public surface is unchanged: `useExportResult`, `useExportHistory`, and the
+ * Result Panel compile and behave identically with no edit, which is the
+ * regression guard plan.md's Testing Strategy names explicitly.
+ *
+ * The moved writers take an `ExportSource` rather than a bare `layerId`. The
+ * three thin `exportLayerAs*` wrappers below adapt 007's call shape onto it, so
+ * the change stops at this file.
+ */
 
 export type ExportFormat = "geojson" | "shapefile" | "csv" | "kml"
 
-export interface ExportProgressCallback {
-  (pagesLoaded: number, totalPages: number): void
-}
+export type { ExportProgressCallback }
 
-/** An assembled export: the file itself plus how many features went into it, which the export log records (US9, T233/T234). */
+/** An assembled export: the file itself plus how many features went into it, which the export log records. */
 export interface ExportResult {
   blob: Blob
   featureCount: number
 }
 
-/** Beyond this many features a single-file export is worth warning about before it is attempted (T232, spec.md US9 Edge Cases). */
-export const LARGE_EXPORT_FEATURE_THRESHOLD = 50_000
-
-/** MIME type per format, so a downloaded file opens in the right tool. */
-export const EXPORT_MIME_TYPES: Record<ExportFormat, string> = {
-  geojson: "application/geo+json",
-  shapefile: "application/zip",
-  csv: "text/csv",
-  kml: "application/vnd.google-earth.kml+xml",
-}
-
-export const EXPORT_FILE_EXTENSIONS: Record<ExportFormat, string> = {
-  geojson: "geojson",
-  shapefile: "zip",
-  csv: "csv",
-  kml: "kml",
-}
-
-interface PagedFeature {
-  geometry: unknown
-  properties: Record<string, string>
-}
+/**
+ * Beyond this many features a single-file export is worth warning about before
+ * it is attempted. Re-exported from 005's canonical declaration so the Result
+ * Panel and the Export dialog cannot disagree about what "large" means.
+ */
+export const LARGE_EXPORT_FEATURE_THRESHOLD = SHARED_LARGE_EXPORT_THRESHOLD
 
 /**
- * Pages through a layer's features, handing each page to `onPage` as it
- * arrives rather than returning one array (T231), and reporting how many
- * features were seen in total.
- *
- * `totalPages` is genuinely unknown until the last page returns a null
- * cursor, so progress is reported as `(pagesLoaded, pagesLoaded + 1)`
- * while more remain and `(n, n)` once finished — an honest "at least this
- * far" rather than a fabricated total that would later jump backwards.
+ * MIME type per format. Re-exported from 005's canonical map, narrowed to the
+ * four vector formats 007 offers — a five-key object satisfies a four-key
+ * record, so `pdf` being present in the source map is invisible here.
  */
-async function forEachFeaturePage(
-  layerId: string,
-  onPage: (features: PagedFeature[]) => void,
-  onProgress?: ExportProgressCallback,
-): Promise<number> {
-  let cursor: string | undefined
-  let pagesLoaded = 0
-  let featureCount = 0
+export const EXPORT_MIME_TYPES: Record<ExportFormat, string> = ALL_MIME_TYPES
 
-  do {
-    const page = await featureService.list(layerId, cursor ? { cursor } : undefined)
-    const mapped: PagedFeature[] = page.features.map((feature) => ({
-      geometry: feature.geometry as unknown,
-      properties: Object.fromEntries(feature.attributes.map((attribute) => [attribute.key, attribute.value])),
-    }))
-    featureCount += mapped.length
-    onPage(mapped)
+export const EXPORT_FILE_EXTENSIONS: Record<ExportFormat, string> = ALL_FILE_EXTENSIONS
 
-    pagesLoaded += 1
-    cursor = page.nextCursor ?? undefined
-    onProgress?.(pagesLoaded, cursor ? pagesLoaded + 1 : pagesLoaded)
-  } while (cursor)
-
-  return featureCount
-}
-
-/** Escapes one CSV field per RFC 4180 — quotes doubled, and any field containing a comma, quote, or newline wrapped. */
-function toCsvField(value: string): string {
-  return /[",\n\r]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value
-}
+// Re-exported so any existing importer of these helpers keeps resolving.
+export { escapeXml, toCsvField, toKmlGeometry, writeCsv, writeKml, writeShapefile }
 
 /**
- * CSV export (US9.3, FR-022) — one row per feature, attributes flattened
- * to columns, plus a `geometry` column holding the feature's GeoJSON.
- *
- * Rows are buffered rather than streamed straight into Blob parts because
- * a CSV's header must list every column *before* any row is written, and
- * the full set of attribute keys is only known once the last page has
- * arrived. Emitting a header built from the first page alone would
- * silently drop columns that appear later, which is worse than the memory
- * cost of holding the rows.
+ * Adapts 007's `(layerId, onProgress)` call shape onto the moved writers'
+ * `ExportSource`. `layerName` is unused by the vector writers — only the
+ * project archive needs it — so a stable placeholder is passed rather than
+ * threading a name 007's callers do not have.
  */
-async function buildCsv(layerId: string, onProgress?: ExportProgressCallback): Promise<ExportResult> {
-  const rows: Record<string, string>[] = []
-  const columns = new Set<string>()
-
-  const featureCount = await forEachFeaturePage(
-    layerId,
-    (features) => {
-      for (const feature of features) {
-        for (const key of Object.keys(feature.properties)) columns.add(key)
-        rows.push({ ...feature.properties, geometry: JSON.stringify(feature.geometry) })
-      }
-    },
-    onProgress,
-  )
-
-  const header = [...columns].sort()
-  header.push("geometry")
-
-  const lines = [header.map(toCsvField).join(",")]
-  for (const row of rows) {
-    lines.push(header.map((column) => toCsvField(row[column] ?? "")).join(","))
-  }
-
-  return { blob: new Blob([lines.join("\r\n")], { type: EXPORT_MIME_TYPES.csv }), featureCount }
-}
-
-/** Escapes text for XML character data. */
-function escapeXml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;")
-}
-
-function toKmlCoordinates(position: number[]): string {
-  return position.join(",")
-}
-
-function toKmlLineString(coordinates: number[][]): string {
-  return `<LineString><coordinates>${coordinates.map(toKmlCoordinates).join(" ")}</coordinates></LineString>`
-}
-
-function toKmlPolygon(rings: number[][][]): string {
-  const [outer, ...inner] = rings
-  const outerXml = `<outerBoundaryIs><LinearRing><coordinates>${(outer ?? [])
-    .map(toKmlCoordinates)
-    .join(" ")}</coordinates></LinearRing></outerBoundaryIs>`
-  const innerXml = inner
-    .map(
-      (ring) =>
-        `<innerBoundaryIs><LinearRing><coordinates>${ring
-          .map(toKmlCoordinates)
-          .join(" ")}</coordinates></LinearRing></innerBoundaryIs>`,
-    )
-    .join("")
-  return `<Polygon>${outerXml}${innerXml}</Polygon>`
-}
-
-/**
- * GeoJSON geometry to KML, hand-rolled rather than adding a dependency
- * (research.md Decision 10). Multi-part geometries become
- * `<MultiGeometry>`, KML's own representation, so a multipolygon survives
- * as one placemark rather than being split into several.
- */
-function toKmlGeometry(geometry: unknown): string {
-  if (!geometry || typeof geometry !== "object") return ""
-  const { type, coordinates, geometries } = geometry as {
-    type?: string
-    coordinates?: unknown
-    geometries?: unknown[]
-  }
-
-  switch (type) {
-    case "Point":
-      return `<Point><coordinates>${toKmlCoordinates(coordinates as number[])}</coordinates></Point>`
-    case "LineString":
-      return toKmlLineString(coordinates as number[][])
-    case "Polygon":
-      return toKmlPolygon(coordinates as number[][][])
-    case "MultiPoint":
-      return `<MultiGeometry>${(coordinates as number[][])
-        .map((position) => `<Point><coordinates>${toKmlCoordinates(position)}</coordinates></Point>`)
-        .join("")}</MultiGeometry>`
-    case "MultiLineString":
-      return `<MultiGeometry>${(coordinates as number[][][]).map(toKmlLineString).join("")}</MultiGeometry>`
-    case "MultiPolygon":
-      return `<MultiGeometry>${(coordinates as number[][][][]).map(toKmlPolygon).join("")}</MultiGeometry>`
-    case "GeometryCollection":
-      return `<MultiGeometry>${(geometries ?? []).map(toKmlGeometry).join("")}</MultiGeometry>`
-    default:
-      return ""
-  }
-}
-
-/**
- * KML export (US9.4, FR-022) — one `<Placemark>` per feature, attributes
- * carried as `<ExtendedData>` so they survive into Google Earth or QGIS.
- * Assembled into Blob parts page by page (T231): unlike CSV, KML needs no
- * whole-file knowledge before its first record.
- */
-async function buildKml(layerId: string, onProgress?: ExportProgressCallback): Promise<ExportResult> {
-  const parts: string[] = [
-    '<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2">\n<Document>\n',
-  ]
-
-  const featureCount = await forEachFeaturePage(
-    layerId,
-    (features) => {
-      for (const feature of features) {
-        const name = feature.properties.name ?? feature.properties.Name ?? ""
-        const data = Object.entries(feature.properties)
-          .map(([key, value]) => `<Data name="${escapeXml(key)}"><value>${escapeXml(value)}</value></Data>`)
-          .join("")
-        parts.push(
-          `<Placemark>${name ? `<name>${escapeXml(name)}</name>` : ""}` +
-            `${data ? `<ExtendedData>${data}</ExtendedData>` : ""}` +
-            `${toKmlGeometry(feature.geometry)}</Placemark>\n`,
-        )
-      }
-    },
-    onProgress,
-  )
-
-  parts.push("</Document>\n</kml>\n")
-  return { blob: new Blob(parts, { type: EXPORT_MIME_TYPES.kml }), featureCount }
-}
-
-/**
- * Shapefile export (US9.2, FR-022) — a zipped `.shp`/`.shx`/`.dbf`/`.prj`
- * set via the `@mapbox/shp-write` dependency.
- *
- * Unlike CSV and KML this cannot be assembled progressively: the writer
- * takes one complete FeatureCollection, because a shapefile's header
- * records the geometry type and bounding box of the entire file. Imported
- * lazily so the zip/writer code is not pulled into the bundle for users
- * who never export a shapefile.
- */
-async function buildShapefile(layerId: string, onProgress?: ExportProgressCallback): Promise<ExportResult> {
-  const features: PagedFeature[] = []
-  const featureCount = await forEachFeaturePage(layerId, (page) => features.push(...page), onProgress)
-
-  const { zip } = await import("@mapbox/shp-write")
-  const collection = {
-    type: "FeatureCollection" as const,
-    features: features.map((feature) => ({
-      type: "Feature" as const,
-      geometry: feature.geometry,
-      properties: feature.properties,
-    })),
-  }
-
-  const blob = (await zip(collection as never, { compression: "DEFLATE", outputType: "blob" })) as Blob
-  return { blob, featureCount }
+function layerSource(layerId: string) {
+  return { kind: "layer" as const, layerId, layerName: layerId }
 }
 
 export async function exportLayerAsCsv(layerId: string, onProgress?: ExportProgressCallback): Promise<Blob> {
-  return (await buildCsv(layerId, onProgress)).blob
+  return (await writeCsv(layerSource(layerId), { onProgress })).blob
 }
 
 export async function exportLayerAsKml(layerId: string, onProgress?: ExportProgressCallback): Promise<Blob> {
-  return (await buildKml(layerId, onProgress)).blob
+  return (await writeKml(layerSource(layerId), { onProgress })).blob
 }
 
-export async function exportLayerAsShapefile(layerId: string, onProgress?: ExportProgressCallback): Promise<Blob> {
-  return (await buildShapefile(layerId, onProgress)).blob
+export async function exportLayerAsShapefile(
+  layerId: string,
+  onProgress?: ExportProgressCallback,
+): Promise<Blob> {
+  return (await writeShapefile(layerSource(layerId), { onProgress })).blob
 }
 
 /** Serializes a statistics-style `resultData` payload for a run that produced no layer. */
@@ -279,12 +110,12 @@ function resultDataBlob(resultData: unknown, format: ExportFormat): Blob {
  * Exports one analysis run's result (US9, FR-022).
  *
  * A run with a `resultLayerId` exports that layer in the requested format.
- * A run without one produced a `resultData` payload instead — every
- * Statistics operation, plus Near and Distance Matrix. There is no
- * geometry to put in a shapefile or KML, so those payloads are exported as
- * JSON (or a single CSV row) rather than throwing: "export what I am
- * looking at" is the useful behaviour, and refusing would leave the only
- * copy of a statistics result trapped in the panel.
+ * A run without one produced a `resultData` payload instead — every Statistics
+ * operation, plus Near and Distance Matrix. There is no geometry to put in a
+ * shapefile or KML, so those payloads are exported as JSON (or a single CSV
+ * row) rather than throwing: "export what I am looking at" is the useful
+ * behaviour, and refusing would leave the only copy of a statistics result
+ * trapped in the panel.
  */
 export async function exportAnalysisResult(
   run: { resultLayerId: string | null; resultData: unknown },
@@ -296,13 +127,13 @@ export async function exportAnalysisResult(
     return { blob: resultDataBlob(run.resultData, format), featureCount: 0 }
   }
 
-  const layerId = run.resultLayerId
+  const source = layerSource(run.resultLayerId)
 
   switch (format) {
     case "geojson": {
-      // Delegates to database/services/exportLayer.ts rather than
-      // reassembling GeoJSON here (T226, research.md Decision 10).
-      const collection: ExportedFeatureCollection = await exportLayerAsGeoJson(layerId)
+      // Delegates to database/services/exportLayer.ts rather than reassembling
+      // GeoJSON here (007 research.md Decision 10).
+      const collection: ExportedFeatureCollection = await exportLayerAsGeoJson(run.resultLayerId)
       onProgress?.(1, 1)
       return {
         blob: new Blob([JSON.stringify(collection)], { type: EXPORT_MIME_TYPES.geojson }),
@@ -310,10 +141,10 @@ export async function exportAnalysisResult(
       }
     }
     case "csv":
-      return buildCsv(layerId, onProgress)
+      return writeCsv(source, { onProgress })
     case "kml":
-      return buildKml(layerId, onProgress)
+      return writeKml(source, { onProgress })
     case "shapefile":
-      return buildShapefile(layerId, onProgress)
+      return writeShapefile(source, { onProgress })
   }
 }

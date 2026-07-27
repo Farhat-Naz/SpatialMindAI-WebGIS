@@ -1,0 +1,632 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.12,
+          51.51
+        ]
+      },
+      "properties": {
+        "uprn": "100023336950",
+        "ward": "Holborn",
+        "population": 1200,
+        "is_active": true,
+        "notes": "Site 0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.119,
+          51.510999999999996
+        ]
+      },
+      "properties": {
+        "uprn": "100023336951",
+        "ward": "Camden",
+        "population": 1237,
+        "is_active": false,
+        "notes": "Site 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.118,
+          51.512
+        ]
+      },
+      "properties": {
+        "uprn": "100023336952",
+        "ward": "Bloomsbury",
+        "population": 1274,
+        "is_active": true,
+        "notes": "Site 2"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.11699999999999999,
+          51.513
+        ]
+      },
+      "properties": {
+        "uprn": "100023336953",
+        "ward": "Kings Cross",
+        "population": 1311,
+        "is_active": false,
+        "notes": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.11599999999999999,
+          51.513999999999996
+        ]
+      },
+      "properties": {
+        "uprn": "100023336954",
+        "ward": "Somers Town",
+        "population": 1348,
+        "is_active": true,
+        "notes": "Site 4"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.11499999999999999,
+          51.515
+        ]
+      },
+      "properties": {
+        "uprn": "100023336955",
+        "ward": "Holborn",
+        "population": 1385,
+        "is_active": false,
+        "notes": "Site 5"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.11399999999999999,
+          51.516
+        ]
+      },
+      "properties": {
+        "uprn": "100023336956",
+        "ward": "Camden",
+        "population": 1422,
+        "is_active": true,
+        "notes": "Site 6"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.11299999999999999,
+          51.516999999999996
+        ]
+      },
+      "properties": {
+        "uprn": "100023336957",
+        "ward": "Bloomsbury",
+        "population": 1459,
+        "is_active": false,
+        "notes": "Site 7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.11199999999999999,
+          51.518
+        ]
+      },
+      "properties": {
+        "uprn": "100023336958",
+        "ward": "Kings Cross",
+        "population": 1496,
+        "is_active": true,
+        "notes": "Site 8"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.11099999999999999,
+          51.519
+        ]
+      },
+      "properties": {
+        "uprn": "100023336959",
+        "ward": "Somers Town",
+        "population": 1533,
+        "is_active": false,
+        "notes": "Site 9"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -0.13,
+            51.5
+          ],
+          [
+            -0.128,
+            51.502
+          ],
+          [
+            -0.126,
+            51.504
+          ]
+        ]
+      },
+      "properties": {
+        "road_name": "Route 0",
+        "length_m": 240,
+        "surface": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -0.128,
+            51.5
+          ],
+          [
+            -0.126,
+            51.502
+          ],
+          [
+            -0.124,
+            51.504
+          ]
+        ]
+      },
+      "properties": {
+        "road_name": "Route 1",
+        "length_m": 255,
+        "surface": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -0.126,
+            51.5
+          ],
+          [
+            -0.124,
+            51.502
+          ],
+          [
+            -0.122,
+            51.504
+          ]
+        ]
+      },
+      "properties": {
+        "road_name": "Route 2",
+        "length_m": 270,
+        "surface": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -0.124,
+            51.5
+          ],
+          [
+            -0.122,
+            51.502
+          ],
+          [
+            -0.12,
+            51.504
+          ]
+        ]
+      },
+      "properties": {
+        "road_name": "Route 3",
+        "length_m": 285,
+        "surface": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -0.122,
+            51.5
+          ],
+          [
+            -0.12,
+            51.502
+          ],
+          [
+            -0.118,
+            51.504
+          ]
+        ]
+      },
+      "properties": {
+        "road_name": "Route 4",
+        "length_m": 300,
+        "surface": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -0.12000000000000001,
+            51.5
+          ],
+          [
+            -0.11800000000000001,
+            51.502
+          ],
+          [
+            -0.116,
+            51.504
+          ]
+        ]
+      },
+      "properties": {
+        "road_name": "Route 5",
+        "length_m": 315,
+        "surface": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -0.11800000000000001,
+            51.5
+          ],
+          [
+            -0.116,
+            51.502
+          ],
+          [
+            -0.114,
+            51.504
+          ]
+        ]
+      },
+      "properties": {
+        "road_name": "Route 6",
+        "length_m": 330,
+        "surface": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -0.14,
+              51.49
+            ],
+            [
+              -0.138,
+              51.49
+            ],
+            [
+              -0.138,
+              51.492
+            ],
+            [
+              -0.14,
+              51.492
+            ],
+            [
+              -0.14,
+              51.49
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P-100",
+        "area_sqm": 4400,
+        "owner": {
+          "name": "Owner 0",
+          "contact": null
+        },
+        "tags": [
+          "residential",
+          "corner"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -0.137,
+              51.49
+            ],
+            [
+              -0.135,
+              51.49
+            ],
+            [
+              -0.135,
+              51.492
+            ],
+            [
+              -0.137,
+              51.492
+            ],
+            [
+              -0.137,
+              51.49
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P-101",
+        "area_sqm": 4520,
+        "owner": {
+          "name": "Owner 1",
+          "contact": null
+        },
+        "tags": [
+          "residential",
+          "interior"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -0.134,
+              51.49
+            ],
+            [
+              -0.132,
+              51.49
+            ],
+            [
+              -0.132,
+              51.492
+            ],
+            [
+              -0.134,
+              51.492
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P-102",
+        "area_sqm": 4640,
+        "owner": {
+          "name": "Owner 2",
+          "contact": null
+        },
+        "tags": [
+          "residential",
+          "corner"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -0.131,
+              51.49
+            ],
+            [
+              -0.129,
+              51.49
+            ],
+            [
+              -0.129,
+              51.492
+            ],
+            [
+              -0.131,
+              51.492
+            ],
+            [
+              -0.131,
+              51.49
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P-103",
+        "area_sqm": 4760,
+        "owner": {
+          "name": "Owner 3",
+          "contact": null
+        },
+        "tags": [
+          "residential",
+          "interior"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -0.128,
+              51.49
+            ],
+            [
+              -0.126,
+              51.49
+            ],
+            [
+              -0.126,
+              51.492
+            ],
+            [
+              -0.128,
+              51.492
+            ],
+            [
+              -0.128,
+              51.49
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P-104",
+        "area_sqm": 4880,
+        "owner": {
+          "name": "Owner 4",
+          "contact": null
+        },
+        "tags": [
+          "residential",
+          "corner"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -0.125,
+              51.49
+            ],
+            [
+              -0.123,
+              51.49
+            ],
+            [
+              -0.123,
+              51.492
+            ],
+            [
+              -0.125,
+              51.492
+            ],
+            [
+              -0.125,
+              51.49
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "parcel_id": "P-105",
+        "area_sqm": 5000,
+        "owner": {
+          "name": "Owner 5",
+          "contact": null
+        },
+        "tags": [
+          "residential",
+          "interior"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.12,
+          51.51
+        ]
+      },
+      "properties": {
+        "uprn": "100023336950",
+        "ward": "Holborn",
+        "population": 1200,
+        "is_active": true,
+        "notes": "Site 0"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.1,
+          51.6
+        ]
+      },
+      "properties": {
+        "uprn": "100023336999",
+        "ward": "Outlier",
+        "population": 0,
+        "is_active": false,
+        "notes": "Edge"
+      }
+    }
+  ]
+}

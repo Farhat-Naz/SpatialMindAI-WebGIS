@@ -72,9 +72,16 @@ export interface ExportJobRecord {
   userId: string
   sourceAnalysisRunId: string | null
   sourceLayerId: string | null
-  format: "geojson" | "shapefile" | "csv" | "kml"
+  // "pdf" and the three fields below were added by specs/005-import-export
+  // (T046's server-side widening, mirrored here). Additive only: every field
+  // 007 reads is unchanged, and the additions are exactly what the server has
+  // returned since the `ExportJob` columns were widened.
+  format: "geojson" | "shapefile" | "csv" | "kml" | "pdf"
   status: Extract<AnalysisJobStatus, "succeeded" | "failed">
   featureCount: number | null
   errorMessage: string | null
   createdAt: string
+  scope: "selection" | "layer" | "project"
+  outputCrs: string | null
+  layerCount: number | null
 }

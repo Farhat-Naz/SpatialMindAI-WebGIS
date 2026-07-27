@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Places</name>
+  <Folder><name>North</name>
+    <Placemark><name>Depot</name><description>Main depot</description>
+      <Point><coordinates>-0.1276,51.5072,35</coordinates></Point></Placemark>
+    <Folder><name>Yards</name>
+      <Placemark><name>Yard A</name>
+        <Point><coordinates>-0.13,51.51,12</coordinates></Point></Placemark>
+    </Folder>
+  </Folder>
+  <Folder><name>South</name>
+    <Placemark><name>Route 1</name>
+      <LineString><coordinates>-0.12,51.50,0 -0.11,51.49,0 -0.10,51.48,0</coordinates></LineString>
+    </Placemark>
+    <Placemark><name>Zone</name>
+      <Polygon><outerBoundaryIs><LinearRing><coordinates>
+        -0.14,51.47,0 -0.13,51.47,0 -0.13,51.48,0 -0.14,51.48,0 -0.14,51.47,0
+      </coordinates></LinearRing></outerBoundaryIs></Polygon>
+    </Placemark>
+  </Folder>
+  <GroundOverlay><name>Scan</name><Icon><href>scan.png</href></Icon></GroundOverlay>
+  <NetworkLink><Link><href>http://example.com/more.kml</href></Link></NetworkLink>
+</Document></kml>

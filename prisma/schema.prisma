@@ -44,6 +44,9 @@ model User {
   analysisPresets    AnalysisPreset[]
   measurementHistory MeasurementHistory[]
   exportJobs         ExportJob[]
+
+  // specs/005-import-export — additive back-relation only.
+  importJobs ImportJob[]
 }
 
 /// Root data-hierarchy container (User 1──* Project 1──* Layer 1──* Feature).
@@ -72,6 +75,9 @@ model Project {
   measurementHistory MeasurementHistory[]
   exportJobs         ExportJob[]
 
+  // specs/005-import-export — additive back-relation only.
+  importJobs ImportJob[]
+
   @@unique([ownerId, name])
   @@index([ownerId])
 }
@@ -92,6 +98,11 @@ model Layer {
 
   // specs/007-spatial-analysis — additive back-relation only.
   sourceOfExportJobs ExportJob[] @relation("ExportJobSourceLayer")
+
+  // specs/005-import-export — additive back-relation only. Named to match
+  // ExportJob's existing "ExportJobSourceLayer" convention. Set-null on the
+  // owning side, so deleting a layer never deletes its import history (FR-079).
+  targetOfImportJobs ImportJob[] @relation("ImportJobTargetLayer")
 
   @@unique([projectId, name])
   @@index([projectId, order])
@@ -115,7 +126,27 @@ model Feature {
   comments Comment[]
   lock     FeatureLock?
 
+  // specs/005-import-export — feature provenance (research.md Decision 14).
+  //
+  // NULL means "not created by a tracked import": every feature that exists
+  // today, plus every feature drawn in Map Editing or produced by an analysis
+  // run. Nullable with no default, so `createFeature`, `updateFeature`,
+  // `importFeatures`, and every analysis result-layer writer keep working
+  // untouched — only `commitImportChunk` sets it.
+  //
+  // SetNull, never Cascade: deleting a history entry must never delete map
+  // data. The reverse direction — deleting the features one import created —
+  // is the explicit "Undo this import" action, which deletes by this column
+  // (FR-072). Row-level provenance is the only thing that can guarantee a
+  // rollback removes exactly that import's features while a concurrent user's
+  // additions to the same layer survive (SC-011).
+  importJobId String?
+  importJob   ImportJob? @relation(fields: [importJobId], references: [id], onDelete: SetNull)
+
   @@index([layerId])
+  /// Carries the rollback delete (FR-072). Without it, undoing a 1,000-feature
+  /// import inside a 500,000-feature layer is a sequential scan.
+  @@index([importJobId])
 }
 
 /// A single free-form name/value pair belonging to one Feature (Research
@@ -272,7 +303,160 @@ model ExportJob {
   errorMessage        String?
   createdAt           DateTime     @default(now())
 
+  // ---- specs/005-import-export additions (T018) — additive only ----
+  //
+  // `format` already admits "pdf" without a schema change: it is a String
+  // column, so widening it is a Zod/validation change (FR-034).
+  //
+  // These three carry no backfill cost — `scope` is defaulted to what every
+  // pre-existing row was, and the other two are nullable.
+
+  /// "selection" | "layer" | "project" (FR-035).
+  scope      String  @default("layer")
+  /// Authority code the file was written in, e.g. "EPSG:4326" (FR-041). Null
+  /// on pre-existing rows, which were all WGS84 by construction.
+  outputCrs  String?
+  /// Project scope only (FR-037) — how many layers the archive contains, so
+  /// history can show "4 layers, 12,830 features" without reopening it.
+  layerCount Int?
+
   @@index([projectId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// GIS Import & Export (specs/005-import-export)
+//
+// Two new models. `ImportJob` rows ARE the import history — there is no
+// separate ImportHistory table, no FileMetadata table, and no ExportStatistics
+// table (research.md Decision 15, applying 007's Decision 1 again: a job row
+// that is never deleted IS a history row, and a parallel table would need
+// writing twice and would drift). Export history is the existing `ExportJob`
+// above, extended in place.
+//
+// No uploaded file bytes are stored anywhere. All five formats are parsed in
+// the browser and reach the server as normalized JSON chunks (research.md
+// Decision 2), so `ImportJob`'s file* columns are provenance metadata only.
+// ---------------------------------------------------------------------------
+
+/// One user-initiated import of one file into one layer (US1–US4, US9, US10).
+/// The browser tab executes the import; this row is the job's system of record
+/// (research.md Decision 3), which is what makes progress visible after a
+/// reload and what `Feature.importJobId` points at for rollback.
+model ImportJob {
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Set-null, not cascade: FR-079 requires the history entry to survive its
+  /// target layer's deletion. `targetLayerName` preserves what the layer was
+  /// called so the entry stays readable afterwards.
+  targetLayerId   String?
+  targetLayer     Layer?  @relation("ImportJobTargetLayer", fields: [targetLayerId], references: [id], onDelete: SetNull)
+  targetLayerName String
+
+  /// "geojson" | "shapefile" | "kml" | "kmz" | "csv" (FR-001).
+  sourceFormat  String
+  fileName      String
+  fileSizeBytes Int
+  mimeType      String?
+  /// SHA-256 of the source file, computed client-side. Provenance/audit only —
+  /// never used to skip work, and never accompanied by the bytes themselves.
+  fileHash      String?
+
+  /// Authority code of the source CRS, e.g. "EPSG:4326" (FR-060–FR-062).
+  /// Applied server-side via ST_Transform at chunk-commit time, never by the
+  /// client — Constitution Principle IV (research.md Decision 4).
+  sourceCrs           String
+  /// Populated only when the user supplied a definition outside the catalog
+  /// (FR-063); passed to ST_Transform as proj4 text instead of an SRID.
+  customCrsDefinition String?
+
+  /// "strict" | "lenient" (FR-006). Lenient is the platform default. Strict is
+  /// enforced by auto-rollback on the first commit-time rejection (research.md
+  /// Decision 6), so this column records intent, not a different write path.
+  mode String @default("lenient")
+
+  /// CSV only (FR-029, FR-030): { latitudeColumn, longitudeColumn, delimiter,
+  /// hasHeaderRow, attributeColumns[] }. Retained so a past import's
+  /// interpretation is reproducible (spec.md Key Entities).
+  columnMapping Json?
+
+  /// "running" | "succeeded" | "failed" | "cancelled" | "rolled_back".
+  /// `running` is the only non-terminal state; there is no `queued` state
+  /// because there is no queue. "abandoned" is a derived presentation of a
+  /// stale `running` row, never a stored value (research.md Decision 17).
+  status String @default("running")
+
+  /// Total features the client's preflight found. The denominator for every
+  /// progress readout (FR-009) — a display value, never a correctness input.
+  totalFeatures   Int?
+  importedCount   Int  @default(0)
+  rejectedCount   Int  @default(0)
+  duplicateCount  Int  @default(0)
+  repairedCount   Int  @default(0)
+  /// Highest committed chunk index — the idempotency key for chunk retries,
+  /// which are routine across the ~100 requests a large import makes.
+  chunksCommitted Int  @default(0)
+
+  errorMessage      String?
+  /// Set by POST /cancel. Any further chunk POST for this job is rejected with
+  /// CONFLICT, so cancellation is a server guarantee, not client politeness
+  /// (research.md Decision 13).
+  cancelRequestedAt DateTime?
+  /// Bumped on every chunk commit. A `running` row older than the abandoned
+  /// threshold is swept to `failed` on the next history read (FR-074).
+  heartbeatAt       DateTime?
+
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  issues   ImportIssue[]
+  features Feature[]
+
+  @@index([projectId, createdAt])
+  /// Filter-plus-sort for "running imports in this project" without scanning
+  /// completed history. `createdAt` is the third column for the reason
+  /// established on AnalysisRun: on [projectId, status] alone the planner
+  /// prefers [projectId, createdAt] to satisfy the newest-first ordering and
+  /// then filters status row by row through the heap.
+  @@index([projectId, status, createdAt])
+  @@index([userId])
+  @@index([targetLayerId])
+}
+
+/// One validation finding against one source feature or CSV row (FR-057–FR-059).
+/// Named "issue" rather than "error" because it also carries non-failure
+/// categories — `duplicate_in_file`, `repaired_geometry`, `sanitized_attribute`
+/// are reported and counted but are not rejections.
+///
+/// Capped at IMPORT_MAX_PERSISTED_ISSUES (1,000) rows per job at write time: a
+/// 100,000-row CSV with a mis-mapped coordinate column would otherwise write
+/// more issue rows than the import itself, turning a user error into a
+/// database-growth incident (research.md Decision 16). ImportJob's counters
+/// stay exact regardless of the cap.
+model ImportIssue {
+  id          String    @id @default(cuid())
+  importJobId String
+  importJob   ImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+
+  /// Zero-based feature index for GeoJSON/Shapefile/KML, 1-based line number
+  /// for CSV — whichever the user can actually find in their own file (FR-033).
+  sourcePosition Int
+
+  /// One of the eleven categories in `shared/contracts/importIssue.schema.ts`.
+  category String
+
+  /// User-safe text. Never a raw driver or parser error string (FR-086).
+  message   String
+  createdAt DateTime @default(now())
+
+  /// Serves both "list this job's issues in source order" and the cursor
+  /// paging the issues endpoint uses — one scan for the filter and the sort.
+  @@index([importJobId, sourcePosition])
 }
 
 // ---------------------------------------------------------------------------

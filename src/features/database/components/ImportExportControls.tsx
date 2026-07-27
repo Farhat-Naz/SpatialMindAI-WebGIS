@@ -1,188 +1,97 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useState } from "react"
 import { Download, Upload } from "lucide-react"
 import { Button } from "@/shared/components/ui/button"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/shared/components/ui/alert-dialog"
-import { useImportFeatures, useExportLayer } from "@/features/database/hooks/useFeatureEditing"
-import { convertShapefileToFeatures } from "@/features/database/services/shapefileImport"
-import { validateFeatureCollectionStructure } from "@/features/database/utils/validateGeoJson"
-import { useEditingStore } from "@/features/database/store/editingStore"
-import type { ImportFeatureCollectionInput } from "@/shared/contracts/geoJsonImport.schema"
+// Deep imports, never through `@/features/import-export`'s barrel: the barrel
+// exports the whole feature, and this launcher is mounted in the layer tree
+// where pulling parsers and writers in eagerly would be wasted bytes. The same
+// hazard `features/analysis/services/exportService.ts` documents.
+import { ImportDialog } from "@/features/import-export/components/ImportDialog"
+import { ExportDialog } from "@/features/import-export/components/ExportDialog"
 
-const LARGE_IMPORT_THRESHOLD = 100
+/**
+ * Import/Export launcher for the selected layer.
+ *
+ * **Rewritten by specs/005-import-export (T124).** It previously held the GeoJSON
+ * and loose-file Shapefile import handlers inline plus a single-format export.
+ * All of that now lives in `src/features/import-export/`, which handles five
+ * source formats, five output formats, coordinate systems, validation reporting,
+ * progress, and rollback — so this file is a launcher and nothing more.
+ *
+ * The spec sanctions the replacement explicitly: the existing Map Editing
+ * import/export controls are "replaced with the fuller interchange interface
+ * rather than duplicated."
+ *
+ * **No import or export logic remains in this file.** Two behaviours of the old
+ * version are deliberately not reimplemented here, because the new dialogs
+ * supersede rather than drop them:
+ *
+ * - the >100-feature confirmation, replaced by the confirmation gate, which
+ *   states exact counts for *every* import instead of a bare warning past an
+ *   arbitrary threshold (FR-005);
+ * - the inline success/error text, replaced by `ImportSummaryPanel`'s full
+ *   accounting plus "Undo this import" (FR-010, FR-072).
+ *
+ * `POST /api/layers/:layerId/features/import` — the endpoint the old handlers
+ * called — is **not** removed and keeps working unchanged for any other caller
+ * (research.md Decision 5).
+ */
 
 interface ImportExportControlsProps {
   layerId: string
   layerName: string
+  projectId: string
+  /** Selected feature ids, so "export current selection" has something to read (FR-035). */
+  selectedFeatureIds?: string[]
 }
 
-/**
- * Import/Export Controls (US7) — a GeoJSON file input, a Shapefile file-set
- * input (.shp + .dbf + optional .prj, selected together), and an Export
- * button. Every rejection path validates client-side, before any network
- * call (FR-034/FR-037); imports above `LARGE_IMPORT_THRESHOLD` features
- * require confirmation, since Undo is single-step only and can't reverse a
- * bulk import.
- */
-export function ImportExportControls({ layerId, layerName }: ImportExportControlsProps) {
-  const geoJsonInputRef = useRef<HTMLInputElement>(null)
-  const shapefileInputRef = useRef<HTMLInputElement>(null)
-  const [pendingImport, setPendingImport] = useState<ImportFeatureCollectionInput | null>(null)
-
-  const importFeatures = useImportFeatures(layerId)
-  const exportLayer = useExportLayer(layerId, layerName)
-  const importResult = useEditingStore((s) => s.importResult)
-  const setImportResult = useEditingStore((s) => s.setImportResult)
-
-  function commitOrConfirm(collection: ImportFeatureCollectionInput) {
-    if (collection.features.length > LARGE_IMPORT_THRESHOLD) {
-      setPendingImport(collection)
-      return
-    }
-    importFeatures.mutate(collection)
-  }
-
-  async function handleGeoJsonChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
-    event.target.value = ""
-    if (!file) return
-
-    let parsed: unknown
-    try {
-      parsed = JSON.parse(await file.text())
-    } catch {
-      setImportResult({ status: "error", errorMessage: "The file is not valid JSON." })
-      return
-    }
-
-    const validation = validateFeatureCollectionStructure(parsed)
-    if (!validation.valid) {
-      setImportResult({ status: "error", errorMessage: validation.message })
-      return
-    }
-
-    commitOrConfirm(parsed as ImportFeatureCollectionInput)
-  }
-
-  async function handleShapefileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files ?? [])
-    event.target.value = ""
-    if (files.length === 0) return
-
-    const shp = files.find((file) => file.name.toLowerCase().endsWith(".shp"))
-    const dbf = files.find((file) => file.name.toLowerCase().endsWith(".dbf"))
-    const prj = files.find((file) => file.name.toLowerCase().endsWith(".prj"))
-    if (!shp) {
-      setImportResult({ status: "error", errorMessage: "Select a .shp file to import." })
-      return
-    }
-
-    const result = await convertShapefileToFeatures({ shp, dbf, prj })
-    if (result.status === "error" || !result.features) {
-      setImportResult({ status: "error", errorMessage: result.errorMessage })
-      return
-    }
-
-    commitOrConfirm({ type: "FeatureCollection", features: result.features })
-  }
-
-  function handleConfirmLargeImport() {
-    if (!pendingImport) return
-    importFeatures.mutate(pendingImport)
-    setPendingImport(null)
-  }
+export function ImportExportControls({
+  layerId,
+  layerName,
+  projectId,
+  selectedFeatureIds,
+}: ImportExportControlsProps) {
+  const [importOpen, setImportOpen] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
 
   return (
     <div className="flex items-center gap-2">
-      <input
-        ref={geoJsonInputRef}
-        type="file"
-        accept=".geojson,.json"
-        aria-label="Import GeoJSON file"
-        className="hidden"
-        onChange={handleGeoJsonChange}
-      />
-      <Button
-        variant="outline"
-        onClick={() => geoJsonInputRef.current?.click()}
-        aria-label="Import GeoJSON"
-        disabled={importFeatures.isPending}
-      >
+      <Button variant="outline" onClick={() => setImportOpen(true)} aria-label="Import features">
         <Upload className="h-4 w-4" aria-hidden="true" />
-        Import GeoJSON
+        Import
       </Button>
 
-      <input
-        ref={shapefileInputRef}
-        type="file"
-        accept=".shp,.dbf,.prj"
-        multiple
-        aria-label="Import Shapefile files"
-        className="hidden"
-        onChange={handleShapefileChange}
-      />
-      <Button
-        variant="outline"
-        onClick={() => shapefileInputRef.current?.click()}
-        aria-label="Import Shapefile"
-        disabled={importFeatures.isPending}
-      >
-        <Upload className="h-4 w-4" aria-hidden="true" />
-        Import Shapefile
-      </Button>
-
-      {importFeatures.isPending && (
-        <p role="status" className="text-sm text-muted-foreground">
-          Importing…
-        </p>
-      )}
-
-      <Button
-        variant="outline"
-        onClick={() => exportLayer.mutate()}
-        aria-label="Export layer"
-        disabled={exportLayer.isPending}
-      >
+      <Button variant="outline" onClick={() => setExportOpen(true)} aria-label="Export layer">
         <Download className="h-4 w-4" aria-hidden="true" />
         Export
       </Button>
 
-      {importResult?.status === "error" && (
-        <p role="alert" className="text-sm text-destructive">
-          {importResult.errorMessage}
-        </p>
-      )}
-      {importResult?.status === "success" && (
-        <p role="status" className="text-sm text-muted-foreground">
-          Imported {importResult.importedCount} feature
-          {importResult.importedCount === 1 ? "" : "s"}.
-        </p>
+      {/*
+        Mounted only while open so neither dialog's dynamically imported
+        dependencies are requested until a user actually opens one
+        (Constitution Principle V).
+      */}
+      {importOpen && (
+        <ImportDialog
+          open={importOpen}
+          onOpenChange={setImportOpen}
+          layerId={layerId}
+          layerName={layerName}
+          projectId={projectId}
+        />
       )}
 
-      <AlertDialog open={pendingImport !== null} onOpenChange={(open) => !open && setPendingImport(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Import {pendingImport?.features.length} features?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This is a large import. It cannot be reversed with Undo (single-step only). Continue?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmLargeImport}>Import</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {exportOpen && (
+        <ExportDialog
+          open={exportOpen}
+          onOpenChange={setExportOpen}
+          layerId={layerId}
+          layerName={layerName}
+          projectId={projectId}
+          selectedFeatureIds={selectedFeatureIds}
+        />
+      )}
     </div>
   )
 }

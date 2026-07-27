@@ -6,7 +6,15 @@ export { projectService } from "./services/projectService"
 export { layerService } from "./services/layerService"
 export { featureService } from "./services/featureService"
 export { exportLayerAsGeoJson } from "./services/exportLayer"
-export { convertShapefileToFeatures } from "./services/shapefileImport"
+// `convertShapefileToFeatures` and `services/shapefileImport.ts` were removed by
+// specs/005-import-export (T139), together with `utils/reprojection.ts` (its only
+// consumer) and the `shapefile` dependency. Shapefile import now reads a single
+// ZIP via `features/import-export/services/parsers/shapefileParser.ts`, which
+// resolves the component set, nested directories, `.cpg` encoding, and
+// multi-shapefile archives that the loose-file reader could not — and leaves the
+// persisted transform to PostGIS rather than reprojecting client-side
+// (research.md Decisions 4, 9). Fixture parity against the old reader was
+// asserted before the deletion; see the feature README.
 export { queryKeys } from "./services/queryKeys"
 
 export {

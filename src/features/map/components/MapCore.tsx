@@ -113,6 +113,20 @@ export function MapCore() {
         url={activeBasemap.urlTemplate}
         attribution={activeBasemap.attribution}
         maxZoom={activeBasemap.maxZoom}
+        // Added by specs/005-import-export (T253) — the only change that feature
+        // makes to Map Core, and it is one prop.
+        //
+        // Without it, PDF export throws `SecurityError`: `html2canvas` cannot read
+        // a canvas that has drawn a cross-origin image, and a browser only records
+        // a tile's CORS approval if the *request* carried this attribute.
+        // `tile.openstreetmap.org` and `server.arcgisonline.com` both send
+        // `Access-Control-Allow-Origin: *`, so the approval is there to be
+        // recorded — it simply is not, unless asked for (research.md Decision 11).
+        //
+        // Tiles cached before this existed stay tainted until the cache turns
+        // over, which is why `canRasterize()` probes and the print dialog falls
+        // back to `window.print()`.
+        crossOrigin="anonymous"
         eventHandlers={{
           tileerror: () => setError("Failed to load map tiles"),
         }}

@@ -34,6 +34,11 @@ const sampleExport = {
   featureCount: 10,
   errorMessage: null,
   createdAt: "t",
+  // Fields added to ExportJobRecord by specs/005-import-export (T046) — fixture
+  // completion only; no assertion in this suite changed.
+  scope: "layer" as const,
+  outputCrs: null,
+  layerCount: null,
 }
 
 describe("useExportHistory hooks", () => {
