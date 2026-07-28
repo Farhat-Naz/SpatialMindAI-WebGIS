@@ -50,12 +50,13 @@ describe("WidgetConfigPanel", () => {
     })
 
     fireEvent.change(screen.getByLabelText("Title"), { target: { value: "My Widget" } })
+    fireEvent.change(screen.getByLabelText("Content"), { target: { value: "Hello" } })
     fireEvent.click(screen.getByRole("button", { name: "Add widget" }))
 
     await waitFor(() =>
       expect(widgetService.addWidget).toHaveBeenCalledWith(
         "d1",
-        expect.objectContaining({ type: "text", title: "My Widget" }),
+        expect.objectContaining({ type: "text", title: "My Widget", config: { content: "Hello" } }),
       ),
     )
   })

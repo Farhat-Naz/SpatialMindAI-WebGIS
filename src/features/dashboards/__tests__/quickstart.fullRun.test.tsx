@@ -124,6 +124,7 @@ describe("quickstart.md — full run-through (all ten sections)", () => {
     fireEvent.click(screen.getByRole("button", { name: "Add widget" }))
     await waitFor(() => expect(screen.getByRole("dialog", { name: "Add widget" })).toBeTruthy())
     fireEvent.change(screen.getByLabelText("Title"), { target: { value: "Feature Count" } })
+    fireEvent.change(screen.getByLabelText("Content"), { target: { value: "Feature count summary" } })
     fireEvent.click(screen.getByRole("button", { name: "Add widget" }))
     await waitFor(() => expect(widgetService.addWidget).toHaveBeenCalledWith("d1", expect.objectContaining({ title: "Feature Count" })))
 

@@ -45,4 +45,28 @@ describe("MetricCardWidget", () => {
     )
     expect(screen.getByText("—")).toBeTruthy()
   })
+
+  it("resolves a statType whose builder output key differs from the selector (totalLength → totalLengthMeters)", () => {
+    render(
+      <MetricCardWidget
+        widget={widget({ config: { statType: "totalLength", label: "Length" } })}
+        data={{ dataSourceUnavailable: false, data: { data: { totalLengthMeters: 123.456 } } }}
+        isLoading={false}
+        isEditMode={false}
+      />,
+    )
+    expect(screen.getByText("123.46")).toBeTruthy()
+  })
+
+  it("resolves featureCount from a projectStats-shaped payload via its totalFeatures alias", () => {
+    render(
+      <MetricCardWidget
+        widget={widget({ dataSourceType: "projectStats", dataSourceId: null, config: { statType: "featureCount" } })}
+        data={{ dataSourceUnavailable: false, data: { data: { layerCount: 2, totalFeatures: 7 } } }}
+        isLoading={false}
+        isEditMode={false}
+      />,
+    )
+    expect(screen.getByText("7")).toBeTruthy()
+  })
 })

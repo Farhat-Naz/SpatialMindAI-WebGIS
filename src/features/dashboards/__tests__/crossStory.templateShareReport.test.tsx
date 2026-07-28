@@ -108,6 +108,7 @@ describe("Cross-story: Template → Widgets → Share → Report", () => {
     fireEvent.click(screen.getByRole("button", { name: "Add widget" }))
     await waitFor(() => expect(screen.getByRole("dialog", { name: "Add widget" })).toBeTruthy())
     fireEvent.change(screen.getByLabelText("Title"), { target: { value: "Summary" } })
+    fireEvent.change(screen.getByLabelText("Content"), { target: { value: "Summary content" } })
     fireEvent.click(screen.getByRole("button", { name: "Add widget" }))
 
     await waitFor(() => expect(addWidgetSpy).toHaveBeenCalledWith("d1", expect.objectContaining({ title: "Summary" })))

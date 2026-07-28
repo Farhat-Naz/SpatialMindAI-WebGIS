@@ -45,6 +45,30 @@ const DATA_SOURCE_TYPES: WidgetDataSourceType[] = [
 ]
 const LAYER_BOUND_SOURCE_TYPES = new Set<WidgetDataSourceType>(["layer", "layerStats"])
 
+/** Mirrors `shared/contracts/widget.schema.ts`'s `statisticType` enum. */
+const STAT_TYPES = [
+  "featureCount",
+  "totalLength",
+  "averageLength",
+  "averageArea",
+  "extent",
+  "areaCalculation",
+  "lengthCalculation",
+  "centroid",
+  "convexHull",
+  "boundingBox",
+  "densityAnalysis",
+] as const
+
+// Widget types whose `config` schema (widget.schema.ts) has at least one
+// required field with no default — creating one of these with an empty
+// `config: {}` fails server-side Zod validation (400), so this form must
+// collect that field before submit is allowed.
+const REQUIRES_STAT_TYPE = new Set<WidgetType>(["statistics", "gauge", "metricCard"])
+const REQUIRES_CONTENT = new Set<WidgetType>(["text", "html"])
+const REQUIRES_IMAGE_URL = new Set<WidgetType>(["image"])
+const SHOWS_CHART_FIELDS = new Set<WidgetType>(["chartBar", "chartLine", "chartArea", "chartPie"])
+
 interface WidgetConfigPanelProps {
   projectId: string
   dashboardId: string
@@ -74,6 +98,18 @@ export function WidgetConfigPanel({ projectId, dashboardId, open, onOpenChange }
   const [attributeOperator, setAttributeOperator] = useState<AttributeFilterOperatorInput>("eq")
   const [attributeValue, setAttributeValue] = useState("")
 
+  // Type-specific `config` fields (statistics/gauge/metricCard/text/html/image
+  // each require at least one of these — see REQUIRES_* above).
+  const [statType, setStatType] = useState("")
+  const [statLabel, setStatLabel] = useState("")
+  const [content, setContent] = useState("")
+  const [gaugeMin, setGaugeMin] = useState("")
+  const [gaugeMax, setGaugeMax] = useState("")
+  const [imageUrl, setImageUrl] = useState("")
+  const [imageAlt, setImageAlt] = useState("")
+  const [chartStatType, setChartStatType] = useState("")
+  const [chartGroupBy, setChartGroupBy] = useState("")
+
   const addWidget = useAddWidget(dashboardId)
   const updateWidget = useUpdateWidget(dashboardId)
   const { data: layersData } = useLayers(projectId)
@@ -98,6 +134,15 @@ export function WidgetConfigPanel({ projectId, dashboardId, open, onOpenChange }
       setAttributeKey("")
       setAttributeOperator("eq")
       setAttributeValue("")
+      setStatType("")
+      setStatLabel("")
+      setContent("")
+      setGaugeMin("")
+      setGaugeMax("")
+      setImageUrl("")
+      setImageAlt("")
+      setChartStatType("")
+      setChartGroupBy("")
     }
   }, [open, isEditing, setDraftWidgetConfig])
 
@@ -119,6 +164,19 @@ export function WidgetConfigPanel({ projectId, dashboardId, open, onOpenChange }
       setAttributeKey(config?.key ?? "")
       setAttributeOperator(config?.operator ?? "eq")
       setAttributeValue(config?.value ?? "")
+
+      // Prefill the type-specific config fields from the widget's existing
+      // `config` (seeded into `draftWidgetConfig` by `selectWidget`).
+      const widgetConfig = (draftWidgetConfig ?? {}) as Record<string, unknown>
+      setStatType(typeof widgetConfig.statType === "string" ? widgetConfig.statType : "")
+      setStatLabel(typeof widgetConfig.label === "string" ? widgetConfig.label : "")
+      setContent(typeof widgetConfig.content === "string" ? widgetConfig.content : "")
+      setGaugeMin(typeof widgetConfig.min === "number" ? String(widgetConfig.min) : "")
+      setGaugeMax(typeof widgetConfig.max === "number" ? String(widgetConfig.max) : "")
+      setImageUrl(typeof widgetConfig.url === "string" ? widgetConfig.url : "")
+      setImageAlt(typeof widgetConfig.alt === "string" ? widgetConfig.alt : "")
+      setChartStatType(typeof widgetConfig.statType === "string" ? widgetConfig.statType : "")
+      setChartGroupBy(typeof widgetConfig.groupByAttribute === "string" ? widgetConfig.groupByAttribute : "")
     }
     // Only re-sync when the panel opens for a (possibly new) selected widget — not on every keystroke.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -138,8 +196,40 @@ export function WidgetConfigPanel({ projectId, dashboardId, open, onOpenChange }
     }
   }
 
+  /** Builds `config` for the currently-selected `type` (widget.schema.ts's per-type shape) from this form's fields; falls back to the existing/draft config for types with no dedicated fields above (map, table). */
+  function buildTypeConfig(): Record<string, unknown> {
+    switch (type) {
+      case "statistics":
+      case "metricCard":
+        return { statType, ...(statLabel.trim() ? { label: statLabel.trim() } : {}) }
+      case "gauge":
+        return { statType, min: Number(gaugeMin), max: Number(gaugeMax) }
+      case "text":
+      case "html":
+        return { content }
+      case "image":
+        return { url: imageUrl.trim(), ...(imageAlt.trim() ? { alt: imageAlt.trim() } : {}) }
+      case "chartBar":
+      case "chartLine":
+      case "chartArea":
+      case "chartPie":
+        return {
+          ...(chartGroupBy.trim() ? { groupByAttribute: chartGroupBy.trim() } : {}),
+          ...(chartStatType ? { statType: chartStatType } : {}),
+        }
+      default:
+        return draftWidgetConfig ?? {}
+    }
+  }
+
+  const canSubmit =
+    (!REQUIRES_STAT_TYPE.has(type) || statType !== "") &&
+    (!REQUIRES_CONTENT.has(type) || content.trim() !== "") &&
+    (!REQUIRES_IMAGE_URL.has(type) || imageUrl.trim() !== "") &&
+    (type !== "gauge" || (gaugeMin.trim() !== "" && gaugeMax.trim() !== ""))
+
   function handleSubmit() {
-    const config = draftWidgetConfig ?? {}
+    const config = buildTypeConfig()
     if (isEditing && selectedWidgetId) {
       updateWidget.mutate({
         widgetId: selectedWidgetId,
@@ -206,6 +296,150 @@ export function WidgetConfigPanel({ projectId, dashboardId, open, onOpenChange }
               className="h-9 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
             />
           </div>
+
+          {REQUIRES_STAT_TYPE.has(type) && (
+            <div className="flex flex-col gap-1">
+              <label htmlFor="widget-stat-type" className="text-sm font-medium">
+                Statistic
+              </label>
+              <select
+                id="widget-stat-type"
+                value={statType}
+                onChange={(event) => setStatType(event.target.value)}
+                className="h-9 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
+              >
+                <option value="">Choose a statistic…</option>
+                {STAT_TYPES.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {(type === "statistics" || type === "metricCard") && (
+            <div className="flex flex-col gap-1">
+              <label htmlFor="widget-stat-label" className="text-sm font-medium">
+                Label (optional)
+              </label>
+              <input
+                id="widget-stat-label"
+                type="text"
+                value={statLabel}
+                onChange={(event) => setStatLabel(event.target.value)}
+                className="h-9 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
+              />
+            </div>
+          )}
+
+          {type === "gauge" && (
+            <div className="flex gap-2">
+              <div className="flex flex-1 flex-col gap-1">
+                <label htmlFor="widget-gauge-min" className="text-sm font-medium">
+                  Min
+                </label>
+                <input
+                  id="widget-gauge-min"
+                  type="number"
+                  value={gaugeMin}
+                  onChange={(event) => setGaugeMin(event.target.value)}
+                  className="h-9 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
+                />
+              </div>
+              <div className="flex flex-1 flex-col gap-1">
+                <label htmlFor="widget-gauge-max" className="text-sm font-medium">
+                  Max
+                </label>
+                <input
+                  id="widget-gauge-max"
+                  type="number"
+                  value={gaugeMax}
+                  onChange={(event) => setGaugeMax(event.target.value)}
+                  className="h-9 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
+                />
+              </div>
+            </div>
+          )}
+
+          {REQUIRES_CONTENT.has(type) && (
+            <div className="flex flex-col gap-1">
+              <label htmlFor="widget-content" className="text-sm font-medium">
+                Content
+              </label>
+              <textarea
+                id="widget-content"
+                value={content}
+                onChange={(event) => setContent(event.target.value)}
+                rows={4}
+                className="rounded-md border border-input bg-background px-2 py-1.5 text-sm shadow-sm"
+              />
+            </div>
+          )}
+
+          {type === "image" && (
+            <>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="widget-image-url" className="text-sm font-medium">
+                  Image URL
+                </label>
+                <input
+                  id="widget-image-url"
+                  type="text"
+                  value={imageUrl}
+                  onChange={(event) => setImageUrl(event.target.value)}
+                  className="h-9 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="widget-image-alt" className="text-sm font-medium">
+                  Alt text (optional)
+                </label>
+                <input
+                  id="widget-image-alt"
+                  type="text"
+                  value={imageAlt}
+                  onChange={(event) => setImageAlt(event.target.value)}
+                  className="h-9 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
+                />
+              </div>
+            </>
+          )}
+
+          {SHOWS_CHART_FIELDS.has(type) && (
+            <>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="widget-chart-stat-type" className="text-sm font-medium">
+                  Statistic (optional)
+                </label>
+                <select
+                  id="widget-chart-stat-type"
+                  value={chartStatType}
+                  onChange={(event) => setChartStatType(event.target.value)}
+                  className="h-9 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
+                >
+                  <option value="">None</option>
+                  {STAT_TYPES.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="widget-chart-group-by" className="text-sm font-medium">
+                  Group by attribute (optional)
+                </label>
+                <input
+                  id="widget-chart-group-by"
+                  type="text"
+                  value={chartGroupBy}
+                  onChange={(event) => setChartGroupBy(event.target.value)}
+                  className="h-9 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
+                />
+              </div>
+            </>
+          )}
 
           {isDataDriven && (
             <>
@@ -317,7 +551,7 @@ export function WidgetConfigPanel({ projectId, dashboardId, open, onOpenChange }
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button type="button" onClick={handleSubmit}>
+          <Button type="button" onClick={handleSubmit} disabled={!canSubmit}>
             {isEditing ? "Save changes" : "Add widget"}
           </Button>
         </DialogFooter>
