@@ -3,8 +3,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { widgetService } from "../services/widgetService"
 import { queryKeys } from "../services/queryKeys"
+import { useDashboardFilters } from "./useDashboardFilters"
+import { useDashboardFilterStore } from "../store/dashboardFilterStore"
 import { WIDGET_REFRESH_INTERVAL_MS } from "../types/dashboardConfig.constants"
 import type { CreateWidgetRequestInput, SaveLayoutRequestInput, UpdateWidgetRequestInput } from "../types/dashboard.types"
+import type { ActiveWidgetFilter } from "../types/widget.types"
 
 /**
  * Widget CRUD/layout/data hooks (contracts/client-api.md `useWidgets.ts`).
@@ -59,13 +62,32 @@ export function useDeleteWidget(dashboardId: string) {
  * intersection-observer state, Phase 9), passed through as `enabled`.
  * `retry: 3` (T087) — a small bounded count so one transient network blip
  * doesn't permanently stop a widget's live updates.
+ *
+ * US6/T248/T250/T253: merges the working-copy global filters
+ * (`dashboardFilterStore.activeGlobalFilters` — live, pre-"Save filters",
+ * FR-020 Acceptance Scenario 1's "every date-aware widget updates"
+ * immediately) with this widget's own persisted attribute filter (if any,
+ * from `useDashboardFilters`) and sends both to the server. Included in the
+ * query key so a filter change refetches rather than reusing a stale
+ * cache entry from a different filter state.
  */
 export function useWidgetData(dashboardId: string, widgetId: string, options?: { enabled?: boolean }) {
   const enabled = (options?.enabled ?? true) && Boolean(dashboardId) && Boolean(widgetId)
 
+  const activeGlobalFilters = useDashboardFilterStore((state) => state.activeGlobalFilters)
+  const { data: filtersData } = useDashboardFilters(dashboardId)
+  const widgetAttributeFilter = filtersData?.filters.find(
+    (filter) => filter.widgetId === widgetId && filter.filterType === "attribute",
+  )
+
+  const activeFilters: ActiveWidgetFilter[] = [
+    ...activeGlobalFilters.map((filter) => ({ filterType: filter.filterType, config: filter.config })),
+    ...(widgetAttributeFilter ? [{ filterType: widgetAttributeFilter.filterType, config: widgetAttributeFilter.config }] : []),
+  ]
+
   return useQuery({
-    queryKey: queryKeys.widgetData(dashboardId, widgetId),
-    queryFn: () => widgetService.getWidgetData(dashboardId, widgetId),
+    queryKey: queryKeys.widgetData(dashboardId, widgetId, activeFilters),
+    queryFn: () => widgetService.getWidgetData(dashboardId, widgetId, activeFilters),
     enabled,
     retry: 3,
     refetchInterval: enabled ? WIDGET_REFRESH_INTERVAL_MS : false,

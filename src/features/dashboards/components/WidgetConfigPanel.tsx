@@ -10,8 +10,12 @@ import { Button } from "@/shared/components/ui/button"
 import { useLayers } from "@/features/database/hooks/useLayers"
 import { useAnalysisRuns } from "@/features/analysis/hooks/useAnalysis"
 import { useAddWidget, useUpdateWidget } from "../hooks/useWidgets"
+import { useCreateFilter, useDashboardFilters, useDeleteFilter } from "../hooks/useDashboardFilters"
 import { useDashboardBuilderStore } from "../store/dashboardBuilderStore"
 import type { WidgetDataSourceType, WidgetType } from "../types/widget.types"
+import type { AttributeFilterOperatorInput } from "@/shared/contracts/dashboardFilter.schema"
+
+const ATTRIBUTE_OPERATORS: AttributeFilterOperatorInput[] = ["eq", "neq", "contains", "gt", "lt", "gte", "lte"]
 
 const WIDGET_TYPES: WidgetType[] = [
   "map",
@@ -57,6 +61,7 @@ interface WidgetConfigPanelProps {
  */
 export function WidgetConfigPanel({ projectId, dashboardId, open, onOpenChange }: WidgetConfigPanelProps) {
   const selectedWidgetId = useDashboardBuilderStore((state) => state.selectedWidgetId)
+  const selectedWidgetType = useDashboardBuilderStore((state) => state.selectedWidgetType)
   const draftWidgetConfig = useDashboardBuilderStore((state) => state.draftWidgetConfig)
   const setDraftWidgetConfig = useDashboardBuilderStore((state) => state.setDraftWidgetConfig)
   const clearSelectedWidget = useDashboardBuilderStore((state) => state.clearSelectedWidget)
@@ -65,14 +70,23 @@ export function WidgetConfigPanel({ projectId, dashboardId, open, onOpenChange }
   const [title, setTitle] = useState("")
   const [dataSourceType, setDataSourceType] = useState<WidgetDataSourceType | "">("")
   const [dataSourceId, setDataSourceId] = useState("")
+  const [attributeKey, setAttributeKey] = useState("")
+  const [attributeOperator, setAttributeOperator] = useState<AttributeFilterOperatorInput>("eq")
+  const [attributeValue, setAttributeValue] = useState("")
 
   const addWidget = useAddWidget(dashboardId)
   const updateWidget = useUpdateWidget(dashboardId)
   const { data: layersData } = useLayers(projectId)
   const { data: runsData } = useAnalysisRuns(projectId)
+  const { data: filtersData } = useDashboardFilters(dashboardId)
+  const createFilter = useCreateFilter(dashboardId)
+  const deleteFilter = useDeleteFilter(dashboardId)
 
   const isEditing = selectedWidgetId !== null
   const isDataDriven = !NON_DATA_DRIVEN.includes(type)
+  const existingAttributeFilter = filtersData?.filters.find(
+    (filter) => filter.widgetId === selectedWidgetId && filter.filterType === "attribute",
+  )
 
   useEffect(() => {
     if (open && !isEditing) {
@@ -81,8 +95,48 @@ export function WidgetConfigPanel({ projectId, dashboardId, open, onOpenChange }
       setDataSourceType("")
       setDataSourceId("")
       setDraftWidgetConfig({})
+      setAttributeKey("")
+      setAttributeOperator("eq")
+      setAttributeValue("")
     }
   }, [open, isEditing, setDraftWidgetConfig])
+
+  // Syncs `type` from the widget actually being edited — the `!isEditing`
+  // reset effect above never runs while editing, and `type`'s own picker UI
+  // is hidden then too (only a *new* widget lets the user choose a type), so
+  // without this `isDataDriven` would stay pinned to the "text" default and
+  // hide the data-source picker (T160) and attribute filter (T252) for every
+  // data-driven widget being edited.
+  //
+  // T252 also prefills the per-widget attribute filter form from its
+  // persisted row here (distinct from the global filter bar's
+  // draft-in-store lifecycle; a widget-scoped attribute filter saves
+  // immediately, same as this form's other fields).
+  useEffect(() => {
+    if (open && isEditing) {
+      if (selectedWidgetType) setType(selectedWidgetType)
+      const config = existingAttributeFilter?.config as { key?: string; operator?: AttributeFilterOperatorInput; value?: string } | undefined
+      setAttributeKey(config?.key ?? "")
+      setAttributeOperator(config?.operator ?? "eq")
+      setAttributeValue(config?.value ?? "")
+    }
+    // Only re-sync when the panel opens for a (possibly new) selected widget — not on every keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isEditing, selectedWidgetId, selectedWidgetType])
+
+  async function saveAttributeFilter() {
+    if (!selectedWidgetId) return
+    if (existingAttributeFilter) {
+      await deleteFilter.mutateAsync(existingAttributeFilter.id)
+    }
+    if (attributeKey.trim()) {
+      await createFilter.mutateAsync({
+        widgetId: selectedWidgetId,
+        filterType: "attribute",
+        config: { key: attributeKey.trim(), operator: attributeOperator, value: attributeValue },
+      })
+    }
+  }
 
   function handleSubmit() {
     const config = draftWidgetConfig ?? {}
@@ -96,6 +150,9 @@ export function WidgetConfigPanel({ projectId, dashboardId, open, onOpenChange }
           config,
         },
       })
+      if (isDataDriven) {
+        void saveAttributeFilter()
+      }
     } else {
       addWidget.mutate({
         type,
@@ -213,6 +270,45 @@ export function WidgetConfigPanel({ projectId, dashboardId, open, onOpenChange }
                   </select>
                 </div>
               ) : null}
+
+              {isEditing && (
+                <div className="flex flex-col gap-1 border-t pt-3">
+                  <span className="text-sm font-medium">Attribute filter</span>
+                  <p className="text-xs text-muted-foreground">
+                    Only this widget shows data matching this condition (US6 Acceptance Scenario 3) — separate from the dashboard&apos;s global filters.
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      aria-label="Attribute key"
+                      placeholder="Attribute key"
+                      type="text"
+                      value={attributeKey}
+                      onChange={(event) => setAttributeKey(event.target.value)}
+                      className="h-9 flex-1 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
+                    />
+                    <select
+                      aria-label="Attribute operator"
+                      value={attributeOperator}
+                      onChange={(event) => setAttributeOperator(event.target.value as AttributeFilterOperatorInput)}
+                      className="h-9 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
+                    >
+                      {ATTRIBUTE_OPERATORS.map((operator) => (
+                        <option key={operator} value={operator}>
+                          {operator}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      aria-label="Attribute value"
+                      placeholder="Value"
+                      type="text"
+                      value={attributeValue}
+                      onChange={(event) => setAttributeValue(event.target.value)}
+                      className="h-9 flex-1 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
+                    />
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>

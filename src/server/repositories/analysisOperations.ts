@@ -555,7 +555,8 @@ export interface AttributeFilter {
   value: string
 }
 
-function buildAttributeComparisonSql(operator: AttributeFilterOperator, value: string): Prisma.Sql {
+/** Exported for `featureRepository.listFeaturesForLayer`'s attribute filter (specs/008-dashboard-analytics US6/FR-020) — same operator set, never re-implemented (Constitution: never duplicate code). */
+export function buildAttributeComparisonSql(operator: AttributeFilterOperator, value: string): Prisma.Sql {
   switch (operator) {
     case "eq":
       return Prisma.sql`fa.value = ${value}`

@@ -1,9 +1,12 @@
 import { create } from "zustand"
 import { resolveBreakpoint, type DashboardBreakpoint } from "../services/breakpoint"
+import type { WidgetType } from "../types/widget.types"
 
 interface DashboardBuilderState {
   /** Which widget's config panel is open — `null` when none is (covers the roadmap outline's "WidgetStore" concern). */
   selectedWidgetId: string | null
+  /** The selected widget's own `type` (US6/T252) — `WidgetConfigPanel`'s `type` form field only tracks a *new* widget's picker choice, so editing needs this to know the actual widget's data-drivenness (e.g. whether to offer an attribute filter) without re-deriving it from `config` shape. */
+  selectedWidgetType: WidgetType | null
   /** In-progress widget configuration before save (covers "WidgetStore"). */
   draftWidgetConfig: Record<string, unknown> | null
   /** Toggles between "viewing" and "arranging/configuring" — a read-only-shared viewer never sees this as `true` regardless of client state, since the server independently rejects any write (FR-026). */
@@ -13,8 +16,8 @@ interface DashboardBuilderState {
   /** Same safe-to-display convention as `analysisStore.lastError`. */
   lastError: string | null
 
-  /** Opens a widget's config panel, seeding the draft from its current `config` (T113 — mirrors `analysisStore.setSelectedOperationType`'s clear-before-set precedent: switching widgets discards any unsaved draft from the previous selection). */
-  selectWidget: (widgetId: string, currentConfig: Record<string, unknown>) => void
+  /** Opens a widget's config panel, seeding the draft from its current `config` (T113 — mirrors `analysisStore.setSelectedOperationType`'s clear-before-set precedent: switching widgets discards any unsaved draft from the previous selection). `widgetType` is optional (appended, not inserted) so existing 2-arg call sites keep compiling; omitting it just leaves `selectedWidgetType` unset. */
+  selectWidget: (widgetId: string, currentConfig: Record<string, unknown>, widgetType?: WidgetType) => void
   clearSelectedWidget: () => void
   setDraftWidgetConfig: (config: Record<string, unknown> | null) => void
   toggleEditMode: () => void
@@ -35,14 +38,16 @@ interface DashboardBuilderState {
  */
 export const useDashboardBuilderStore = create<DashboardBuilderState>((set) => ({
   selectedWidgetId: null,
+  selectedWidgetType: null,
   draftWidgetConfig: null,
   isEditMode: false,
   activeBreakpoint: typeof window === "undefined" ? "desktop" : resolveBreakpoint(window.innerWidth),
   lastError: null,
 
-  selectWidget: (widgetId, currentConfig) => set({ selectedWidgetId: widgetId, draftWidgetConfig: currentConfig }),
+  selectWidget: (widgetId, currentConfig, widgetType) =>
+    set({ selectedWidgetId: widgetId, draftWidgetConfig: currentConfig, selectedWidgetType: widgetType ?? null }),
 
-  clearSelectedWidget: () => set({ selectedWidgetId: null, draftWidgetConfig: null }),
+  clearSelectedWidget: () => set({ selectedWidgetId: null, draftWidgetConfig: null, selectedWidgetType: null }),
 
   setDraftWidgetConfig: (config) => set({ draftWidgetConfig: config }),
 

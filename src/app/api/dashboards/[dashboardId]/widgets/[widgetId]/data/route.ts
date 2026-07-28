@@ -2,7 +2,26 @@ import { NextResponse, type NextRequest } from "next/server"
 import { getCurrentUser } from "@/server/auth/getCurrentUser"
 import { handleRouteError } from "@/server/http/handleRouteError"
 import { resolveWidgetData } from "@/server/repositories/widgetRepository"
+import type { ActiveWidgetFilter } from "@/features/dashboards/types/widget.types"
 import { logger } from "@/shared/lib/logger"
+
+const FILTER_TYPES = new Set(["date", "layer", "project", "attribute", "spatial"])
+
+/** Parses the `?filters=` query param (US6/FR-020) — malformed/absent input is treated as "no active filters" rather than a `4xx`, since filtering is a client-convenience concern, not a contract the request must satisfy. */
+function parseActiveFilters(request: NextRequest): ActiveWidgetFilter[] {
+  const raw = new URL(request.url).searchParams.get("filters")
+  if (!raw) return []
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter(
+      (entry): entry is ActiveWidgetFilter =>
+        typeof entry === "object" && entry !== null && FILTER_TYPES.has((entry as { filterType?: unknown }).filterType as string),
+    )
+  } catch {
+    return []
+  }
+}
 
 interface RouteParams {
   params: Promise<{ dashboardId: string; widgetId: string }>
@@ -29,7 +48,8 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
   try {
     const user = await getCurrentUser(request)
     const { dashboardId, widgetId } = await params
-    const result = await resolveWidgetData(dashboardId, widgetId, user.id)
+    const activeFilters = parseActiveFilters(request)
+    const result = await resolveWidgetData(dashboardId, widgetId, user.id, activeFilters)
     return respond(request, startedAt, 200, result)
   } catch (error) {
     return handleRouteError(error)

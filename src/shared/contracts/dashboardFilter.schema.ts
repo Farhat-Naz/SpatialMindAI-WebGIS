@@ -1,7 +1,9 @@
 import { z } from "zod"
 import { geometrySchema } from "./geometry.schema"
 
-const attributeOperator = z.enum(["eq", "neq", "contains", "gt", "lt", "gte", "lte"])
+export const attributeFilterOperatorSchema = z.enum(["eq", "neq", "contains", "gt", "lt", "gte", "lte"])
+export type AttributeFilterOperatorInput = z.infer<typeof attributeFilterOperatorSchema>
+const attributeOperator = attributeFilterOperatorSchema
 
 /** Per-`filterType` `config` shape, mirroring `widget.schema.ts`'s per-`type` pattern (data-model.md `DashboardFilter.config`). */
 const filterConfigByType = {

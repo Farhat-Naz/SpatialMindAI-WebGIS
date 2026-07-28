@@ -10,8 +10,19 @@ export const queryKeys = {
 
   dashboard: (dashboardId: string) => ["dashboards", dashboardId] as const,
 
-  widgetData: (dashboardId: string, widgetId: string) =>
-    ["dashboards", dashboardId, "widgets", widgetId, "data"] as const,
+  /**
+   * `filters` (US6) is appended when supplied so an active filter change
+   * refetches rather than serving a stale cached result for a different
+   * filter state. Omitting it (as `WidgetRenderer`'s manual-refresh
+   * `invalidateQueries` call does) yields the shorter, filter-agnostic
+   * prefix — the same "parameterized-key trap" `dashboardsList` already
+   * documents — so a manual refresh invalidates every filter variant of
+   * this widget's cached data, not just one.
+   */
+  widgetData: (dashboardId: string, widgetId: string, filters?: unknown) =>
+    filters !== undefined
+      ? (["dashboards", dashboardId, "widgets", widgetId, "data", filters] as const)
+      : (["dashboards", dashboardId, "widgets", widgetId, "data"] as const),
 
   analyticsSnapshot: (projectId: string, snapshotType: string, scopeId?: string) =>
     ["projects", projectId, "analytics", snapshotType, scopeId] as const,

@@ -4,6 +4,8 @@ import type { ReactNode } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { useAddWidget, useDeleteWidget, useSaveLayout, useUpdateWidget, useWidgetData } from "../useWidgets"
 import { widgetService } from "../../services/widgetService"
+import { dashboardFilterService } from "../../services/dashboardFilterService"
+import { useDashboardFilterStore } from "../../store/dashboardFilterStore"
 
 vi.mock("../../services/widgetService", () => ({
   widgetService: {
@@ -15,7 +17,12 @@ vi.mock("../../services/widgetService", () => ({
   },
 }))
 
+vi.mock("../../services/dashboardFilterService", () => ({
+  dashboardFilterService: { listFilters: vi.fn(), createFilter: vi.fn(), deleteFilter: vi.fn() },
+}))
+
 const mockedService = vi.mocked(widgetService)
+const mockedFilterService = vi.mocked(dashboardFilterService)
 
 function createWrapper() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
@@ -25,9 +32,13 @@ function createWrapper() {
   return { Wrapper, queryClient }
 }
 
+const INITIAL_FILTER_STORE_STATE = useDashboardFilterStore.getState()
+
 describe("useWidgets hooks", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    useDashboardFilterStore.setState(INITIAL_FILTER_STORE_STATE, true)
+    mockedFilterService.listFilters.mockResolvedValue({ filters: [] })
   })
 
   it("useAddWidget: invalidates only the dashboard's own detail", async () => {
@@ -73,7 +84,52 @@ describe("useWidgets hooks", () => {
     const { result } = renderHook(() => useWidgetData("d1", "w1"), { wrapper: Wrapper })
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
-    expect(mockedService.getWidgetData).toHaveBeenCalledWith("d1", "w1")
+    expect(mockedService.getWidgetData).toHaveBeenCalledWith("d1", "w1", [])
+  })
+
+  it("useWidgetData: sends the working-copy global filters from dashboardFilterStore (US6/T248/T250)", async () => {
+    mockedService.getWidgetData.mockResolvedValue({ dataSourceUnavailable: false, data: { features: [] } })
+    useDashboardFilterStore.getState().setGlobalFilter("date", { from: "2026-01-01T00:00:00.000Z" })
+    const { Wrapper } = createWrapper()
+    const { result } = renderHook(() => useWidgetData("d1", "w1"), { wrapper: Wrapper })
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(mockedService.getWidgetData).toHaveBeenCalledWith("d1", "w1", [
+      { filterType: "date", config: { from: "2026-01-01T00:00:00.000Z" } },
+    ])
+  })
+
+  it("useWidgetData: merges in this widget's own persisted attribute filter (US6/T253)", async () => {
+    mockedService.getWidgetData.mockResolvedValue({ dataSourceUnavailable: false, data: { features: [] } })
+    mockedFilterService.listFilters.mockResolvedValue({
+      filters: [
+        {
+          id: "f1",
+          dashboardId: "d1",
+          widgetId: "w1",
+          filterType: "attribute",
+          config: { key: "status", operator: "eq", value: "active" },
+          createdAt: "t",
+          updatedAt: "t",
+        },
+        {
+          id: "f2",
+          dashboardId: "d1",
+          widgetId: "w2",
+          filterType: "attribute",
+          config: { key: "other", operator: "eq", value: "x" },
+          createdAt: "t",
+          updatedAt: "t",
+        },
+      ],
+    })
+    const { Wrapper } = createWrapper()
+    const { result } = renderHook(() => useWidgetData("d1", "w1"), { wrapper: Wrapper })
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(mockedService.getWidgetData).toHaveBeenCalledWith("d1", "w1", [
+      { filterType: "attribute", config: { key: "status", operator: "eq", value: "active" } },
+    ])
   })
 
   it("useWidgetData: does not fetch when enabled is false (viewport-pause gate)", async () => {

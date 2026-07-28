@@ -37,10 +37,21 @@ export const NON_DATA_DRIVEN_WIDGET_TYPES: readonly WidgetType[] = ["text", "ima
  * Result shape every `useWidgetData`-backed hook resolves to. `dataSourceUnavailable`
  * is data, not a thrown error (research.md Decision 13) — a widget renders its
  * "unavailable" state as an ordinary branch when this is `true`.
+ *
+ * `filteredEmpty` (US6/FR-022, T257) marks a *successful* fetch that an
+ * active filter (date/layer/project/attribute/spatial) narrowed to zero
+ * results — distinct from `dataSourceUnavailable` (a deleted source, not a
+ * filtered-to-zero result).
  */
 export type WidgetDataResult<T = unknown> =
   | { dataSourceUnavailable: true }
-  | { dataSourceUnavailable: false; data: T }
+  | { dataSourceUnavailable: false; data: T; filteredEmpty?: boolean }
+
+/** One active filter as sent from client to `GET .../widgets/:widgetId/data` (US6) — a plain `{filterType, config}` pair, global or resolved for this widget. */
+export interface ActiveWidgetFilter {
+  filterType: "date" | "layer" | "project" | "attribute" | "spatial"
+  config: unknown
+}
 
 /**
  * Props every per-type widget component receives from `WidgetRenderer`

@@ -2402,7 +2402,7 @@ spatial filters, global or per-widget, per spec.md US6.
 with multiple statistics widgets and confirm every filter-aware widget's
 values update — independent of report generation or sharing.
 
-- [ ] T246 [US6] `DashboardFilterBar` shell
+- [X] T246 [US6] `DashboardFilterBar` shell
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/dashboards/components/DashboardFilterBar.tsx` (new)
@@ -2411,7 +2411,7 @@ values update — independent of report generation or sharing.
   - **Verification**: `npx tsc --noEmit`; covered by T258
   - **Dependencies**: T103, T111
 
-- [ ] T247 [US6] Date filter control
+- [X] T247 [US6] Date filter control
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/dashboards/components/DashboardFilterBar.tsx` (modify, same file as T246)
@@ -2420,7 +2420,7 @@ values update — independent of report generation or sharing.
   - **Verification**: Covered by T258
   - **Dependencies**: T246
 
-- [ ] T248 [US6] Date filter — widget wiring
+- [X] T248 [US6] Date filter — widget wiring
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/dashboards/hooks/useWidgets.ts` (modify, from T095)
@@ -2429,7 +2429,7 @@ values update — independent of report generation or sharing.
   - **Verification**: Covered by T258
   - **Dependencies**: T095, T247
 
-- [ ] T249 [US6] Layer filter control
+- [X] T249 [US6] Layer filter control
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/dashboards/components/DashboardFilterBar.tsx` (modify, same file as T246)
@@ -2438,7 +2438,7 @@ values update — independent of report generation or sharing.
   - **Verification**: Covered by T258
   - **Dependencies**: T246
 
-- [ ] T250 [US6] Layer filter — widget wiring
+- [X] T250 [US6] Layer filter — widget wiring
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/dashboards/hooks/useWidgets.ts` (modify, from T095)
@@ -2447,7 +2447,7 @@ values update — independent of report generation or sharing.
   - **Verification**: Covered by T258
   - **Dependencies**: T095, T249
 
-- [ ] T251 [US6] Project filter control + wiring
+- [X] T251 [US6] Project filter control + wiring
   - **Priority**: Should-have
   - **User Story**: US6
   - **Files**: `src/features/dashboards/components/DashboardFilterBar.tsx` (modify, same file as T246)
@@ -2456,7 +2456,7 @@ values update — independent of report generation or sharing.
   - **Verification**: Covered by T258
   - **Dependencies**: T246
 
-- [ ] T252 [US6] Attribute filter control
+- [X] T252 [US6] Attribute filter control
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/dashboards/components/WidgetConfigPanel.tsx` (modify, from T160)
@@ -2465,7 +2465,7 @@ values update — independent of report generation or sharing.
   - **Verification**: Covered by T258
   - **Dependencies**: T160
 
-- [ ] T253 [US6] Attribute filter — widget wiring
+- [X] T253 [US6] Attribute filter — widget wiring
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/dashboards/hooks/useWidgets.ts` (modify, from T095)
@@ -2474,7 +2474,7 @@ values update — independent of report generation or sharing.
   - **Verification**: Covered by T258
   - **Dependencies**: T095, T252
 
-- [ ] T254 [US6] Spatial filter — draw control
+- [X] T254 [US6] Spatial filter — draw control
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/dashboards/components/widgets/MapWidget.tsx` (modify, from T172)
@@ -2483,7 +2483,7 @@ values update — independent of report generation or sharing.
   - **Verification**: Covered by T258
   - **Dependencies**: T172
 
-- [ ] T255 [US6] Spatial filter — validation + widget wiring
+- [X] T255 [US6] Spatial filter — validation + widget wiring
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/server/repositories/dashboardFilterRepository.ts` (verification, from T044)
@@ -2492,7 +2492,7 @@ values update — independent of report generation or sharing.
   - **Verification**: Covered by T258
   - **Dependencies**: T044, T254
 
-- [ ] T256 [US6] Filter persistence — save + reload restore
+- [X] T256 [US6] Filter persistence — save + reload restore
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/dashboards/components/DashboardFilterBar.tsx` (modify, same file as T246)
@@ -2501,7 +2501,7 @@ values update — independent of report generation or sharing.
   - **Verification**: Covered by T258
   - **Dependencies**: T103, T116, T246
 
-- [ ] T257 [US6] Empty-filter-result state
+- [X] T257 [US6] Empty-filter-result state
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/dashboards/components/WidgetRenderer.tsx` (modify, from T164)
@@ -2510,7 +2510,7 @@ values update — independent of report generation or sharing.
   - **Verification**: Covered by T258
   - **Dependencies**: T164
 
-- [ ] T258 [P] [US6] Component tests — `DashboardFilterBar` all filter types
+- [X] T258 [P] [US6] Component tests — `DashboardFilterBar` all filter types
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/dashboards/components/__tests__/DashboardFilterBar.test.tsx` (new)
@@ -2519,7 +2519,7 @@ values update — independent of report generation or sharing.
   - **Verification**: `npm run test -- DashboardFilterBar`
   - **Dependencies**: T248, T250, T251, T253, T255, T256, T257
 
-- [ ] T259 [P] [US6] Integration test — full Filtering flow
+- [X] T259 [P] [US6] Integration test — full Filtering flow
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/dashboards/__tests__/filtering.integration.test.tsx` (new)
@@ -2528,7 +2528,7 @@ values update — independent of report generation or sharing.
   - **Verification**: `npm run test -- filtering.integration`
   - **Dependencies**: T258
 
-- [ ] T260 [US6] Checkpoint (Phase 14)
+- [X] T260 [US6] Checkpoint (Phase 14)
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: None (verification-only task)

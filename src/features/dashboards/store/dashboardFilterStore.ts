@@ -5,12 +5,16 @@ interface DashboardFilterState {
   /** Client-side working copy before "Save filters" persists it via `useCreateFilter` (T103) — deliberately separate from `dashboardBuilderStore` since a read-only viewer can still change filters without "edit mode" (US6). */
   activeGlobalFilters: DashboardFilterRecord[]
   hasUnsavedFilterChanges: boolean
+  /** T254 — whether `MapWidget`'s "Draw filter area" affordance has put the shared map (research.md Decision 4) into Geoman polygon-draw mode. Read by `DashboardSpatialFilterControl`, the one component mounted inside `MapCore`'s Leaflet context that can call `useMap()`. */
+  spatialDrawActive: boolean
 
   /** Sets (or replaces) the working global filter of a given `filterType` — at most one active global filter per type. */
   setGlobalFilter: (filterType: DashboardFilterRecord["filterType"], config: unknown) => void
   clearGlobalFilter: (filterType: DashboardFilterRecord["filterType"]) => void
   /** Repopulates the working copy from the server-persisted rows (T116) — called on dashboard load (via `useDashboardFilters`, FR-021/SC-005: reloading shows the last-saved filters, not an empty state) and on an explicit "discard changes" action. */
   resetToSaved: (savedFilters: DashboardFilterRecord[]) => void
+  activateSpatialDraw: () => void
+  deactivateSpatialDraw: () => void
 }
 
 /**
@@ -22,6 +26,7 @@ interface DashboardFilterState {
 export const useDashboardFilterStore = create<DashboardFilterState>((set) => ({
   activeGlobalFilters: [],
   hasUnsavedFilterChanges: false,
+  spatialDrawActive: false,
 
   setGlobalFilter: (filterType, config) =>
     set((state) => {
@@ -46,4 +51,7 @@ export const useDashboardFilterStore = create<DashboardFilterState>((set) => ({
 
   resetToSaved: (savedFilters) =>
     set({ activeGlobalFilters: savedFilters.filter((filter) => filter.widgetId === null), hasUnsavedFilterChanges: false }),
+
+  activateSpatialDraw: () => set({ spatialDrawActive: true }),
+  deactivateSpatialDraw: () => set({ spatialDrawActive: false }),
 }))

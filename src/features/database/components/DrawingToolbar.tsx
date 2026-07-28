@@ -86,6 +86,17 @@ export function DrawingToolbar() {
   useEffect(() => {
     function handleCreate(event: PmCreateEvent) {
       const { layer, shape } = event
+
+      // `map` is the app-wide singleton (research.md Decision 4) — another
+      // feature's own Geoman draw session (e.g. specs/008-dashboard-
+      // analytics's spatial-filter draw control) fires this same `pm:create`
+      // event. Only handle it here if this toolbar's own tool was the one
+      // active, so a stray create from elsewhere never gets persisted as a
+      // Feature on whatever layer happened to be selected.
+      if (!DRAW_TOOLS.some((entry) => entry.tool === tool)) {
+        return
+      }
+
       map.removeLayer(layer)
 
       if (!selectedLayerId) {
@@ -115,7 +126,7 @@ export function DrawingToolbar() {
     return () => {
       map.off("pm:create", handleCreate)
     }
-  }, [map, selectedLayerId, layerIsLocked, createFeature, setTool, setLastError])
+  }, [map, tool, selectedLayerId, layerIsLocked, createFeature, setTool, setLastError])
 
   function handleDelete() {
     if (!selectedFeatureId || !selectedLayerId) return

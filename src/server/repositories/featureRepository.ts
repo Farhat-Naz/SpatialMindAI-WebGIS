@@ -3,6 +3,7 @@ import { Prisma, type FeatureAttribute, type FeatureStyle } from "@prisma/client
 import { prismaClient } from "@/server/db/prismaClient"
 import { getActiveLockForFeature } from "@/server/repositories/featureLockRepository"
 import { projectChannel, publish } from "@/server/realtime/channel"
+import { buildAttributeComparisonSql, type AttributeFilter } from "@/server/repositories/analysisOperations"
 import { ConflictError, NotFoundError, ValidationError } from "@/shared/errors/apiError"
 import type { GeoJSONGeometry } from "@/shared/contracts/geometry.schema"
 
@@ -382,6 +383,13 @@ export interface ListFeaturesParams {
   cursor?: string
   limit?: number
   bbox?: [number, number, number, number]
+  /** US6/FR-020 date filter — inclusive `Feature.createdAt` bounds, ISO strings. */
+  createdFrom?: string
+  createdTo?: string
+  /** US6/FR-020 spatial filter — an arbitrary drawn area, more precise than `bbox`'s envelope (`ST_Intersects` against the real geometry). */
+  geometryFilter?: GeoJSONGeometry
+  /** US6/FR-020 attribute filter — same operator set as Select by Attribute (`analysisOperations.ts`), never re-implemented. */
+  attributeFilter?: AttributeFilter
 }
 
 const DEFAULT_LIMIT = 100
@@ -389,7 +397,9 @@ const MAX_LIMIT = 500
 
 /**
  * Cursor (keyset) pagination ordered by `id`, with an optional PostGIS
- * `ST_Intersects` bbox filter using the GiST index (Research Decision 5).
+ * `ST_Intersects` bbox filter using the GiST index (Research Decision 5),
+ * plus specs/008-dashboard-analytics's date/geometry/attribute filters
+ * (US6/FR-020) for dashboard widgets bound to this layer.
  */
 export async function listFeaturesForLayer(
   layerId: string,
@@ -411,6 +421,23 @@ export async function listFeaturesForLayer(
     const [minLng, minLat, maxLng, maxLat] = params.bbox
     conditions.push(
       Prisma.sql`ST_Intersects(f.geometry, ST_MakeEnvelope(${minLng}, ${minLat}, ${maxLng}, ${maxLat}, 4326))`,
+    )
+  }
+  if (params.createdFrom) {
+    conditions.push(Prisma.sql`f."createdAt" >= ${new Date(params.createdFrom)}`)
+  }
+  if (params.createdTo) {
+    conditions.push(Prisma.sql`f."createdAt" <= ${new Date(params.createdTo)}`)
+  }
+  if (params.geometryFilter) {
+    conditions.push(
+      Prisma.sql`ST_Intersects(f.geometry, ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(params.geometryFilter)}), 4326))`,
+    )
+  }
+  if (params.attributeFilter) {
+    const comparison = buildAttributeComparisonSql(params.attributeFilter.operator, params.attributeFilter.value)
+    conditions.push(
+      Prisma.sql`EXISTS (SELECT 1 FROM "FeatureAttribute" fa WHERE fa."featureId" = f.id AND fa.key = ${params.attributeFilter.key} AND ${comparison})`,
     )
   }
   const whereClause = Prisma.join(conditions, " AND ")

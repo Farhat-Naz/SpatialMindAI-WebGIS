@@ -8,6 +8,7 @@ import { getSnapshot } from "@/server/repositories/dashboardAnalyticsRepository"
 import { sanitizeWidgetHtml } from "@/shared/lib/sanitizeHtml"
 import { widgetConfigSchemaFor, type WidgetTypeInput } from "@/shared/contracts/widget.schema"
 import { NotFoundError, ValidationError } from "@/shared/errors/apiError"
+import type { GeoJSONGeometry } from "@/shared/contracts/geometry.schema"
 import {
   DEFAULT_WIDGET_SIZE,
   GRID_COLUMNS,
@@ -16,7 +17,7 @@ import type {
   DashboardWidgetRecord,
   WidgetLayoutRecord,
 } from "@/features/dashboards/types/dashboard.types"
-import type { WidgetDataResult } from "@/features/dashboards/types/widget.types"
+import type { ActiveWidgetFilter, WidgetDataResult } from "@/features/dashboards/types/widget.types"
 
 type TransactionClient = Prisma.TransactionClient
 
@@ -250,11 +251,22 @@ export async function saveLayout(
  * (research.md Decision 7) that those two untouched repositories don't know
  * about; the project owner's id trivially satisfies their membership check
  * without duplicating that logic here.
+ *
+ * `activeFilters` (US6/FR-020) are applied only to `dataSourceType: "layer"`
+ * widgets — the only source with per-row `createdAt`/geometry/attribute
+ * data to narrow. Statistics-sourced widgets (`projectStats`/`layerStats`/
+ * `featureStats`/`systemStats`/`storageStats`) are cached `AnalyticsSnapshot`
+ * rollups keyed only by `projectId`/`snapshotType`/`scopeId`
+ * (`dashboardAnalyticsRepository.ts` Decision 12) — threading per-request
+ * filters through that cache would require a filter-keyed cache dimension
+ * the schema doesn't have, so those widget types are simply not
+ * filter-aware, same as `analysisRun`/`activity`.
  */
 export async function resolveWidgetData(
   dashboardId: string,
   widgetId: string,
   userId: string,
+  activeFilters: ActiveWidgetFilter[] = [],
 ): Promise<WidgetDataResult> {
   await assertDashboardPermission(dashboardId, userId, "view")
 
@@ -287,8 +299,44 @@ export async function resolveWidgetData(
     switch (widget.dataSourceType) {
       case "layer": {
         if (!widget.dataSourceId) return { dataSourceUnavailable: true }
-        const result = await listFeaturesForLayer(widget.dataSourceId, scopingProjectOwnerId, {})
-        return { dataSourceUnavailable: false, data: result }
+
+        const layerFilter = activeFilters.find((f) => f.filterType === "layer")
+        if (layerFilter) {
+          const layerIds = (layerFilter.config as { layerIds?: string[] } | undefined)?.layerIds ?? []
+          if (!layerIds.includes(widget.dataSourceId)) {
+            return { dataSourceUnavailable: false, data: { features: [], nextCursor: null }, filteredEmpty: true }
+          }
+        }
+        const projectFilter = activeFilters.find((f) => f.filterType === "project")
+        if (projectFilter) {
+          const projectIds = (projectFilter.config as { projectIds?: string[] } | undefined)?.projectIds ?? []
+          if (!projectIds.includes(dashboard.projectId)) {
+            return { dataSourceUnavailable: false, data: { features: [], nextCursor: null }, filteredEmpty: true }
+          }
+        }
+
+        const dateFilter = activeFilters.find((f) => f.filterType === "date")
+        const spatialFilter = activeFilters.find((f) => f.filterType === "spatial")
+        const attributeFilter = activeFilters.find((f) => f.filterType === "attribute")
+        const dateConfig = dateFilter?.config as { from?: string; to?: string } | undefined
+        const spatialConfig = spatialFilter?.config as { geometry?: GeoJSONGeometry } | undefined
+        const attributeConfig = attributeFilter?.config as
+          | { key: string; operator: "eq" | "neq" | "contains" | "gt" | "lt" | "gte" | "lte"; value: string }
+          | undefined
+
+        const result = await listFeaturesForLayer(widget.dataSourceId, scopingProjectOwnerId, {
+          createdFrom: dateConfig?.from,
+          createdTo: dateConfig?.to,
+          geometryFilter: spatialConfig?.geometry,
+          attributeFilter: attributeConfig,
+        })
+
+        const hasActiveDataFilter = Boolean(dateFilter || spatialFilter || attributeFilter || layerFilter || projectFilter)
+        return {
+          dataSourceUnavailable: false,
+          data: result,
+          ...(hasActiveDataFilter && result.features.length === 0 ? { filteredEmpty: true } : {}),
+        }
       }
       case "analysisRun": {
         if (!widget.dataSourceId) return { dataSourceUnavailable: true }

@@ -24,6 +24,7 @@ import { TableWidget } from "./widgets/TableWidget"
 import { TextWidget } from "./widgets/TextWidget"
 import { WidgetErrorFallback } from "./WidgetErrorFallback"
 import { WidgetUnavailableState } from "./WidgetUnavailableState"
+import { WidgetEmptyFilterState } from "./WidgetEmptyFilterState"
 
 /**
  * The one place `DashboardWidget.type` dispatches to a concrete component
@@ -123,7 +124,7 @@ export function WidgetRenderer({ dashboardId, widget, isInView = true, canEdit }
                 size="icon"
                 className="h-6 w-6"
                 aria-label={`Edit ${widget.title ?? widget.type}`}
-                onClick={() => selectWidget(widget.id, widget.config as Record<string, unknown>)}
+                onClick={() => selectWidget(widget.id, widget.config as Record<string, unknown>, widget.type as WidgetType)}
               >
                 ✎
               </Button>
@@ -151,6 +152,8 @@ export function WidgetRenderer({ dashboardId, widget, isInView = true, canEdit }
               </div>
             ) : data?.dataSourceUnavailable ? (
               <WidgetUnavailableState />
+            ) : data && !data.dataSourceUnavailable && data.filteredEmpty ? (
+              <WidgetEmptyFilterState />
             ) : (
               <Component widget={widget} data={data} isLoading={isLoading} isEditMode={isEditMode} />
             )}
