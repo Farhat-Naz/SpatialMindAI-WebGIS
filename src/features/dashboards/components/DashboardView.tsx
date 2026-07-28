@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Button } from "@/shared/components/ui/button"
 import { useDashboard } from "../hooks/useDashboards"
 import { useDashboardBuilderStore } from "../store/dashboardBuilderStore"
 import { resolveBreakpoint } from "../services/breakpoint"
+import { DashboardExportMenu } from "./DashboardExportMenu"
 import { DashboardGrid } from "./DashboardGrid"
 import { DashboardSettingsPanel } from "./DashboardSettingsPanel"
 import { DashboardShareDialog } from "./DashboardShareDialog"
@@ -33,6 +34,8 @@ export function DashboardView({ projectId, dashboardId }: DashboardViewProps) {
   const selectedWidgetId = useDashboardBuilderStore((state) => state.selectedWidgetId)
   const clearSelectedWidget = useDashboardBuilderStore((state) => state.clearSelectedWidget)
   const [isAddWidgetOpen, setIsAddWidgetOpen] = useState(false)
+  /** The dashboard's rendered grid, captured for both `DashboardExportMenu` (T262) and `ReportGenerationDialog`'s PDF path (T196/Phase 16). */
+  const dashboardElementRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     function handleResize() {
@@ -80,6 +83,7 @@ export function DashboardView({ projectId, dashboardId }: DashboardViewProps) {
       <header className="flex items-center justify-between border-b px-4 py-3">
         <h1 className="text-lg font-semibold">{data.dashboard.name}</h1>
         <div className="flex items-center gap-2">
+          <DashboardExportMenu projectId={projectId} widgets={data.dashboard.widgets} dashboardElementRef={dashboardElementRef} />
           <DashboardShareDialog projectId={projectId} dashboard={data.dashboard} />
           {canEdit && (
             <>
@@ -96,7 +100,7 @@ export function DashboardView({ projectId, dashboardId }: DashboardViewProps) {
         </div>
       </header>
 
-      <div className="flex-1 overflow-auto p-4">
+      <div className="flex-1 overflow-auto p-4" ref={dashboardElementRef}>
         <DashboardGrid
           dashboardId={dashboardId}
           widgets={data.dashboard.widgets}

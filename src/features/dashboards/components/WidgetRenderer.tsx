@@ -1,10 +1,12 @@
 "use client"
 
+import { useRef } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { ErrorBoundary } from "@/shared/components/ErrorBoundary"
 import { Button } from "@/shared/components/ui/button"
 import { useDeleteWidget, useUpdateWidget, useWidgetData } from "../hooks/useWidgets"
 import { queryKeys } from "../services/queryKeys"
+import { dashboardExportService } from "../services/dashboardExportService"
 import { useDashboardBuilderStore } from "../store/dashboardBuilderStore"
 import type { DashboardWidgetRecord } from "../types/dashboard.types"
 import type { WidgetProps, WidgetType } from "../types/widget.types"
@@ -88,9 +90,17 @@ export function WidgetRenderer({ dashboardId, widget, isInView = true, canEdit }
 
   const Component = resolveWidgetComponent(widget)
   const showToolbar = isEditMode && canEdit
+  const contentRef = useRef<HTMLDivElement>(null)
 
   function handleRefresh() {
     void queryClient.invalidateQueries({ queryKey: queryKeys.widgetData(dashboardId, widget.id) })
+  }
+
+  /** T263 — exports just this widget's own rendering, scoped to its content DOM node (not the whole dashboard, T262's job). */
+  async function handleExportImage() {
+    if (!contentRef.current) return
+    const safeTitle = (widget.title ?? widget.type).trim() || "widget"
+    await dashboardExportService.exportWidgetAsImage(contentRef.current, `${safeTitle}.png`)
   }
 
   return (
@@ -106,6 +116,18 @@ export function WidgetRenderer({ dashboardId, widget, isInView = true, canEdit }
           <Button type="button" variant="ghost" size="icon" className="h-6 w-6" aria-label="Refresh now" onClick={handleRefresh}>
             ↻
           </Button>
+          {!widget.isCollapsed && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              aria-label={`Export ${widget.title ?? widget.type} as image`}
+              onClick={() => void handleExportImage()}
+            >
+              ⤓
+            </Button>
+          )}
           <Button
             type="button"
             variant="ghost"
@@ -144,7 +166,7 @@ export function WidgetRenderer({ dashboardId, widget, isInView = true, canEdit }
       </div>
 
       {!widget.isCollapsed && (
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto" ref={contentRef}>
           <ErrorBoundary fallback={<WidgetErrorFallback />}>
             {isLoading ? (
               <div className="flex h-full items-center justify-center p-4 text-sm text-muted-foreground" role="status">

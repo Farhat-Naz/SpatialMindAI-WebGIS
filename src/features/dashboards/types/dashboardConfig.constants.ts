@@ -43,3 +43,11 @@ export const GRID_COLUMNS: Record<"desktop" | "tablet" | "mobile", number> = {
 /** A new widget's default size before the user resizes it — one third of the desktop grid width. */
 export const DEFAULT_WIDGET_SIZE = { w: 4, h: 4 }
 
+/**
+ * US9/T268 — a table export above this row count shows a soft
+ * "this may take a while" warning before proceeding (spec Edge Cases: the
+ * export still completes in full either way, never a silent truncation —
+ * this is purely informational).
+ */
+export const LARGE_EXPORT_ROW_WARNING_THRESHOLD = 10_000
+

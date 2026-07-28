@@ -2548,7 +2548,7 @@ or a table's data, per spec.md US9.
 confirm the downloaded file matches its current rendering — independent
 of exporting the whole dashboard.
 
-- [ ] T261 [US9] `DashboardExportMenu` shell
+- [X] T261 [US9] `DashboardExportMenu` shell
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/dashboards/components/DashboardExportMenu.tsx` (new)
@@ -2557,7 +2557,7 @@ of exporting the whole dashboard.
   - **Verification**: `npx tsc --noEmit`; covered by T270
   - **Dependencies**: T081, T135
 
-- [ ] T262 [US9] Export dashboard — whole-dashboard capture
+- [X] T262 [US9] Export dashboard — whole-dashboard capture
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/dashboards/components/DashboardExportMenu.tsx` (modify, same file as T261)
@@ -2566,7 +2566,7 @@ of exporting the whole dashboard.
   - **Verification**: Covered by T270
   - **Dependencies**: T079, T261
 
-- [ ] T263 [US9] Export widgets/charts — single widget image
+- [X] T263 [US9] Export widgets/charts — single widget image
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/dashboards/components/WidgetRenderer.tsx` (modify, from T161)
@@ -2575,7 +2575,7 @@ of exporting the whole dashboard.
   - **Verification**: Covered by T270
   - **Dependencies**: T079, T161
 
-- [ ] T264 [US9] Export tables — CSV
+- [X] T264 [US9] Export tables — CSV
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/dashboards/services/dashboardExportService.ts` (modify, from T081)
@@ -2584,7 +2584,7 @@ of exporting the whole dashboard.
   - **Verification**: Covered by T271
   - **Dependencies**: T081, T177
 
-- [ ] T265 [US9] Export tables — Excel
+- [X] T265 [US9] Export tables — Excel
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/dashboards/services/dashboardExportService.ts` (modify, same file as T264)
@@ -2593,7 +2593,7 @@ of exporting the whole dashboard.
   - **Verification**: Covered by T271
   - **Dependencies**: T079, T264
 
-- [ ] T266 [US9] Snapshot export confirmation
+- [X] T266 [US9] Snapshot export confirmation
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/dashboards/components/DashboardExportMenu.tsx` (verification, same file as T261)
@@ -2602,7 +2602,7 @@ of exporting the whole dashboard.
   - **Verification**: Manual review, documented in the PR
   - **Dependencies**: T262
 
-- [ ] T267 [US9] Download Manager — streamed assembly for large exports
+- [X] T267 [US9] Download Manager — streamed assembly for large exports
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/dashboards/services/dashboardExportService.ts` (modify, same file as T264)
@@ -2611,7 +2611,7 @@ of exporting the whole dashboard.
   - **Verification**: Covered by T271
   - **Dependencies**: T264
 
-- [ ] T268 [US9] Download Manager — oversized-export warning
+- [X] T268 [US9] Download Manager — oversized-export warning
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/dashboards/components/DashboardExportMenu.tsx` (modify, same file as T261)
@@ -2620,7 +2620,7 @@ of exporting the whole dashboard.
   - **Verification**: Covered by T270
   - **Dependencies**: T267
 
-- [ ] T269 [US9] Report re-download reuse confirmation
+- [X] T269 [US9] Report re-download reuse confirmation
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/dashboards/components/ReportHistoryPanel.tsx` (verification, from T206)
@@ -2629,7 +2629,7 @@ of exporting the whole dashboard.
   - **Verification**: Manual review, documented in the PR
   - **Dependencies**: T206
 
-- [ ] T270 [P] [US9] Component tests — `DashboardExportMenu`
+- [X] T270 [P] [US9] Component tests — `DashboardExportMenu`
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/dashboards/components/__tests__/DashboardExportMenu.test.tsx` (new)
@@ -2638,7 +2638,7 @@ of exporting the whole dashboard.
   - **Verification**: `npm run test -- DashboardExportMenu`
   - **Dependencies**: T262, T263, T268
 
-- [ ] T271 [P] [US9] Service tests — `dashboardExportService` per-format assembly
+- [X] T271 [P] [US9] Service tests — `dashboardExportService` per-format assembly
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/dashboards/services/__tests__/dashboardExportService.test.ts` (modify, extends T088)
@@ -2647,7 +2647,7 @@ of exporting the whole dashboard.
   - **Verification**: `npm run test -- dashboardExportService`
   - **Dependencies**: T265, T267
 
-- [ ] T272 [P] [US9] Integration test — full Export flow
+- [X] T272 [P] [US9] Integration test — full Export flow
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/dashboards/__tests__/export.integration.test.tsx` (new)
@@ -2656,7 +2656,7 @@ of exporting the whole dashboard.
   - **Verification**: `npm run test -- export.integration`
   - **Dependencies**: T266, T269, T270
 
-- [ ] T273 [US9] Accessibility check — `DashboardExportMenu`
+- [X] T273 [US9] Accessibility check — `DashboardExportMenu`
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: `src/features/dashboards/components/__tests__/DashboardExportMenu.a11y.test.tsx` (new)
@@ -2665,7 +2665,7 @@ of exporting the whole dashboard.
   - **Verification**: `npm run test -- DashboardExportMenu.a11y`
   - **Dependencies**: T261, T270
 
-- [ ] T274 [US9] Checkpoint (Phase 15)
+- [X] T274 [US9] Checkpoint (Phase 15)
   - **Priority**: Must-have
   - **User Story**: US9
   - **Files**: None (verification-only task)

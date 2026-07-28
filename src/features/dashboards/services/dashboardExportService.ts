@@ -56,13 +56,16 @@ export const dashboardExportService = {
       return
     }
 
+    // T267 — assembled as an array of Blob parts (one per row, mirroring
+    // 005-import-export's KML writer), never one giant `.join()`ed string
+    // held in memory before the `Blob` is even created.
     const headers = rows.length > 0 ? Object.keys(rows[0]) : []
     const escape = (value: unknown) => `"${String(value ?? "").replace(/"/g, '""')}"`
-    const lines = [headers.map(escape).join(",")]
+    const parts: string[] = [`${headers.map(escape).join(",")}\r\n`]
     for (const row of rows) {
-      lines.push(headers.map((header) => escape(row[header])).join(","))
+      parts.push(`${headers.map((header) => escape(row[header])).join(",")}\r\n`)
     }
-    const blob = new Blob([lines.join("\r\n")], { type: "text/csv" })
+    const blob = new Blob(parts, { type: "text/csv" })
     downloadBlob(blob, filename ?? "table.csv")
   },
 }

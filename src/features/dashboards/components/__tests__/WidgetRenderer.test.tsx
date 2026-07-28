@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { widgetService } from "../../services/widgetService"
+import { dashboardExportService } from "../../services/dashboardExportService"
 import { useDashboardBuilderStore } from "../../store/dashboardBuilderStore"
 import { WidgetRenderer, WIDGET_REGISTRY } from "../WidgetRenderer"
 import type { DashboardWidgetRecord } from "../../types/dashboard.types"
@@ -115,6 +116,17 @@ describe("WidgetRenderer", () => {
     fireEvent.click(screen.getByRole("button", { name: "Refresh now" }))
 
     await waitFor(() => expect(widgetService.getWidgetData).toHaveBeenCalledTimes(callsBefore + 1))
+  })
+
+  it("T263 — 'Export as image' captures just this widget's own content node", async () => {
+    const exportSpy = vi.spyOn(dashboardExportService, "exportWidgetAsImage").mockResolvedValue(undefined)
+    render(<WidgetRenderer dashboardId="d1" widget={widget()} canEdit={true} />, { wrapper: wrapper() })
+    await waitFor(() => expect(screen.queryByText("Loading…")).toBeNull())
+
+    fireEvent.click(screen.getByRole("button", { name: "Export My Widget as image" }))
+
+    await waitFor(() => expect(exportSpy).toHaveBeenCalledTimes(1))
+    expect(exportSpy.mock.calls[0][1]).toBe("My Widget.png")
   })
 
   it("a sibling widget keeps working after another widget's render failure (error isolation)", async () => {
