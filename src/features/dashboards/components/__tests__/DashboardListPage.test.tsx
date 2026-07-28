@@ -103,6 +103,27 @@ describe("DashboardListPage", () => {
     expect(screen.queryByRole("button", { name: "Delete" })).toBeNull()
   })
 
+  it("T302 — Next/Previous page cursor pagination keeps a large project's list responsive (SC-003)", async () => {
+    const listSpy = vi
+      .spyOn(dashboardService, "listDashboards")
+      .mockResolvedValueOnce({ dashboards: [dashboard({ id: "d1", name: "Ops" })], nextCursor: "cursor-2" })
+      .mockResolvedValueOnce({ dashboards: [dashboard({ id: "d2", name: "Executive" })], nextCursor: null })
+
+    render(<DashboardListPage projectId="p1" onOpenDashboard={vi.fn()} />, { wrapper: wrapper() })
+    await waitFor(() => expect(screen.getByText("Ops")).toBeTruthy())
+
+    const previousButton = screen.getByRole("button", { name: "Previous" })
+    expect(previousButton).toHaveProperty("disabled", true)
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }))
+    await waitFor(() => expect(screen.getByText("Executive")).toBeTruthy())
+    expect(listSpy).toHaveBeenLastCalledWith("p1", expect.objectContaining({ cursor: "cursor-2" }))
+    expect(screen.getByRole("button", { name: "Next" })).toHaveProperty("disabled", true)
+
+    fireEvent.click(screen.getByRole("button", { name: "Previous" }))
+    await waitFor(() => expect(screen.getByText("Ops")).toBeTruthy())
+  })
+
   it("toggles favorite", async () => {
     const favoriteSpy = vi.spyOn(dashboardService, "setFavorite").mockResolvedValue({ isFavorite: true })
     render(<DashboardListPage projectId="p1" onOpenDashboard={vi.fn()} />, { wrapper: wrapper() })

@@ -35,8 +35,14 @@ export function DashboardListPage({ projectId, onOpenDashboard }: DashboardListP
   const [search, setSearch] = useState("")
   const [favoritesOnly, setFavoritesOnly] = useState(false)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
+  // T302/SC-003 — cursor-stack pagination (mirrors `TableWidget`'s own
+  // Previous/Next pattern) so a 100-dashboard project's list view stays
+  // responsive: only one page of rows is ever fetched/rendered, never the
+  // whole project's dashboard set at once.
+  const [cursorStack, setCursorStack] = useState<(string | undefined)[]>([undefined])
+  const cursor = cursorStack[cursorStack.length - 1]
 
-  const { data, isLoading } = useDashboards(projectId, { favoritesOnly: favoritesOnly || undefined })
+  const { data, isLoading } = useDashboards(projectId, { cursor, favoritesOnly: favoritesOnly || undefined })
   const deleteDashboard = useDeleteDashboard(projectId)
   const duplicateDashboard = useDuplicateDashboard(projectId)
   const setFavorite = useSetFavorite(projectId)
@@ -89,7 +95,10 @@ export function DashboardListPage({ projectId, onOpenDashboard }: DashboardListP
           type="button"
           variant={favoritesOnly ? "default" : "outline"}
           size="sm"
-          onClick={() => setFavoritesOnly((value) => !value)}
+          onClick={() => {
+            setFavoritesOnly((value) => !value)
+            setCursorStack([undefined])
+          }}
         >
           Favorites
         </Button>
@@ -115,6 +124,29 @@ export function DashboardListPage({ projectId, onOpenDashboard }: DashboardListP
             />
           ))}
         </ul>
+      )}
+
+      {!search.trim() && (dashboards.length > 0 || cursorStack.length > 1) && (
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={cursorStack.length <= 1}
+            onClick={() => setCursorStack((stack) => stack.slice(0, -1))}
+          >
+            Previous
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!data?.nextCursor}
+            onClick={() => setCursorStack((stack) => [...stack, data?.nextCursor ?? undefined])}
+          >
+            Next
+          </Button>
+        </div>
       )}
 
       <AlertDialog open={pendingDeleteId !== null} onOpenChange={(open) => !open && setPendingDeleteId(null)}>

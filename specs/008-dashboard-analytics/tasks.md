@@ -2931,7 +2931,7 @@ and accurate.
 dashboards, 100 widgets, real-time updates, large datasets) now that
 every capability exists end-to-end.
 
-- [ ] T301 Virtualization — lazy-mount gate confirmation
+- [X] T301 Virtualization — lazy-mount gate confirmation
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/useWidgets.ts` (verification, from T095)
@@ -2940,7 +2940,7 @@ every capability exists end-to-end.
   - **Verification**: Covered by T314
   - **Dependencies**: T095
 
-- [ ] T302 Virtualization — `DashboardListPage` at 100-dashboard scale
+- [X] T302 Virtualization — `DashboardListPage` at 100-dashboard scale
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/components/DashboardListPage.tsx` (modify, from T126)
@@ -2949,7 +2949,7 @@ every capability exists end-to-end.
   - **Verification**: Covered by T313
   - **Dependencies**: T126
 
-- [ ] T303 [P] Memoization — chart data transforms
+- [X] T303 [P] Memoization — chart data transforms
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/components/widgets/ChartWidgetBase.tsx` (modify, from T179)
@@ -2958,7 +2958,7 @@ every capability exists end-to-end.
   - **Verification**: Manual React DevTools Profiler review
   - **Dependencies**: T179
 
-- [ ] T304 [P] Memoization — grid layout computations
+- [X] T304 [P] Memoization — grid layout computations
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/components/DashboardGrid.tsx` (modify, from T148)
@@ -2967,7 +2967,7 @@ every capability exists end-to-end.
   - **Verification**: Manual React DevTools Profiler review
   - **Dependencies**: T148
 
-- [ ] T305 [P] Memoization — Zustand selector narrowness final audit
+- [X] T305 [P] Memoization — Zustand selector narrowness final audit
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: All `dashboards/components/*.tsx` consumers of `dashboardBuilderStore`/`dashboardFilterStore`
@@ -2976,7 +2976,7 @@ every capability exists end-to-end.
   - **Verification**: Manual review, documented in the PR
   - **Dependencies**: T123, T300
 
-- [ ] T306 Server aggregation — `AnalyticsSnapshot` TTL tuning
+- [X] T306 Server aggregation — `AnalyticsSnapshot` TTL tuning
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/types/dashboardConfig.constants.ts` (modify, from T001)
@@ -2985,7 +2985,7 @@ every capability exists end-to-end.
   - **Verification**: Covered by T314
   - **Dependencies**: T001, T039
 
-- [ ] T307 [P] Server aggregation — platform-count query plans
+- [X] T307 [P] Server aggregation — platform-count query plans
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A (`EXPLAIN ANALYZE` run against the test database)
@@ -2994,7 +2994,7 @@ every capability exists end-to-end.
   - **Verification**: Manual `EXPLAIN ANALYZE` review, documented in the PR
   - **Dependencies**: T041
 
-- [ ] T308 [P] Caching — React Query stale/gc time review
+- [X] T308 [P] Caching — React Query stale/gc time review
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/queryKeys.ts` (modify, from T084, if per-query overrides are needed)
@@ -3003,7 +3003,7 @@ every capability exists end-to-end.
   - **Verification**: Manual React Query Devtools review
   - **Dependencies**: T084
 
-- [ ] T309 [P] Caching — `AnalyticsSnapshot` cache-hit-rate spot check
+- [X] T309 [P] Caching — `AnalyticsSnapshot` cache-hit-rate spot check
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: N/A (manual/log-based spot check)
@@ -3012,7 +3012,7 @@ every capability exists end-to-end.
   - **Verification**: Manual review, documented in the PR
   - **Dependencies**: T039
 
-- [ ] T310 Bundle optimization — bundle-analyzer run
+- [X] T310 Bundle optimization — bundle-analyzer run
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A (`@next/bundle-analyzer` run)
@@ -3021,7 +3021,7 @@ every capability exists end-to-end.
   - **Verification**: `ANALYZE=true npm run build` (or the project's existing bundle-analyzer command)
   - **Dependencies**: T024
 
-- [ ] T311 Bundle optimization — dynamic import placement audit
+- [X] T311 Bundle optimization — dynamic import placement audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/components/*.tsx` (audit)
@@ -3030,7 +3030,7 @@ every capability exists end-to-end.
   - **Verification**: Covered by T310
   - **Dependencies**: T148, T179, T079
 
-- [ ] T312 [P] Database optimization — full index query-plan audit
+- [X] T312 [P] Database optimization — full index query-plan audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A (`EXPLAIN ANALYZE` run against the test database)
@@ -3039,7 +3039,7 @@ every capability exists end-to-end.
   - **Verification**: Manual `EXPLAIN ANALYZE` review, documented in the PR
   - **Dependencies**: T027
 
-- [ ] T313 [P] Performance tests — 100-dashboard project
+- [X] T313 [P] Performance tests — 100-dashboard project
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/dashboardRepository.performance.test.ts` (new)
@@ -3048,7 +3048,7 @@ every capability exists end-to-end.
   - **Verification**: `npm run test:db -- dashboardRepository.performance`
   - **Dependencies**: T033, T302
 
-- [ ] T314 [P] Performance tests — 100-widget dashboard
+- [X] T314 [P] Performance tests — 100-widget dashboard
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/components/__tests__/DashboardGrid.performance.test.tsx` (new)
@@ -3057,7 +3057,7 @@ every capability exists end-to-end.
   - **Verification**: `npm run test -- DashboardGrid.performance`
   - **Dependencies**: T301, T306
 
-- [ ] T315 Checkpoint (Phase 17)
+- [X] T315 Checkpoint (Phase 17)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)
@@ -3075,7 +3075,7 @@ spec.md's Accessibility section (FR/SC-008), extending each phase's own
 per-component checks (T135's, T199's, T213's, etc.) with a cross-module
 pass.
 
-- [ ] T316 Keyboard navigation — final cross-module audit
+- [X] T316 Keyboard navigation — final cross-module audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (verification, from T296)
@@ -3084,7 +3084,7 @@ pass.
   - **Verification**: Manual keyboard-only pass, documented in the PR; automated in T321
   - **Dependencies**: T153, T213, T241, T273, T296
 
-- [ ] T317 [P] ARIA labels — final cross-module audit
+- [X] T317 [P] ARIA labels — final cross-module audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: Every component file across the module
@@ -3093,7 +3093,7 @@ pass.
   - **Verification**: Covered by T321
   - **Dependencies**: T297
 
-- [ ] T318 [P] Focus management — dialog/modal audit
+- [X] T318 [P] Focus management — dialog/modal audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `ReportGenerationDialog.tsx`, `ScheduledReportsPanel.tsx`, `DashboardShareDialog.tsx`, `CreateDashboardDialog.tsx`, `WidgetConfigPanel.tsx` (all verify)
@@ -3102,7 +3102,7 @@ pass.
   - **Verification**: Covered by T321
   - **Dependencies**: T196, T203, T215, T127, T157
 
-- [ ] T319 [P] Screen reader support — `aria-live` regions audit
+- [X] T319 [P] Screen reader support — `aria-live` regions audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `WidgetRenderer.tsx` (verify, from T162)
@@ -3111,7 +3111,7 @@ pass.
   - **Verification**: Covered by T322
   - **Dependencies**: T162
 
-- [ ] T320 [P] Chart accessibility — data-table fallback completeness
+- [X] T320 [P] Chart accessibility — data-table fallback completeness
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `ChartWidgetBase.tsx` (verify, from T179)
@@ -3120,7 +3120,7 @@ pass.
   - **Verification**: Covered by T321
   - **Dependencies**: T179, T180, T181, T182, T183, T184
 
-- [ ] T321 [P] Automated axe verification — full module
+- [X] T321 [P] Automated axe verification — full module
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/components/__tests__/module.a11y.test.tsx` (new, extends/consolidates T298)
@@ -3129,7 +3129,7 @@ pass.
   - **Verification**: `npm run test -- module.a11y`
   - **Dependencies**: T316, T317, T318, T320
 
-- [ ] T322 Manual screen reader pass
+- [X] T322 Manual screen reader pass
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A (manual verification)
@@ -3138,7 +3138,7 @@ pass.
   - **Verification**: Manual pass, documented in the PR
   - **Dependencies**: T319, T321
 
-- [ ] T323 Responsive layouts — final accessibility-at-narrow-viewport audit
+- [X] T323 Responsive layouts — final accessibility-at-narrow-viewport audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `DashboardView.tsx` (verify, from T299)
@@ -3147,7 +3147,7 @@ pass.
   - **Verification**: Covered by T321
   - **Dependencies**: T299, T321
 
-- [ ] T324 Checkpoint (Phase 18)
+- [X] T324 Checkpoint (Phase 18)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)

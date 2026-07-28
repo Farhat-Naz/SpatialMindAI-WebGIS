@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { GridLayout, useContainerWidth, type Layout } from "react-grid-layout"
 import { Button } from "@/shared/components/ui/button"
 import { useSaveLayout } from "../hooks/useWidgets"
@@ -55,6 +55,46 @@ export function DashboardGrid({ dashboardId, widgets, layouts, activeBreakpoint,
   )
 
   const widgetsById = useMemo(() => new Map(widgets.map((widget) => [widget.id, widget])), [widgets])
+
+  // T301/research.md Decision 16 — viewport-gated lazy mount: a widget's
+  // own `useWidgetData` (T095) stays disabled until its wrapper node has
+  // actually intersected the viewport at least once, so opening a
+  // 100-widget dashboard doesn't fire 100 simultaneous data fetches.
+  // `rootMargin` pre-warms slightly-below-the-fold widgets so scrolling to
+  // them doesn't show a fetch-then-loading flash. One widget, once seen,
+  // stays mounted (`unobserve`d) rather than toggling on every scroll.
+  const [inViewWidgetIds, setInViewWidgetIds] = useState<Set<string>>(new Set())
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  // Constructed synchronously during render (not inside `useEffect`), so
+  // `observerRef.current` is already populated by the time each widget
+  // wrapper's `ref` callback fires during the very same commit — a
+  // `useEffect`-created observer would still be `null` when those refs
+  // attach, silently skipping `observe()` for every widget on first mount.
+  if (observerRef.current === null && typeof IntersectionObserver !== "undefined") {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        const newlyVisible = entries.filter((entry) => entry.isIntersecting)
+        if (newlyVisible.length === 0) return
+        setInViewWidgetIds((previous) => {
+          const next = new Set(previous)
+          for (const entry of newlyVisible) {
+            next.add((entry.target as HTMLElement).dataset.widgetId ?? "")
+            observerRef.current?.unobserve(entry.target)
+          }
+          return next
+        })
+      },
+      { rootMargin: "200px" },
+    )
+  }
+
+  useEffect(() => {
+    return () => observerRef.current?.disconnect()
+  }, [])
+
+  const registerWidgetNode = useCallback((node: HTMLDivElement | null) => {
+    if (node) observerRef.current?.observe(node)
+  }, [])
 
   const persist = useCallback(
     (next: Layout) => {
@@ -173,7 +213,20 @@ export function DashboardGrid({ dashboardId, widgets, layouts, activeBreakpoint,
                   }}
                   className={isSelected ? "ring-2 ring-primary" : undefined}
                 >
-                  <WidgetRenderer dashboardId={dashboardId} widget={widget} canEdit={canEdit} />
+                  {/* `react-grid-layout`'s `GridLayout` clones this outer
+                      `<div>` via `cloneElement(child, { ref: ... })` to
+                      attach its own drag/resize measurement ref, silently
+                      discarding any ref set here — the intersection
+                      observer target has to live on an inner node
+                      `GridLayout` never touches instead. */}
+                  <div ref={registerWidgetNode} data-widget-id={widget.id} className="h-full w-full">
+                    <WidgetRenderer
+                      dashboardId={dashboardId}
+                      widget={widget}
+                      canEdit={canEdit}
+                      isInView={inViewWidgetIds.has(widget.id)}
+                    />
+                  </div>
                 </div>
               )
             })}
