@@ -167,3 +167,47 @@ Route Handlers under `/api/projects`, `/api/layers`, `/api/features`
   system. **Do not deploy this phase to a public, multi-user environment**
   until a real authentication module replaces
   `src/server/auth/getCurrentUser.ts`.
+
+## specs/008-dashboard-analytics: Dashboard & Analytics
+
+Adds `src/features/dashboards/` — dashboards, widgets, reports, and
+Administration — with one new scheduled endpoint and no new PostGIS
+requirement.
+
+- **PostGIS version**: **no new requirement beyond what Phase 3 already
+  documents.** This feature's own spatial querying (`AnalyticsSnapshot`
+  aggregation, the US6 spatial filter's `ST_Intersects`/`ST_IsValid` calls)
+  reuses `007-spatial-analysis`'s existing statistics functions and
+  standard PostGIS predicates (research.md Decision 5) — nothing here
+  needs a PostGIS feature/version beyond what the target instance already
+  had to support for Phase 3/007 to run at all.
+- **Scheduled Reports — cron trigger setup**: `POST /api/reports/scheduled/
+  run-due` (research.md Decision 10) must be triggered periodically by
+  each deployment target's own scheduler, and its `X-Cron-Secret` header
+  configured with the same `CRON_SECRET` value described in
+  `docs/environment-variables.md`.
+
+  | Target | Notes |
+  |---|---|
+  | **Vercel** | Trigger via a Vercel Cron Job (`vercel.json`/`vercel.ts` `crons` entry) pointing at this endpoint, with the shared-secret header configured as a Vercel environment variable. |
+  | **Railway** | Railway's own Cron Job / scheduled-task feature triggers the same endpoint. |
+  | **Docker** | A host-level `cron`/`systemd` timer issues the scheduled `curl` call (include the `X-Cron-Secret` header). |
+  | **AWS** | An EventBridge Scheduler rule invokes the endpoint (via a Lambda trigger or direct HTTPS target, depending on hosting shape — ECS/Fargate vs. Lambda). |
+  | **Supabase** | Supabase's `pg_cron` extension (if enabled) can call the endpoint via `pg_net`, or an external scheduler is used identically to the other targets. |
+
+  Idempotent — safe to trigger more than once for the same due window
+  (`runDueScheduledReports` only advances rows whose `nextRunAt` has
+  already passed).
+- **No new external service dependency**: `react-grid-layout`, `recharts`,
+  `jspdf`/`html2canvas`, and `xlsx` (the four new npm dependencies this
+  feature adds) are all client-bundled libraries — no new outbound network
+  call, no new CSP `connect-src` entry required.
+- **No CSP changes needed**: this feature's Route Handlers are server-side
+  only against the same Postgres instance every prior phase already uses;
+  the browser only ever calls same-origin `/api/dashboards*`,
+  `/api/widgets*`, `/api/reports*`, `/api/projects/:id/dashboards*`,
+  already covered by the existing `connect-src 'self'`.
+- **Migration ordering**: unchanged from every prior phase — `prisma
+  migrate deploy` runs as a build/deploy step before the new application
+  version receives traffic, never triggered by application code at
+  request time.

@@ -24,6 +24,7 @@ async function blobToBase64(blob: Blob): Promise<string> {
   return btoa(binary)
 }
 
+/** Client access to report generation/listing/download and scheduling (contracts/client-api.md `reportService.ts`). */
 export const reportService = {
   /** Captures the rendered dashboard DOM via `html2canvas`, embeds it in a `jsPDF` document, then logs it (research.md Decision 9 — always client-side; never a server-side PDF-rendering endpoint). */
   async generatePdfReport(dashboardId: string, dashboardElement: HTMLElement): Promise<{ report: ReportRecord }> {

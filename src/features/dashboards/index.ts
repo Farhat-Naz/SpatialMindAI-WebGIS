@@ -43,6 +43,7 @@ export {
 } from "./hooks"
 
 // Components
+export { DashboardAdminPanel } from "./components/DashboardAdminPanel"
 export { DashboardListPage } from "./components/DashboardListPage"
 export { CreateDashboardDialog } from "./components/CreateDashboardDialog"
 export { DashboardSettingsPanel } from "./components/DashboardSettingsPanel"

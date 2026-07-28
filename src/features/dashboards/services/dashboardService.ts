@@ -25,6 +25,7 @@ function toQueryString(params?: { cursor?: string; limit?: number; favoritesOnly
   return query ? `?${query}` : ""
 }
 
+/** Client access to the dashboard CRUD/favorite/template endpoints (contracts/client-api.md `dashboardService.ts`). */
 export const dashboardService = {
   listDashboards(
     projectId: string,

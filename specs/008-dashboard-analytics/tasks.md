@@ -3362,7 +3362,7 @@ confirms completeness rather than duplicating them.
 **Purpose**: Documentation per Constitution Principle VIII and the final,
 whole-feature quality gate per Constitution Principle X.
 
-- [ ] T346 README
+- [X] T346 README
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/README.md` (new)
@@ -3371,7 +3371,7 @@ whole-feature quality gate per Constitution Principle X.
   - **Verification**: Manual review
   - **Dependencies**: T300, T345
 
-- [ ] T347 [P] Architecture docs — environment variable audit
+- [X] T347 [P] Architecture docs — environment variable audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `docs/environment-variables.md`, `.env.example` (both modify)
@@ -3380,7 +3380,7 @@ whole-feature quality gate per Constitution Principle X.
   - **Verification**: Manual review
   - **Dependencies**: T069
 
-- [ ] T348 [P] API documentation — JSDoc audit
+- [X] T348 [P] API documentation — JSDoc audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: Every new/modified exported function across this feature
@@ -3389,7 +3389,7 @@ whole-feature quality gate per Constitution Principle X.
   - **Verification**: Manual review (or an ESLint `jsdoc` rule if the project has one configured)
   - **Dependencies**: T300, T345
 
-- [ ] T349 [P] Deployment guide — cron trigger setup per target
+- [X] T349 [P] Deployment guide — cron trigger setup per target
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `docs/deployment.md` (modify)
@@ -3398,7 +3398,7 @@ whole-feature quality gate per Constitution Principle X.
   - **Verification**: Manual review
   - **Dependencies**: T069, T347
 
-- [ ] T350 [P] Deployment guide — PostGIS version requirement carryover
+- [X] T350 [P] Deployment guide — PostGIS version requirement carryover
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `docs/deployment.md` (modify, same file as T349)
@@ -3407,7 +3407,7 @@ whole-feature quality gate per Constitution Principle X.
   - **Verification**: Manual review
   - **Dependencies**: T040
 
-- [ ] T351 [P] Developer guide — widget-type-extension pattern
+- [X] T351 [P] Developer guide — widget-type-extension pattern
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/README.md` (modify, same file as T346)
@@ -3416,7 +3416,7 @@ whole-feature quality gate per Constitution Principle X.
   - **Verification**: Manual review
   - **Dependencies**: T346
 
-- [ ] T352 [P] Developer guide — consolidation rationale
+- [X] T352 [P] Developer guide — consolidation rationale
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/README.md` (modify, same file as T346)
@@ -3425,7 +3425,7 @@ whole-feature quality gate per Constitution Principle X.
   - **Verification**: Manual review
   - **Dependencies**: T346
 
-- [ ] T353 [P] Developer guide — Report vs. ad-hoc export persistence distinction
+- [X] T353 [P] Developer guide — Report vs. ad-hoc export persistence distinction
   - **Priority**: Should-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/README.md` (modify, same file as T346)
@@ -3434,7 +3434,7 @@ whole-feature quality gate per Constitution Principle X.
   - **Verification**: Manual review
   - **Dependencies**: T346
 
-- [ ] T354 Quickstart verification — final manual pass
+- [X] T354 Quickstart verification — final manual pass
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A (manual verification against quickstart.md)
@@ -3443,7 +3443,7 @@ whole-feature quality gate per Constitution Principle X.
   - **Verification**: Manual pass, documented in the PR description
   - **Dependencies**: T345
 
-- [ ] T355 Final quality gate — TypeScript
+- [X] T355 Final quality gate — TypeScript
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A (verification-only)
@@ -3452,7 +3452,7 @@ whole-feature quality gate per Constitution Principle X.
   - **Verification**: `npx tsc --noEmit`
   - **Dependencies**: T345
 
-- [ ] T356 Final quality gate — ESLint
+- [X] T356 Final quality gate — ESLint
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A (verification-only)
@@ -3461,7 +3461,7 @@ whole-feature quality gate per Constitution Principle X.
   - **Verification**: `npm run lint`
   - **Dependencies**: T345
 
-- [ ] T357 Final quality gate — production build + bundle analyzer
+- [X] T357 Final quality gate — production build + bundle analyzer
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A (verification-only)
@@ -3470,7 +3470,7 @@ whole-feature quality gate per Constitution Principle X.
   - **Verification**: `npm run build`
   - **Dependencies**: T310, T345
 
-- [ ] T358 Final quality gate — Constitution Check re-verification
+- [X] T358 Final quality gate — Constitution Check re-verification
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A (verification-only, cross-referencing plan.md's Constitution Check table)
@@ -3479,7 +3479,7 @@ whole-feature quality gate per Constitution Principle X.
   - **Verification**: Manual cross-reference audit, documented in the PR description
   - **Dependencies**: T355, T356, T357
 
-- [ ] T359 Final quality gate — FR/SC traceability audit
+- [X] T359 Final quality gate — FR/SC traceability audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A (verification-only, cross-referencing spec.md)

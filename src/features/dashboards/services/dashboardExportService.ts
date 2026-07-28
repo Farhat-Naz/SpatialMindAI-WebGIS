@@ -21,6 +21,7 @@ function dataUrlToBlob(dataUrl: string): Blob {
   return new Blob([bytes], { type: mime })
 }
 
+/** Client-side ad-hoc, non-persisted dashboard/widget/table exports (contracts/client-api.md `dashboardExportService.ts`). */
 export const dashboardExportService = {
   /**
    * T340/research.md Decision 9 & 11 — records that an ad-hoc export
