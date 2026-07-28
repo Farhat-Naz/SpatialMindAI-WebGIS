@@ -2,6 +2,7 @@
 
 import { useRef } from "react"
 import { useQueryClient } from "@tanstack/react-query"
+import { ChevronDown, ChevronRight, Download, Loader2, Pencil, RefreshCw, X } from "lucide-react"
 import { ErrorBoundary } from "@/shared/components/ErrorBoundary"
 import { Button } from "@/shared/components/ui/button"
 import { useDeleteWidget, useUpdateWidget, useWidgetData } from "../hooks/useWidgets"
@@ -108,39 +109,39 @@ export function WidgetRenderer({ dashboardId, widget, isInView = true, canEdit }
   }
 
   return (
-    <div className="flex h-full flex-col rounded-md border bg-card">
-      <div className="flex items-center justify-between gap-2 border-b px-2 py-1">
-        <span className="truncate text-xs font-medium">{widget.title ?? widget.type}</span>
-        <div className="flex items-center gap-1">
+    <div className="flex h-full flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex items-center justify-between gap-2 border-b bg-muted/30 px-3 py-2">
+        <span className="truncate text-sm font-medium">{widget.title ?? widget.type}</span>
+        <div className="flex items-center gap-0.5">
           {dataUpdatedAt > 0 && !widget.isCollapsed && (
-            <span className="text-[10px] text-muted-foreground" title="Last updated">
+            <span className="mr-1 hidden text-[10px] text-muted-foreground sm:inline" title="Last updated">
               {new Date(dataUpdatedAt).toLocaleTimeString()}
             </span>
           )}
-          <Button type="button" variant="ghost" size="icon" className="h-6 w-6" aria-label="Refresh now" onClick={handleRefresh}>
-            ↻
+          <Button type="button" variant="ghost" size="icon" className="size-6" aria-label="Refresh now" onClick={handleRefresh}>
+            <RefreshCw className="size-3.5" aria-hidden />
           </Button>
           {!widget.isCollapsed && (
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              className="h-6 w-6"
+              className="size-6"
               aria-label={`Export ${widget.title ?? widget.type} as image`}
               onClick={() => void handleExportImage()}
             >
-              ⤓
+              <Download className="size-3.5" aria-hidden />
             </Button>
           )}
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="h-6 w-6"
+            className="size-6"
             aria-label={widget.isCollapsed ? `Expand ${widget.title ?? widget.type}` : `Collapse ${widget.title ?? widget.type}`}
             onClick={() => updateWidget.mutate({ widgetId: widget.id, input: { isCollapsed: !widget.isCollapsed } })}
           >
-            {widget.isCollapsed ? "▸" : "▾"}
+            {widget.isCollapsed ? <ChevronRight className="size-3.5" aria-hidden /> : <ChevronDown className="size-3.5" aria-hidden />}
           </Button>
           {showToolbar && (
             <>
@@ -148,21 +149,21 @@ export function WidgetRenderer({ dashboardId, widget, isInView = true, canEdit }
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6"
+                className="size-6"
                 aria-label={`Edit ${widget.title ?? widget.type}`}
                 onClick={() => selectWidget(widget.id, widget.config as Record<string, unknown>, widget.type as WidgetType)}
               >
-                ✎
+                <Pencil className="size-3.5" aria-hidden />
               </Button>
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6"
+                className="size-6 hover:bg-destructive/10 hover:text-destructive"
                 aria-label={`Remove ${widget.title ?? widget.type}`}
                 onClick={() => deleteWidget.mutate(widget.id)}
               >
-                ✕
+                <X className="size-3.5" aria-hidden />
               </Button>
             </>
           )}
@@ -174,7 +175,8 @@ export function WidgetRenderer({ dashboardId, widget, isInView = true, canEdit }
           <ErrorBoundary fallback={<WidgetErrorFallback />}>
             {isLoading ? (
               <div className="flex h-full items-center justify-center p-4 text-sm text-muted-foreground" role="status">
-                Loading…
+                <Loader2 className="size-4 animate-spin" aria-hidden />
+                <span className="sr-only">Loading…</span>
               </div>
             ) : data?.dataSourceUnavailable ? (
               <WidgetUnavailableState />

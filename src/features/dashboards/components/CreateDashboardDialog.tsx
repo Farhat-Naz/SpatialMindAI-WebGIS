@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { Plus } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -11,6 +12,7 @@ import {
   DialogTrigger,
 } from "@/shared/components/ui/dialog"
 import { Button } from "@/shared/components/ui/button"
+import { Input } from "@/shared/components/ui/input"
 import { useCreateDashboard } from "../hooks/useDashboards"
 import { ApiRequestError } from "@/shared/errors/apiRequestError"
 import { TemplatePicker } from "./TemplatePicker"
@@ -66,7 +68,10 @@ export function CreateDashboardDialog({ projectId, onCreated }: CreateDashboardD
       }}
     >
       <DialogTrigger asChild>
-        <Button type="button">New dashboard</Button>
+        <Button type="button">
+          <Plus aria-hidden />
+          New dashboard
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -78,7 +83,7 @@ export function CreateDashboardDialog({ projectId, onCreated }: CreateDashboardD
           <label htmlFor="dashboard-name" className="text-sm font-medium">
             Name
           </label>
-          <input
+          <Input
             id="dashboard-name"
             type="text"
             value={name}
@@ -92,7 +97,6 @@ export function CreateDashboardDialog({ projectId, onCreated }: CreateDashboardD
             maxLength={200}
             aria-invalid={error !== null}
             aria-describedby={error ? "dashboard-name-error" : undefined}
-            className="h-9 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
           />
           {error && (
             <p id="dashboard-name-error" role="alert" className="text-sm text-destructive">

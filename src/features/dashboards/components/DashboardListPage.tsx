@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
+import { Copy, LayoutDashboard, Search, ShieldCheck, Star, Trash2 } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,6 +14,9 @@ import {
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog"
 import { Button } from "@/shared/components/ui/button"
+import { Input } from "@/shared/components/ui/input"
+import { Skeleton } from "@/shared/components/ui/skeleton"
+import { cn } from "@/shared/lib/utils"
 import { useDashboards, useDeleteDashboard, useDuplicateDashboard, useSetFavorite } from "../hooks/useDashboards"
 import { useDashboardAdminOverview } from "../hooks/useDashboardAdmin"
 import type { DashboardRecord } from "../types/dashboard.types"
@@ -62,20 +66,36 @@ export function DashboardListPage({ projectId, onOpenDashboard }: DashboardListP
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-3 p-4" role="status" aria-live="polite">
-        <p className="text-sm text-muted-foreground">Loading dashboards…</p>
+      <div className="flex flex-col gap-4 p-6" role="status" aria-live="polite">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-7 w-40" />
+          <Skeleton className="h-9 w-32" />
+        </div>
+        <Skeleton className="h-9 w-full" />
+        <div className="flex flex-col gap-2">
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} className="h-14 w-full" />
+          ))}
+        </div>
+        <span className="sr-only">Loading dashboards…</span>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-5 p-6">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold">Dashboards</h2>
+        <div className="flex items-center gap-2.5">
+          <LayoutDashboard className="size-6 text-muted-foreground" aria-hidden />
+          <h2 className="text-xl font-semibold tracking-tight">Dashboards</h2>
+        </div>
         <div className="flex items-center gap-2">
           {adminOverview.isSuccess && (
             <Button type="button" variant="outline" size="sm" asChild>
-              <Link href={`/projects/${projectId}/dashboards/admin`}>Administration</Link>
+              <Link href={`/projects/${projectId}/dashboards/admin`}>
+                <ShieldCheck aria-hidden />
+                Administration
+              </Link>
             </Button>
           )}
           <CreateDashboardDialog projectId={projectId} onCreated={onOpenDashboard} />
@@ -83,14 +103,17 @@ export function DashboardListPage({ projectId, onOpenDashboard }: DashboardListP
       </div>
 
       <div className="flex items-center gap-2">
-        <input
-          type="search"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search dashboards…"
-          aria-label="Search dashboards"
-          className="h-9 flex-1 rounded-md border border-input bg-background px-2 text-sm shadow-sm"
-        />
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+          <Input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search dashboards…"
+            aria-label="Search dashboards"
+            className="pl-8"
+          />
+        </div>
         <Button
           type="button"
           variant={favoritesOnly ? "default" : "outline"}
@@ -100,19 +123,21 @@ export function DashboardListPage({ projectId, onOpenDashboard }: DashboardListP
             setCursorStack([undefined])
           }}
         >
+          <Star aria-hidden className={cn(favoritesOnly && "fill-current")} />
           Favorites
         </Button>
       </div>
 
       {dashboards.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 rounded-md border border-dashed p-8 text-center">
+        <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed p-12 text-center">
+          <LayoutDashboard className="size-8 text-muted-foreground/60" aria-hidden />
           <p className="text-sm font-medium">No dashboards yet</p>
           <p className="text-sm text-muted-foreground">Create your first dashboard to get started.</p>
         </div>
       ) : filtered.length === 0 ? (
         <p className="text-sm text-muted-foreground">No dashboards match “{search}”.</p>
       ) : (
-        <ul className="flex flex-col divide-y rounded-md border">
+        <ul className="flex flex-col gap-2">
           {filtered.map((dashboard) => (
             <DashboardListRow
               key={dashboard.id}
@@ -186,27 +211,35 @@ function DashboardListRow({ dashboard, onOpen, onToggleFavorite, onDuplicate, on
   const canDelete = dashboard.effectivePermission === "owner"
 
   return (
-    <li className="flex items-center justify-between gap-2 px-3 py-2">
-      <button type="button" onClick={onOpen} className="flex-1 text-left text-sm font-medium hover:underline">
-        {dashboard.name}
+    <li className="group flex items-center justify-between gap-2 rounded-xl border bg-card px-4 py-3 shadow-sm transition-colors hover:bg-accent/40">
+      <button type="button" onClick={onOpen} className="flex flex-1 items-center gap-3 text-left">
+        <LayoutDashboard className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+        <span className="text-sm font-medium group-hover:underline">{dashboard.name}</span>
       </button>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-0.5 opacity-70 transition-opacity group-hover:opacity-100">
         <Button
           type="button"
           variant="ghost"
-          size="sm"
+          size="icon"
           aria-pressed={dashboard.isFavorite}
           aria-label={dashboard.isFavorite ? `Remove ${dashboard.name} from favorites` : `Add ${dashboard.name} to favorites`}
           onClick={onToggleFavorite}
         >
-          {dashboard.isFavorite ? "★" : "☆"}
+          <Star className={cn("size-4", dashboard.isFavorite && "fill-current text-amber-500")} aria-hidden />
         </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={onDuplicate}>
-          Duplicate
+        <Button type="button" variant="ghost" size="icon" aria-label="Duplicate" onClick={onDuplicate}>
+          <Copy className="size-4" aria-hidden />
         </Button>
         {canDelete && (
-          <Button type="button" variant="ghost" size="sm" onClick={onRequestDelete}>
-            Delete
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="Delete"
+            onClick={onRequestDelete}
+            className="hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Trash2 className="size-4" aria-hidden />
           </Button>
         )}
       </div>
