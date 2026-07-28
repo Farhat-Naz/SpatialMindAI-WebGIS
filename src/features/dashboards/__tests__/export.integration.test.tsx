@@ -59,7 +59,7 @@ describe("Export — full flow", () => {
     render(
       <div>
         <div ref={ref} data-testid="dashboard-root" />
-        <DashboardExportMenu projectId="p1" widgets={[]} dashboardElementRef={ref} />
+        <DashboardExportMenu projectId="p1" dashboardId="d1" widgets={[]} dashboardElementRef={ref} />
       </div>,
     )
 
@@ -87,7 +87,7 @@ describe("Export — full flow", () => {
     const exportSpy = vi.spyOn(dashboardExportService, "exportTableWidgetData").mockResolvedValue(undefined)
     const ref = createRef<HTMLDivElement>()
 
-    render(<DashboardExportMenu projectId="p1" widgets={[tableWidget()]} dashboardElementRef={ref} />)
+    render(<DashboardExportMenu projectId="p1" dashboardId="d1" widgets={[tableWidget()]} dashboardElementRef={ref} />)
 
     fireEvent.pointerDown(screen.getByRole("button", { name: "Export" }))
     fireEvent.click(await screen.findByText("Parcels"))

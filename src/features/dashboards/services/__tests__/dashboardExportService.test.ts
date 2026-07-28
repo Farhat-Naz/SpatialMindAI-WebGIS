@@ -120,4 +120,19 @@ describe("dashboardExportService", () => {
     const text = await capturedBlob?.text()
     expect(text?.trimEnd()).toBe("")
   })
+
+  it("T340 — logExport: POSTs format/filters to the dashboard's export-log endpoint", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }))
+    vi.stubGlobal("fetch", fetchMock)
+
+    await dashboardExportService.logExport("d1", "csv", [{ filterType: "date", config: { from: "2026-01-01" } }])
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    expect(url).toBe("/api/dashboards/d1/export-log")
+    expect(JSON.parse(init.body as string)).toEqual({
+      format: "csv",
+      filters: [{ filterType: "date", config: { from: "2026-01-01" } }],
+    })
+  })
 })

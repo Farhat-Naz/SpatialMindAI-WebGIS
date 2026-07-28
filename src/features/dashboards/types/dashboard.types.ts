@@ -149,5 +149,7 @@ export interface AuditLogEntry {
   action: string
   targetType: string
   targetId: string | null
+  /** Informational only (T340) — e.g. the active filters at export time; never required to reconstruct the action itself. */
+  metadata?: unknown
   createdAt: string
 }

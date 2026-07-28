@@ -1,5 +1,6 @@
 import { featureService } from "@/features/database/services/featureService"
 import { buildXlsxWorkbook, captureElementAsPng, downloadBlob } from "./captureUtils"
+import { apiFetch } from "./apiFetch"
 
 /**
  * Ad-hoc, non-persisted exports (research.md Decision 9 — distinct from
@@ -21,6 +22,16 @@ function dataUrlToBlob(dataUrl: string): Blob {
 }
 
 export const dashboardExportService = {
+  /**
+   * T340/research.md Decision 9 & 11 — records that an ad-hoc export
+   * happened (audit purposes, FR-042) without persisting the file itself.
+   * Fire-and-forget from the caller's perspective: a logging failure must
+   * never block or roll back an export the user already received.
+   */
+  logExport(dashboardId: string, format: string, filters?: unknown): Promise<void> {
+    return apiFetch(`/api/dashboards/${dashboardId}/export-log`, { method: "POST", body: JSON.stringify({ format, filters }) })
+  },
+
   /** Exports the whole dashboard's current rendering as a PNG (FR-016 image path). */
   async exportDashboardAsImage(dashboardElement: HTMLElement, filename = "dashboard.png"): Promise<void> {
     const dataUrl = await captureElementAsPng(dashboardElement)

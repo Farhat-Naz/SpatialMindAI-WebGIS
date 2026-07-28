@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { prismaClient } from "@/server/db/prismaClient"
 import { createDashboard } from "@/server/repositories/dashboardRepository"
 import { grantShare } from "@/server/repositories/dashboardShareRepository"
+import { createFeature } from "@/server/repositories/featureRepository"
 import {
   addWidget,
   deleteWidget,
@@ -120,5 +121,129 @@ describe.skipIf(!dbAvailable)("widgetRepository", () => {
 
     const result = await resolveWidgetData(dashboardId, widget.id, TEST_COLLABORATOR_ID)
     expect(result.dataSourceUnavailable).toBe(false)
+  })
+
+  describe("resolveWidgetData — US6/T248/T250/T253 filter application (a layer-sourced widget)", () => {
+    it("date filter: narrows to features created within the range", async () => {
+      await createFeature(layerId, TEST_OWNER_ID, { geometry: { type: "Point", coordinates: [1, 1] } })
+      const { widget } = await addWidget(dashboardId, TEST_OWNER_ID, {
+        type: "table",
+        dataSourceType: "layer",
+        dataSourceId: layerId,
+        config: {},
+      })
+
+      const future = new Date(Date.now() + 60_000).toISOString()
+      const result = await resolveWidgetData(dashboardId, widget.id, TEST_OWNER_ID, [
+        { filterType: "date", config: { from: future } },
+      ])
+
+      expect(result.dataSourceUnavailable).toBe(false)
+      if (!result.dataSourceUnavailable) {
+        expect((result.data as { features: unknown[] }).features).toHaveLength(0)
+        expect(result.filteredEmpty).toBe(true)
+      }
+    })
+
+    it("layer filter: a widget bound to a layer excluded from the filter shows filteredEmpty, not unavailable", async () => {
+      await createFeature(layerId, TEST_OWNER_ID, { geometry: { type: "Point", coordinates: [1, 1] } })
+      const { widget } = await addWidget(dashboardId, TEST_OWNER_ID, {
+        type: "table",
+        dataSourceType: "layer",
+        dataSourceId: layerId,
+        config: {},
+      })
+
+      const result = await resolveWidgetData(dashboardId, widget.id, TEST_OWNER_ID, [
+        { filterType: "layer", config: { layerIds: ["some-other-layer-id"] } },
+      ])
+
+      expect(result.dataSourceUnavailable).toBe(false)
+      if (!result.dataSourceUnavailable) {
+        expect((result.data as { features: unknown[] }).features).toHaveLength(0)
+        expect(result.filteredEmpty).toBe(true)
+      }
+    })
+
+    it("attribute filter: only features matching the operator/value are returned", async () => {
+      await createFeature(layerId, TEST_OWNER_ID, {
+        geometry: { type: "Point", coordinates: [1, 1] },
+        attributes: [{ key: "status", value: "open" }],
+      })
+      await createFeature(layerId, TEST_OWNER_ID, {
+        geometry: { type: "Point", coordinates: [2, 2] },
+        attributes: [{ key: "status", value: "closed" }],
+      })
+      const { widget } = await addWidget(dashboardId, TEST_OWNER_ID, {
+        type: "table",
+        dataSourceType: "layer",
+        dataSourceId: layerId,
+        config: {},
+      })
+
+      const result = await resolveWidgetData(dashboardId, widget.id, TEST_OWNER_ID, [
+        { filterType: "attribute", config: { key: "status", operator: "eq", value: "open" } },
+      ])
+
+      expect(result.dataSourceUnavailable).toBe(false)
+      if (!result.dataSourceUnavailable) {
+        expect((result.data as { features: unknown[] }).features).toHaveLength(1)
+        expect(result.filteredEmpty).toBeUndefined()
+      }
+    })
+
+    it("spatial filter: only features intersecting the drawn geometry are returned", async () => {
+      await createFeature(layerId, TEST_OWNER_ID, { geometry: { type: "Point", coordinates: [1, 1] } })
+      await createFeature(layerId, TEST_OWNER_ID, { geometry: { type: "Point", coordinates: [50, 50] } })
+      const { widget } = await addWidget(dashboardId, TEST_OWNER_ID, {
+        type: "table",
+        dataSourceType: "layer",
+        dataSourceId: layerId,
+        config: {},
+      })
+
+      const result = await resolveWidgetData(dashboardId, widget.id, TEST_OWNER_ID, [
+        {
+          filterType: "spatial",
+          config: {
+            geometry: {
+              type: "Polygon",
+              coordinates: [
+                [
+                  [0, 0],
+                  [2, 0],
+                  [2, 2],
+                  [0, 2],
+                  [0, 0],
+                ],
+              ],
+            },
+          },
+        },
+      ])
+
+      expect(result.dataSourceUnavailable).toBe(false)
+      if (!result.dataSourceUnavailable) {
+        expect((result.data as { features: unknown[] }).features).toHaveLength(1)
+      }
+    })
+
+    it("no active filters: behaves exactly as before (all features returned, filteredEmpty absent)", async () => {
+      await createFeature(layerId, TEST_OWNER_ID, { geometry: { type: "Point", coordinates: [1, 1] } })
+      const { widget } = await addWidget(dashboardId, TEST_OWNER_ID, {
+        type: "table",
+        dataSourceType: "layer",
+        dataSourceId: layerId,
+        config: {},
+      })
+
+      const result = await resolveWidgetData(dashboardId, widget.id, TEST_OWNER_ID)
+
+      expect(result.dataSourceUnavailable).toBe(false)
+      if (!result.dataSourceUnavailable) {
+        expect((result.data as { features: unknown[] }).features).toHaveLength(1)
+        expect(result.filteredEmpty).toBeUndefined()
+      }
+    })
   })
 })

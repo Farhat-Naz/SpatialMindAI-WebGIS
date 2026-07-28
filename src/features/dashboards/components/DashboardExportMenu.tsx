@@ -26,14 +26,21 @@ import {
 } from "@/shared/components/ui/dropdown-menu"
 import { analyticsService } from "../services/analyticsService"
 import { dashboardExportService } from "../services/dashboardExportService"
+import { useDashboardFilterStore } from "../store/dashboardFilterStore"
 import { LARGE_EXPORT_ROW_WARNING_THRESHOLD } from "../types/dashboardConfig.constants"
 import type { DashboardWidgetRecord } from "../types/dashboard.types"
 
 interface DashboardExportMenuProps {
   projectId: string
+  dashboardId: string
   widgets: DashboardWidgetRecord[]
   /** The dashboard's own root DOM node (T262) — a ref rather than a prop id, since `DashboardView`'s grid re-renders on every layout/data change and a stale element reference would silently capture the wrong content. */
   dashboardElementRef: RefObject<HTMLElement | null>
+}
+
+/** Never lets an audit-log write fail or delay an export the user already received (T340). */
+function logExportBestEffort(dashboardId: string, format: string, filters: unknown): void {
+  dashboardExportService.logExport(dashboardId, format, filters).catch(() => {})
 }
 
 interface PendingTableExport {
@@ -58,14 +65,16 @@ function exportFilename(title: string, format: "csv" | "excel"): string {
  * path. Per-widget image export (T263) lives on `WidgetRenderer`'s own
  * toolbar instead, scoped to just that widget's DOM node.
  */
-export function DashboardExportMenu({ projectId, widgets, dashboardElementRef }: DashboardExportMenuProps) {
+export function DashboardExportMenu({ projectId, dashboardId, widgets, dashboardElementRef }: DashboardExportMenuProps) {
   const [pendingTableExport, setPendingTableExport] = useState<PendingTableExport | null>(null)
   const tableWidgets = widgets.filter((widget) => widget.type === "table" && widget.dataSourceId)
+  const activeGlobalFilters = useDashboardFilterStore((state) => state.activeGlobalFilters)
 
   async function handleExportDashboard() {
     const node = dashboardElementRef.current
     if (!node) return
     await dashboardExportService.exportDashboardAsImage(node, "dashboard.png")
+    logExportBestEffort(dashboardId, "image", activeGlobalFilters)
   }
 
   async function requestTableExport(widget: DashboardWidgetRecord, format: "csv" | "excel") {
@@ -80,6 +89,7 @@ export function DashboardExportMenu({ projectId, widgets, dashboardElementRef }:
       return
     }
     await dashboardExportService.exportTableWidgetData(layerId, format, exportFilename(title, format))
+    logExportBestEffort(dashboardId, format, activeGlobalFilters)
   }
 
   async function confirmPendingExport() {
@@ -87,6 +97,7 @@ export function DashboardExportMenu({ projectId, widgets, dashboardElementRef }:
     const { layerId, title, format } = pendingTableExport
     setPendingTableExport(null)
     await dashboardExportService.exportTableWidgetData(layerId, format, exportFilename(title, format))
+    logExportBestEffort(dashboardId, format, activeGlobalFilters)
   }
 
   return (

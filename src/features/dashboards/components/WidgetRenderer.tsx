@@ -8,6 +8,7 @@ import { useDeleteWidget, useUpdateWidget, useWidgetData } from "../hooks/useWid
 import { queryKeys } from "../services/queryKeys"
 import { dashboardExportService } from "../services/dashboardExportService"
 import { useDashboardBuilderStore } from "../store/dashboardBuilderStore"
+import { useDashboardFilterStore } from "../store/dashboardFilterStore"
 import type { DashboardWidgetRecord } from "../types/dashboard.types"
 import type { WidgetProps, WidgetType } from "../types/widget.types"
 import { ActivityWidget } from "./widgets/ActivityWidget"
@@ -80,6 +81,7 @@ interface WidgetRendererProps {
 export function WidgetRenderer({ dashboardId, widget, isInView = true, canEdit }: WidgetRendererProps) {
   const isEditMode = useDashboardBuilderStore((state) => state.isEditMode)
   const selectWidget = useDashboardBuilderStore((state) => state.selectWidget)
+  const activeGlobalFilters = useDashboardFilterStore((state) => state.activeGlobalFilters)
   const queryClient = useQueryClient()
   const updateWidget = useUpdateWidget(dashboardId)
   const deleteWidget = useDeleteWidget(dashboardId)
@@ -101,6 +103,8 @@ export function WidgetRenderer({ dashboardId, widget, isInView = true, canEdit }
     if (!contentRef.current) return
     const safeTitle = (widget.title ?? widget.type).trim() || "widget"
     await dashboardExportService.exportWidgetAsImage(contentRef.current, `${safeTitle}.png`)
+    // T340 — best-effort: never lets an audit-log write fail or delay an export the user already received.
+    dashboardExportService.logExport(dashboardId, "image", activeGlobalFilters).catch(() => {})
   }
 
   return (

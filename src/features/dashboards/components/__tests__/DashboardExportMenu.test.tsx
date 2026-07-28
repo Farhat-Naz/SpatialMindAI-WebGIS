@@ -44,7 +44,7 @@ describe("DashboardExportMenu", () => {
     render(
       <div>
         <div ref={ref} />
-        <DashboardExportMenu projectId="p1" widgets={[]} dashboardElementRef={ref} />
+        <DashboardExportMenu projectId="p1" dashboardId="d1" widgets={[]} dashboardElementRef={ref} />
       </div>,
     )
 
@@ -56,7 +56,7 @@ describe("DashboardExportMenu", () => {
 
   it("no table export section renders when the dashboard has no table widgets", async () => {
     const ref = createRef<HTMLDivElement>()
-    render(<DashboardExportMenu projectId="p1" widgets={[]} dashboardElementRef={ref} />)
+    render(<DashboardExportMenu projectId="p1" dashboardId="d1" widgets={[]} dashboardElementRef={ref} />)
 
     fireEvent.pointerDown(screen.getByRole("button", { name: "Export" }))
     await waitFor(() => expect(screen.getByText("Export dashboard as image")).toBeTruthy())
@@ -65,7 +65,7 @@ describe("DashboardExportMenu", () => {
 
   it("T264/T265 — exporting a table widget under the size threshold downloads immediately, no warning", async () => {
     const ref = createRef<HTMLDivElement>()
-    render(<DashboardExportMenu projectId="p1" widgets={[tableWidget()]} dashboardElementRef={ref} />)
+    render(<DashboardExportMenu projectId="p1" dashboardId="d1" widgets={[tableWidget()]} dashboardElementRef={ref} />)
 
     fireEvent.pointerDown(screen.getByRole("button", { name: "Export" }))
     fireEvent.click(await screen.findByText("Parcels"))
@@ -84,7 +84,7 @@ describe("DashboardExportMenu", () => {
       isCached: true,
     })
     const ref = createRef<HTMLDivElement>()
-    render(<DashboardExportMenu projectId="p1" widgets={[tableWidget()]} dashboardElementRef={ref} />)
+    render(<DashboardExportMenu projectId="p1" dashboardId="d1" widgets={[tableWidget()]} dashboardElementRef={ref} />)
 
     fireEvent.pointerDown(screen.getByRole("button", { name: "Export" }))
     fireEvent.click(await screen.findByText("Parcels"))
@@ -107,7 +107,7 @@ describe("DashboardExportMenu", () => {
       isCached: true,
     })
     const ref = createRef<HTMLDivElement>()
-    render(<DashboardExportMenu projectId="p1" widgets={[tableWidget()]} dashboardElementRef={ref} />)
+    render(<DashboardExportMenu projectId="p1" dashboardId="d1" widgets={[tableWidget()]} dashboardElementRef={ref} />)
 
     fireEvent.pointerDown(screen.getByRole("button", { name: "Export" }))
     fireEvent.click(await screen.findByText("Parcels"))

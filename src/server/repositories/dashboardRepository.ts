@@ -366,6 +366,35 @@ export async function duplicateDashboard(dashboardId: string, userId: string): P
   return toRecord(row, userId)
 }
 
+/**
+ * T340/research.md Decision 9 & 11 — records that an ad-hoc (never
+ * persisted, Decision 9) export happened, without storing the exported
+ * file itself. `metadata` is informational only (e.g. the active filters
+ * at export time, per US6/US9's cross-story audit expectation) — never
+ * required to reconstruct the export, only to explain it in the audit log.
+ */
+export async function logDashboardExport(
+  dashboardId: string,
+  userId: string,
+  metadata: { format: string; filters?: unknown },
+): Promise<void> {
+  await assertDashboardPermission(dashboardId, userId, "view")
+  const dashboard = await prismaClient.dashboard.findUnique({ where: { id: dashboardId }, select: { projectId: true } })
+  if (!dashboard) {
+    throw new NotFoundError(`No dashboard found with id "${dashboardId}".`)
+  }
+  await prismaClient.$transaction(async (tx) => {
+    await recordActivity(tx, {
+      projectId: dashboard.projectId,
+      userId,
+      action: "export",
+      targetType: "dashboard",
+      targetId: dashboardId,
+      metadata,
+    })
+  })
+}
+
 /** Favorites a dashboard for the requesting user (FR-003) — idempotent upsert. */
 export async function setFavorite(dashboardId: string, userId: string): Promise<void> {
   await assertDashboardPermission(dashboardId, userId, "view")

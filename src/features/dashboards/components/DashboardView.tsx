@@ -148,7 +148,12 @@ export function DashboardView({ projectId, dashboardId }: DashboardViewProps) {
               </SheetContent>
             </Sheet>
 
-            <DashboardExportMenu projectId={projectId} widgets={data.dashboard.widgets} dashboardElementRef={dashboardElementRef} />
+            <DashboardExportMenu
+              projectId={projectId}
+              dashboardId={dashboardId}
+              widgets={data.dashboard.widgets}
+              dashboardElementRef={dashboardElementRef}
+            />
             <DashboardShareDialog projectId={projectId} dashboard={data.dashboard} />
 
             <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>

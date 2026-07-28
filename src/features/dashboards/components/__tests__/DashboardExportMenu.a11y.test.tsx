@@ -54,7 +54,7 @@ describe("DashboardExportMenu — accessibility", () => {
   it("has zero critical/serious axe violations, and the trigger + every menu item is keyboard-reachable", async () => {
     const ref = createRef<HTMLDivElement>()
     const { container, getByRole, findByText } = render(
-      <DashboardExportMenu projectId="p1" widgets={[tableWidget()]} dashboardElementRef={ref} />,
+      <DashboardExportMenu projectId="p1" dashboardId="d1" widgets={[tableWidget()]} dashboardElementRef={ref} />,
     )
 
     const trigger = getByRole("button", { name: "Export" })
@@ -77,7 +77,7 @@ describe("DashboardExportMenu — accessibility", () => {
     })
     const ref = createRef<HTMLDivElement>()
     const { container, getByRole, findByText } = render(
-      <DashboardExportMenu projectId="p1" widgets={[tableWidget()]} dashboardElementRef={ref} />,
+      <DashboardExportMenu projectId="p1" dashboardId="d1" widgets={[tableWidget()]} dashboardElementRef={ref} />,
     )
 
     fireEvent.pointerDown(getByRole("button", { name: "Export" }))

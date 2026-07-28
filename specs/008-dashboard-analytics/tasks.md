@@ -3166,7 +3166,7 @@ mirroring 007's Phase 19 structure. Most tier-specific tests were already
 written per-layer (Phases 3–7) and per-story (Phases 8–16); this phase
 confirms completeness rather than duplicating them.
 
-- [ ] T325 Repository test coverage audit
+- [X] T325 Repository test coverage audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/*.test.ts` (review only)
@@ -3175,7 +3175,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: Manual coverage checklist against contracts/repository-api.md, documented in the PR
   - **Dependencies**: T048, T049
 
-- [ ] T326 [P] Repository tests — gap fill
+- [X] T326 [P] Repository tests — gap fill
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/*.test.ts` (modify as needed)
@@ -3184,7 +3184,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: `npm run test:db`
   - **Dependencies**: T325
 
-- [ ] T327 API test coverage audit
+- [X] T327 API test coverage audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/**/__tests__/*.test.ts` (review only)
@@ -3193,7 +3193,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: Manual coverage checklist against api-contracts.md, documented in the PR
   - **Dependencies**: T074
 
-- [ ] T328 [P] API tests — gap fill
+- [X] T328 [P] API tests — gap fill
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/app/api/**/__tests__/*.test.ts` (modify as needed)
@@ -3202,7 +3202,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: `npm run test:db`
   - **Dependencies**: T327
 
-- [ ] T329 Service test coverage audit
+- [X] T329 Service test coverage audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/__tests__/*.test.ts` (review only)
@@ -3211,7 +3211,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: Manual coverage checklist, documented in the PR
   - **Dependencies**: T088, T089, T210, T271
 
-- [ ] T330 [P] Service tests — gap fill
+- [X] T330 [P] Service tests — gap fill
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/services/__tests__/*.test.ts` (modify as needed)
@@ -3220,7 +3220,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: `npm run test`
   - **Dependencies**: T329
 
-- [ ] T331 Hook test coverage audit
+- [X] T331 Hook test coverage audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/__tests__/*.test.ts` (review only)
@@ -3229,7 +3229,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: Manual coverage checklist against contracts/client-api.md, documented in the PR
   - **Dependencies**: T104
 
-- [ ] T332 [P] Hook tests — gap fill
+- [X] T332 [P] Hook tests — gap fill
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/hooks/__tests__/*.test.ts` (modify as needed)
@@ -3238,7 +3238,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: `npm run test`
   - **Dependencies**: T331
 
-- [ ] T333 Store test coverage audit
+- [X] T333 Store test coverage audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/store/__tests__/*.test.ts` (review only)
@@ -3247,7 +3247,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: Manual coverage checklist, documented in the PR
   - **Dependencies**: T117, T118, T119
 
-- [ ] T334 [P] Store tests — gap fill
+- [X] T334 [P] Store tests — gap fill
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/store/__tests__/*.test.ts` (modify as needed)
@@ -3256,7 +3256,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: `npm run test`
   - **Dependencies**: T333
 
-- [ ] T335 Dashboard test coverage audit
+- [X] T335 Dashboard test coverage audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/components/__tests__/DashboardGrid.test.tsx`, `DashboardView.*.test.tsx` (review only)
@@ -3265,7 +3265,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: Manual coverage checklist, documented in the PR
   - **Dependencies**: T166, T167, T169, T294
 
-- [ ] T336 [P] Dashboard tests — gap fill
+- [X] T336 [P] Dashboard tests — gap fill
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/components/__tests__/DashboardGrid.test.tsx`, `DashboardView.*.test.tsx` (modify as needed)
@@ -3274,7 +3274,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: `npm run test`
   - **Dependencies**: T335
 
-- [ ] T337 Widget test coverage audit
+- [X] T337 Widget test coverage audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/components/widgets/__tests__/*.test.tsx` (review only)
@@ -3283,7 +3283,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: Manual coverage checklist, documented in the PR
   - **Dependencies**: T191, T192, T193
 
-- [ ] T338 [P] Widget tests — gap fill
+- [X] T338 [P] Widget tests — gap fill
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/components/widgets/__tests__/*.test.tsx` (modify as needed)
@@ -3292,7 +3292,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: `npm run test`
   - **Dependencies**: T337
 
-- [ ] T339 [P] Integration test — Template → Widgets → Share → Report cross-story journey
+- [X] T339 [P] Integration test — Template → Widgets → Share → Report cross-story journey
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/__tests__/crossStory.templateShareReport.test.tsx` (new)
@@ -3301,7 +3301,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: `npm run test -- crossStory.templateShareReport`
   - **Dependencies**: T245, T230, T214
 
-- [ ] T340 [P] Integration test — Filter → Export → Admin-audit cross-story journey
+- [X] T340 [P] Integration test — Filter → Export → Admin-audit cross-story journey
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/__tests__/crossStory.filterExportAudit.test.tsx` (new)
@@ -3310,7 +3310,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: `npm run test -- crossStory.filterExportAudit`
   - **Dependencies**: T260, T274, T295
 
-- [ ] T341 [P] Integration test — full quickstart.md run-through
+- [X] T341 [P] Integration test — full quickstart.md run-through
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/__tests__/quickstart.fullRun.test.tsx` (new, automating what's automatable from quickstart.md's ten sections)
@@ -3319,7 +3319,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: `npm run test -- quickstart.fullRun`
   - **Dependencies**: T145, T170, T195, T214, T230, T245, T260, T274, T300
 
-- [ ] T342 Performance test audit
+- [X] T342 Performance test audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/server/repositories/__tests__/dashboardRepository.performance.test.ts`, `src/features/dashboards/components/__tests__/DashboardGrid.performance.test.tsx` (review only, from T313/T314)
@@ -3328,7 +3328,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: CI run review
   - **Dependencies**: T313, T314
 
-- [ ] T343 Accessibility test audit
+- [X] T343 Accessibility test audit
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: `src/features/dashboards/components/__tests__/module.a11y.test.tsx` (review only, from T321)
@@ -3337,7 +3337,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: `npm run test -- module.a11y`
   - **Dependencies**: T315, T321
 
-- [ ] T344 Full suite run
+- [X] T344 Full suite run
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: N/A (verification-only)
@@ -3346,7 +3346,7 @@ confirms completeness rather than duplicating them.
   - **Verification**: `npm run test && npm run test:db`
   - **Dependencies**: T326, T328, T330, T332, T334, T336, T338, T339, T340, T341, T342, T343
 
-- [ ] T345 Checkpoint (Phase 19)
+- [X] T345 Checkpoint (Phase 19)
   - **Priority**: Must-have
   - **User Story**: None
   - **Files**: None (verification-only task)
