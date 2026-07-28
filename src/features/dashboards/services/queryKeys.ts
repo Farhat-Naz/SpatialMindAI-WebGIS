@@ -37,4 +37,8 @@ export const queryKeys = {
   dashboardFilters: (dashboardId: string) => ["dashboards", dashboardId, "filters"] as const,
 
   dashboardTemplates: () => ["dashboardTemplates"] as const,
+
+  dashboardAdmin: (projectId: string) => ["projects", projectId, "dashboardAdmin"] as const,
+  dashboardAdminAudit: (projectId: string, params?: unknown) =>
+    ["projects", projectId, "dashboardAdmin", "audit", params] as const,
 }

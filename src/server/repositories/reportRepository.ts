@@ -1,6 +1,7 @@
 import { Prisma, type Report } from "@prisma/client"
 import { prismaClient } from "@/server/db/prismaClient"
 import { assertDashboardPermission } from "@/server/repositories/dashboardShareRepository"
+import { recordActivity } from "@/server/repositories/activityRepository"
 import { resolveWidgetData } from "@/server/repositories/widgetRepository"
 import { NotFoundError, ValidationError } from "@/shared/errors/apiError"
 import { REPORT_RETENTION_LIMIT_PER_USER } from "@/features/dashboards/types/dashboardConfig.constants"
@@ -190,6 +191,18 @@ export async function createReport(
       },
     })
     await pruneOldReports(tx, userId)
+    if (status === "succeeded") {
+      // research.md Decision 11 — FR-042 audit logging.
+      const dashboard = await tx.dashboard.findUniqueOrThrow({ where: { id: dashboardId }, select: { projectId: true } })
+      await recordActivity(tx, {
+        projectId: dashboard.projectId,
+        userId,
+        action: "export",
+        targetType: "report",
+        targetId: created.id,
+        metadata: { format: input.format },
+      })
+    }
     return created
   })
 
@@ -348,7 +361,7 @@ export async function runDueScheduledReports(): Promise<{ processed: number; fai
         schedule.format as "excel" | "csv" | "html",
       )
       await prismaClient.$transaction(async (tx) => {
-        await tx.report.create({
+        const created = await tx.report.create({
           data: {
             dashboardId: schedule.dashboardId,
             userId: schedule.userId,
@@ -363,6 +376,16 @@ export async function runDueScheduledReports(): Promise<{ processed: number; fai
         await tx.scheduledReport.update({
           where: { id: schedule.id },
           data: { nextRunAt: new Date(Date.now() + RECURRENCE_MS[schedule.recurrence as "daily" | "weekly" | "monthly"]) },
+        })
+        // research.md Decision 11 — FR-042 audit logging.
+        const dashboard = await tx.dashboard.findUniqueOrThrow({ where: { id: schedule.dashboardId }, select: { projectId: true } })
+        await recordActivity(tx, {
+          projectId: dashboard.projectId,
+          userId: schedule.userId,
+          action: "export",
+          targetType: "report",
+          targetId: created.id,
+          metadata: { format: schedule.format, scheduled: true },
         })
       })
       processed += 1

@@ -59,6 +59,8 @@ export async function recordActivity(
 export interface ListActivityParams {
   cursor?: string
   limit?: number
+  /** specs/008-dashboard-analytics (T286) — narrows to a subset of `targetType`s (e.g. the Administration audit log's `"dashboard" | "widget" | "report"`) without a second query implementation. */
+  targetTypes?: ActivityTargetType[]
 }
 
 const DEFAULT_LIMIT = 50
@@ -72,7 +74,10 @@ export async function listActivityForProject(
   const limit = Math.min(params.limit ?? DEFAULT_LIMIT, MAX_LIMIT)
 
   const rows = await prismaClient.activity.findMany({
-    where: { projectId },
+    where: {
+      projectId,
+      ...(params.targetTypes ? { targetType: { in: params.targetTypes } } : {}),
+    },
     orderBy: { createdAt: "desc" },
     take: limit + 1,
     ...(params.cursor ? { cursor: { id: params.cursor }, skip: 1 } : {}),

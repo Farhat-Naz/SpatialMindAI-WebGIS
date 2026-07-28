@@ -211,6 +211,7 @@ export async function createDashboard(
         mobileStackY += mobileHeight
       }
 
+      await recordActivity(tx, { projectId, userId, action: "create", targetType: "dashboard", targetId: dashboard.id })
       return dashboard
     })
     return toRecord(row, userId)
@@ -226,7 +227,11 @@ export async function createDashboard(
 export async function renameDashboard(dashboardId: string, userId: string, name: string): Promise<DashboardRecord> {
   await assertDashboardPermission(dashboardId, userId, "edit")
   try {
-    const row = await prismaClient.dashboard.update({ where: { id: dashboardId }, data: { name } })
+    const row = await prismaClient.$transaction(async (tx) => {
+      const updated = await tx.dashboard.update({ where: { id: dashboardId }, data: { name } })
+      await recordActivity(tx, { projectId: updated.projectId, userId, action: "edit", targetType: "dashboard", targetId: dashboardId })
+      return updated
+    })
     return toRecord(row, userId)
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
@@ -250,7 +255,11 @@ export async function setDashboardVisibility(
     await assertProjectRole(dashboard.projectId, userId, "Owner")
   }
 
-  const row = await prismaClient.dashboard.update({ where: { id: dashboardId }, data: { visibility } })
+  const row = await prismaClient.$transaction(async (tx) => {
+    const updated = await tx.dashboard.update({ where: { id: dashboardId }, data: { visibility } })
+    await recordActivity(tx, { projectId: dashboard.projectId, userId, action: "edit", targetType: "dashboard", targetId: dashboardId })
+    return updated
+  })
   return toRecord(row, userId)
 }
 
@@ -350,6 +359,7 @@ export async function duplicateDashboard(dashboardId: string, userId: string): P
       })
     }
 
+    await recordActivity(tx, { projectId: source.projectId, userId, action: "create", targetType: "dashboard", targetId: dashboard.id })
     return dashboard
   })
 

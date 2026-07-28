@@ -1,6 +1,7 @@
 import type { DashboardShare } from "@prisma/client"
 import { prismaClient } from "@/server/db/prismaClient"
 import { getMemberRole } from "@/server/repositories/membershipRepository"
+import { recordActivity } from "@/server/repositories/activityRepository"
 import { ForbiddenError, NotFoundError } from "@/shared/errors/apiError"
 import type { DashboardEffectivePermission } from "@/features/dashboards/types/dashboard.types"
 
@@ -125,15 +126,28 @@ export async function grantShare(
 ): Promise<DashboardShareRecord> {
   await assertDashboardPermission(dashboardId, granterId, "owner")
 
-  const row = await prismaClient.dashboardShare.upsert({
-    where: { dashboardId_userId: { dashboardId, userId: input.userId } },
-    update: { permission: input.permission, grantedByUserId: granterId },
-    create: {
-      dashboardId,
-      userId: input.userId,
-      permission: input.permission,
-      grantedByUserId: granterId,
-    },
+  const row = await prismaClient.$transaction(async (tx) => {
+    const share = await tx.dashboardShare.upsert({
+      where: { dashboardId_userId: { dashboardId, userId: input.userId } },
+      update: { permission: input.permission, grantedByUserId: granterId },
+      create: {
+        dashboardId,
+        userId: input.userId,
+        permission: input.permission,
+        grantedByUserId: granterId,
+      },
+    })
+    // research.md Decision 11 — FR-042 audit logging.
+    const dashboard = await tx.dashboard.findUniqueOrThrow({ where: { id: dashboardId }, select: { projectId: true } })
+    await recordActivity(tx, {
+      projectId: dashboard.projectId,
+      userId: granterId,
+      action: "share",
+      targetType: "dashboard",
+      targetId: dashboardId,
+      metadata: { grantedToUserId: input.userId, permission: input.permission },
+    })
+    return share
   })
   return toRecord(row)
 }
@@ -141,5 +155,16 @@ export async function grantShare(
 /** Revokes a user's share grant — same authorization rule as `grantShare` (FR-027). */
 export async function revokeShare(dashboardId: string, granterId: string, targetUserId: string): Promise<void> {
   await assertDashboardPermission(dashboardId, granterId, "owner")
-  await prismaClient.dashboardShare.deleteMany({ where: { dashboardId, userId: targetUserId } })
+  await prismaClient.$transaction(async (tx) => {
+    await tx.dashboardShare.deleteMany({ where: { dashboardId, userId: targetUserId } })
+    const dashboard = await tx.dashboard.findUniqueOrThrow({ where: { id: dashboardId }, select: { projectId: true } })
+    await recordActivity(tx, {
+      projectId: dashboard.projectId,
+      userId: granterId,
+      action: "share",
+      targetType: "dashboard",
+      targetId: dashboardId,
+      metadata: { revokedFromUserId: targetUserId },
+    })
+  })
 }

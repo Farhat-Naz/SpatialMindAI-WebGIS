@@ -5,6 +5,7 @@ import { widgetService } from "../services/widgetService"
 import { queryKeys } from "../services/queryKeys"
 import { useDashboardFilters } from "./useDashboardFilters"
 import { useDashboardFilterStore } from "../store/dashboardFilterStore"
+import { useWidgetPerformanceStore } from "../store/widgetPerformanceStore"
 import { WIDGET_REFRESH_INTERVAL_MS } from "../types/dashboardConfig.constants"
 import type { CreateWidgetRequestInput, SaveLayoutRequestInput, UpdateWidgetRequestInput } from "../types/dashboard.types"
 import type { ActiveWidgetFilter } from "../types/widget.types"
@@ -87,7 +88,14 @@ export function useWidgetData(dashboardId: string, widgetId: string, options?: {
 
   return useQuery({
     queryKey: queryKeys.widgetData(dashboardId, widgetId, activeFilters),
-    queryFn: () => widgetService.getWidgetData(dashboardId, widgetId, activeFilters),
+    queryFn: async () => {
+      // T287/FR-037 — records this fetch's duration for the Administration
+      // panel's Performance tab (session-only, `widgetPerformanceStore`).
+      const startedAt = performance.now()
+      const result = await widgetService.getWidgetData(dashboardId, widgetId, activeFilters)
+      useWidgetPerformanceStore.getState().recordDuration(widgetId, performance.now() - startedAt)
+      return result
+    },
     enabled,
     retry: 3,
     refetchInterval: enabled ? WIDGET_REFRESH_INTERVAL_MS : false,

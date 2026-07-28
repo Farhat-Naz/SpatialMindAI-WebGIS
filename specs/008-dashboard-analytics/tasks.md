@@ -2689,7 +2689,7 @@ filters, sharing, reports, settings) is reachable and functions together
 without conflict; as a Project Owner, confirm Administration is reachable
 and accurate.
 
-- [ ] T275 [US1] Dashboard page routing
+- [X] T275 [US1] Dashboard page routing
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/app/(dashboard)/projects/[projectId]/dashboards/page.tsx` (new — exact route group matching the project's existing routing convention, verified against the app's actual route structure during implementation), `src/app/(dashboard)/projects/[projectId]/dashboards/[dashboardId]/page.tsx` (new)
@@ -2698,7 +2698,7 @@ and accurate.
   - **Verification**: `npx tsc --noEmit`; covered by T294
   - **Dependencies**: T126, T135
 
-- [ ] T276 [US1] Navigation link from app shell
+- [X] T276 [US1] Navigation link from app shell
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboard/components/Sidebar.tsx` (modify — the **existing, singular** app-shell feature's one permitted touch, research.md Decision 0)
@@ -2707,7 +2707,7 @@ and accurate.
   - **Verification**: `npx tsc --noEmit`; covered by T294
   - **Dependencies**: T275
 
-- [ ] T277 [US2] Widget panel — final wiring audit
+- [X] T277 [US2] Widget panel — final wiring audit
   - **Priority**: Must-have
   - **User Story**: US2
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (modify, from T135)
@@ -2716,7 +2716,7 @@ and accurate.
   - **Verification**: Covered by T294
   - **Dependencies**: T157, T158, T159, T160
 
-- [ ] T278 [US3] Layout editor — edit-mode toggle wiring
+- [X] T278 [US3] Layout editor — edit-mode toggle wiring
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (modify, same file as T277)
@@ -2725,7 +2725,7 @@ and accurate.
   - **Verification**: Covered by T294
   - **Dependencies**: T109, T221
 
-- [ ] T279 [US6] Filter panel — final integration
+- [X] T279 [US6] Filter panel — final integration
   - **Priority**: Must-have
   - **User Story**: US6
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (modify, same file as T277)
@@ -2734,7 +2734,7 @@ and accurate.
   - **Verification**: Covered by T294
   - **Dependencies**: T246, T277
 
-- [ ] T280 [US5] Report panel — final integration
+- [X] T280 [US5] Report panel — final integration
   - **Priority**: Must-have
   - **User Story**: US5
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (modify, same file as T277)
@@ -2743,7 +2743,7 @@ and accurate.
   - **Verification**: Covered by T294
   - **Dependencies**: T196, T201, T203
 
-- [ ] T281 [US4] `DashboardAnalyticsSummary` — dashboard-level overview
+- [X] T281 [US4] `DashboardAnalyticsSummary` — dashboard-level overview
   - **Priority**: Must-have
   - **User Story**: US4
   - **Files**: `src/features/dashboards/components/DashboardAnalyticsSummary.tsx` (new)
@@ -2752,7 +2752,7 @@ and accurate.
   - **Verification**: `npx tsc --noEmit`; covered by T294
   - **Dependencies**: T277
 
-- [ ] T282 [US7] Share dialog — final integration
+- [X] T282 [US7] Share dialog — final integration
   - **Priority**: Must-have
   - **User Story**: US7
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (modify, same file as T277)
@@ -2761,7 +2761,7 @@ and accurate.
   - **Verification**: Covered by T294
   - **Dependencies**: T215, T277
 
-- [ ] T283 [US1] Settings dialog — final integration
+- [X] T283 [US1] Settings dialog — final integration
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (modify, same file as T277)
@@ -2770,7 +2770,7 @@ and accurate.
   - **Verification**: Covered by T294
   - **Dependencies**: T129, T277
 
-- [ ] T284 [US10] `DashboardAdminPanel` — dashboard management list
+- [X] T284 [US10] `DashboardAdminPanel` — dashboard management list
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/dashboards/components/DashboardAdminPanel.tsx` (new)
@@ -2779,7 +2779,7 @@ and accurate.
   - **Verification**: `npx tsc --noEmit`; covered by T292
   - **Dependencies**: T091
 
-- [ ] T285 [US10] `DashboardAdminPanel` — usage analytics
+- [X] T285 [US10] `DashboardAdminPanel` — usage analytics
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/dashboards/components/DashboardAdminPanel.tsx` (modify, same file as T284)
@@ -2788,7 +2788,7 @@ and accurate.
   - **Verification**: Covered by T292
   - **Dependencies**: T041, T284
 
-- [ ] T286 [US10] `DashboardAdminPanel` — audit log view
+- [X] T286 [US10] `DashboardAdminPanel` — audit log view
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/dashboards/components/DashboardAdminPanel.tsx` (modify, same file as T284)
@@ -2797,7 +2797,7 @@ and accurate.
   - **Verification**: Covered by T292
   - **Dependencies**: T284
 
-- [ ] T287 [US10] `DashboardAdminPanel` — performance metrics
+- [X] T287 [US10] `DashboardAdminPanel` — performance metrics
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/dashboards/components/DashboardAdminPanel.tsx` (modify, same file as T284)
@@ -2806,7 +2806,7 @@ and accurate.
   - **Verification**: Covered by T292
   - **Dependencies**: T284
 
-- [ ] T288 [US10] `DashboardAdminPanel` — Project-Owner-only access gate
+- [X] T288 [US10] `DashboardAdminPanel` — Project-Owner-only access gate
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/dashboards/components/DashboardAdminPanel.tsx` (modify, same file as T284)
@@ -2815,7 +2815,7 @@ and accurate.
   - **Verification**: Covered by T292
   - **Dependencies**: T011, T284
 
-- [ ] T289 [US1] Loading states audit
+- [X] T289 [US1] Loading states audit
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/DashboardListPage.tsx`, `DashboardView.tsx`, `WidgetRenderer.tsx` (all verify/modify)
@@ -2824,7 +2824,7 @@ and accurate.
   - **Verification**: Covered by T293
   - **Dependencies**: T126, T135, T146
 
-- [ ] T290 [US1] Error states — top-level boundary + `lastError` banners
+- [X] T290 [US1] Error states — top-level boundary + `lastError` banners
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (modify, same file as T277)
@@ -2833,7 +2833,7 @@ and accurate.
   - **Verification**: Covered by T293
   - **Dependencies**: T109, T277
 
-- [ ] T291 [US1] Empty states audit
+- [X] T291 [US1] Empty states audit
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/DashboardListPage.tsx`, `ReportHistoryPanel.tsx`, `DashboardShareDialog.tsx`, `ScheduledReportsPanel.tsx`, `TemplatePicker.tsx` (all verify)
@@ -2842,7 +2842,7 @@ and accurate.
   - **Verification**: Covered by T293
   - **Dependencies**: T140, T201, T217, T204
 
-- [ ] T292 [P] [US10] Component tests — `DashboardAdminPanel`
+- [X] T292 [P] [US10] Component tests — `DashboardAdminPanel`
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/dashboards/components/__tests__/DashboardAdminPanel.test.tsx` (new)
@@ -2851,7 +2851,7 @@ and accurate.
   - **Verification**: `npm run test -- DashboardAdminPanel`
   - **Dependencies**: T285, T286, T287, T288
 
-- [ ] T293 [P] [US1] Component tests — loading/error/empty states
+- [X] T293 [P] [US1] Component tests — loading/error/empty states
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/__tests__/DashboardView.states.test.tsx` (new)
@@ -2860,7 +2860,7 @@ and accurate.
   - **Verification**: `npm run test -- DashboardView.states`
   - **Dependencies**: T289, T290, T291
 
-- [ ] T294 [P] [US1] Integration test — full page navigation/integration flow
+- [X] T294 [P] [US1] Integration test — full page navigation/integration flow
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/__tests__/dashboardIntegration.test.tsx` (new)
@@ -2869,7 +2869,7 @@ and accurate.
   - **Verification**: `npm run test -- dashboardIntegration`
   - **Dependencies**: T277–T283
 
-- [ ] T295 [P] [US10] Integration test — full Administration flow
+- [X] T295 [P] [US10] Integration test — full Administration flow
   - **Priority**: Must-have
   - **User Story**: US10
   - **Files**: `src/features/dashboards/__tests__/administration.integration.test.tsx` (new)
@@ -2878,7 +2878,7 @@ and accurate.
   - **Verification**: `npm run test -- administration.integration`
   - **Dependencies**: T292
 
-- [ ] T296 [US1] Keyboard navigation audit — fully-integrated `DashboardView`
+- [X] T296 [US1] Keyboard navigation audit — fully-integrated `DashboardView`
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (verification, from T277)
@@ -2887,7 +2887,7 @@ and accurate.
   - **Verification**: Manual keyboard-only pass, documented in the PR; automated in T298
   - **Dependencies**: T277–T283
 
-- [ ] T297 [US1] ARIA labels audit — fully-integrated `DashboardView`
+- [X] T297 [US1] ARIA labels audit — fully-integrated `DashboardView`
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (verification, same file as T296)
@@ -2896,7 +2896,7 @@ and accurate.
   - **Verification**: Covered by T298
   - **Dependencies**: T296
 
-- [ ] T298 [P] [US1] Full-page accessibility test
+- [X] T298 [P] [US1] Full-page accessibility test
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: `src/features/dashboards/components/__tests__/DashboardView.a11y.test.tsx` (new)
@@ -2905,7 +2905,7 @@ and accurate.
   - **Verification**: `npm run test -- DashboardView.a11y`
   - **Dependencies**: T296, T297
 
-- [ ] T299 [US3] Responsive integration confirmation
+- [X] T299 [US3] Responsive integration confirmation
   - **Priority**: Must-have
   - **User Story**: US3
   - **Files**: `src/features/dashboards/components/DashboardView.tsx` (verification, same file as T277)
@@ -2914,7 +2914,7 @@ and accurate.
   - **Verification**: Covered by T294
   - **Dependencies**: T006, T277–T283
 
-- [ ] T300 [US1] Checkpoint (Phase 16)
+- [X] T300 [US1] Checkpoint (Phase 16)
   - **Priority**: Must-have
   - **User Story**: US1
   - **Files**: None (verification-only task)

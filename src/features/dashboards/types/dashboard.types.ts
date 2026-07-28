@@ -123,3 +123,31 @@ export interface AnalyticsSnapshotResponse {
   computedAt: string
   isCached: boolean
 }
+
+/** `GET /api/projects/:projectId/dashboards/admin` row shape (US10/T284). */
+export interface AdminDashboardRow {
+  id: string
+  name: string
+  ownerId: string
+  visibility: "private" | "public"
+  shareCount: number
+  widgets: { id: string; title: string | null; type: string }[]
+  createdAt: string
+  updatedAt: string
+}
+
+/** US10/T285 usage analytics — see `dashboardAdminRepository.getUsageAnalytics`'s docstring for why `activityCountByDashboard` is a documented proxy for "view counts," not a literal page-view metric. */
+export interface UsageAnalytics {
+  activityCountByDashboard: { dashboardId: string; count: number }[]
+  mostUsedWidgetTypes: { type: string; count: number }[]
+}
+
+/** One `Activity` row as returned by the admin audit log (US10/T286) — a minimal client-facing shape, mirroring `ActivityWidget`'s own local type rather than importing server Prisma types. */
+export interface AuditLogEntry {
+  id: string
+  userId: string
+  action: string
+  targetType: string
+  targetId: string | null
+  createdAt: string
+}

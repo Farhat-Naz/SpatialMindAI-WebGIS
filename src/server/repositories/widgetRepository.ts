@@ -3,7 +3,7 @@ import { prismaClient } from "@/server/db/prismaClient"
 import { assertDashboardPermission } from "@/server/repositories/dashboardShareRepository"
 import { listFeaturesForLayer } from "@/server/repositories/featureRepository"
 import { getAnalysisRunById } from "@/server/repositories/analysisRepository"
-import { listActivityForProject } from "@/server/repositories/activityRepository"
+import { listActivityForProject, recordActivity } from "@/server/repositories/activityRepository"
 import { getSnapshot } from "@/server/repositories/dashboardAnalyticsRepository"
 import { sanitizeWidgetHtml } from "@/shared/lib/sanitizeHtml"
 import { widgetConfigSchemaFor, type WidgetTypeInput } from "@/shared/contracts/widget.schema"
@@ -123,6 +123,16 @@ export async function addWidget(
       },
     })
 
+    // research.md Decision 11 — FR-042 audit logging.
+    const dashboard = await tx.dashboard.findUniqueOrThrow({ where: { id: dashboardId }, select: { projectId: true } })
+    await recordActivity(tx, {
+      projectId: dashboard.projectId,
+      userId,
+      action: "create",
+      targetType: "widget",
+      targetId: createdWidget.id,
+    })
+
     const breakpoints: ("desktop" | "tablet" | "mobile")[] = ["desktop", "tablet", "mobile"]
     const createdLayouts = []
     for (const breakpoint of breakpoints) {
@@ -173,16 +183,34 @@ export async function updateWidget(
 
   const config = input.config !== undefined ? validateAndSanitizeConfig(existing.type as WidgetTypeInput, input.config) : undefined
 
-  const row = await prismaClient.dashboardWidget.update({
-    where: { id: widgetId },
-    data: {
-      ...(input.title !== undefined ? { title: input.title } : {}),
-      ...(input.dataSourceType !== undefined ? { dataSourceType: input.dataSourceType } : {}),
-      ...(input.dataSourceId !== undefined ? { dataSourceId: input.dataSourceId } : {}),
-      ...(config !== undefined ? { config: config as Prisma.InputJsonValue } : {}),
-      ...(input.groupId !== undefined ? { groupId: input.groupId } : {}),
-      ...(input.isCollapsed !== undefined ? { isCollapsed: input.isCollapsed } : {}),
-    },
+  // research.md Decision 11 — FR-042 audit logging, but only for a
+  // meaningful configuration change; `isCollapsed`'s display-state toggle
+  // (WidgetRenderer's expand/collapse button) is not itself an auditable
+  // edit, so a collapse/expand-only update logs nothing.
+  const isMeaningfulEdit =
+    input.title !== undefined ||
+    input.dataSourceType !== undefined ||
+    input.dataSourceId !== undefined ||
+    config !== undefined ||
+    input.groupId !== undefined
+
+  const row = await prismaClient.$transaction(async (tx) => {
+    const updated = await tx.dashboardWidget.update({
+      where: { id: widgetId },
+      data: {
+        ...(input.title !== undefined ? { title: input.title } : {}),
+        ...(input.dataSourceType !== undefined ? { dataSourceType: input.dataSourceType } : {}),
+        ...(input.dataSourceId !== undefined ? { dataSourceId: input.dataSourceId } : {}),
+        ...(config !== undefined ? { config: config as Prisma.InputJsonValue } : {}),
+        ...(input.groupId !== undefined ? { groupId: input.groupId } : {}),
+        ...(input.isCollapsed !== undefined ? { isCollapsed: input.isCollapsed } : {}),
+      },
+    })
+    if (isMeaningfulEdit) {
+      const dashboard = await tx.dashboard.findUniqueOrThrow({ where: { id: existing.dashboardId }, select: { projectId: true } })
+      await recordActivity(tx, { projectId: dashboard.projectId, userId, action: "edit", targetType: "widget", targetId: widgetId })
+    }
+    return updated
   })
   return toWidgetRecord(row)
 }
@@ -194,7 +222,12 @@ export async function deleteWidget(widgetId: string, userId: string): Promise<vo
     throw new NotFoundError(`No widget found with id "${widgetId}".`)
   }
   await assertDashboardPermission(existing.dashboardId, userId, "edit")
-  await prismaClient.dashboardWidget.delete({ where: { id: widgetId } })
+
+  await prismaClient.$transaction(async (tx) => {
+    await tx.dashboardWidget.delete({ where: { id: widgetId } })
+    const dashboard = await tx.dashboard.findUniqueOrThrow({ where: { id: existing.dashboardId }, select: { projectId: true } })
+    await recordActivity(tx, { projectId: dashboard.projectId, userId, action: "delete", targetType: "widget", targetId: widgetId })
+  })
 }
 
 export interface SaveLayoutInput {

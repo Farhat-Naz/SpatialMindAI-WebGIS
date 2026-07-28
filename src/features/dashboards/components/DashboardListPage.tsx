@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import Link from "next/link"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,6 +14,7 @@ import {
 } from "@/shared/components/ui/alert-dialog"
 import { Button } from "@/shared/components/ui/button"
 import { useDashboards, useDeleteDashboard, useDuplicateDashboard, useSetFavorite } from "../hooks/useDashboards"
+import { useDashboardAdminOverview } from "../hooks/useDashboardAdmin"
 import type { DashboardRecord } from "../types/dashboard.types"
 import { CreateDashboardDialog } from "./CreateDashboardDialog"
 
@@ -38,6 +40,12 @@ export function DashboardListPage({ projectId, onOpenDashboard }: DashboardListP
   const deleteDashboard = useDeleteDashboard(projectId)
   const duplicateDashboard = useDuplicateDashboard(projectId)
   const setFavorite = useSetFavorite(projectId)
+  // T288 — the "hidden navigation" half of the Administration access gate:
+  // this query is itself Project-Owner-gated server-side, so its success/
+  // failure is the same authoritative signal that decides whether the link
+  // even appears; there is no separate, potentially-divergent client-only
+  // permission flag to keep in sync with it.
+  const adminOverview = useDashboardAdminOverview(projectId)
 
   const dashboards = data?.dashboards ?? EMPTY_DASHBOARDS
   const filtered = useMemo(() => {
@@ -58,7 +66,14 @@ export function DashboardListPage({ projectId, onOpenDashboard }: DashboardListP
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-lg font-semibold">Dashboards</h2>
-        <CreateDashboardDialog projectId={projectId} onCreated={onOpenDashboard} />
+        <div className="flex items-center gap-2">
+          {adminOverview.isSuccess && (
+            <Button type="button" variant="outline" size="sm" asChild>
+              <Link href={`/projects/${projectId}/dashboards/admin`}>Administration</Link>
+            </Button>
+          )}
+          <CreateDashboardDialog projectId={projectId} onCreated={onOpenDashboard} />
+        </div>
       </div>
 
       <div className="flex items-center gap-2">

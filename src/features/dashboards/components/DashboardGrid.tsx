@@ -35,6 +35,7 @@ interface DashboardGridProps {
  */
 export function DashboardGrid({ dashboardId, widgets, layouts, activeBreakpoint, canEdit }: DashboardGridProps) {
   const isEditMode = useDashboardBuilderStore((state) => state.isEditMode)
+  const setLastError = useDashboardBuilderStore((state) => state.setLastError)
   const saveLayout = useSaveLayout(dashboardId)
   const updateWidget = useUpdateWidget(dashboardId)
   const { width, containerRef, mounted } = useContainerWidth()
@@ -57,12 +58,23 @@ export function DashboardGrid({ dashboardId, widgets, layouts, activeBreakpoint,
 
   const persist = useCallback(
     (next: Layout) => {
-      saveLayout.mutate({
-        breakpoint: activeBreakpoint,
-        items: next.map((item) => ({ widgetId: item.i, x: item.x, y: item.y, w: item.w, h: item.h })),
-      })
+      saveLayout.mutate(
+        {
+          breakpoint: activeBreakpoint,
+          items: next.map((item) => ({ widgetId: item.i, x: item.x, y: item.y, w: item.w, h: item.h })),
+        },
+        {
+          // T290 — a layout-save failure is a dashboard-level ("non-widget")
+          // failure: nothing about any single widget's own render is wrong,
+          // so it surfaces via `dashboardBuilderStore.lastError`'s banner
+          // rather than any per-widget error state.
+          onError: (error) => {
+            setLastError(error instanceof Error ? error.message : "Failed to save the layout change.")
+          },
+        },
+      )
     },
-    [saveLayout, activeBreakpoint],
+    [saveLayout, activeBreakpoint, setLastError],
   )
 
   function moveOrResizeByKeyboard(widgetId: string, delta: Partial<{ x: number; y: number; w: number; h: number }>) {
